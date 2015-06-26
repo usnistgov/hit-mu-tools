@@ -1,0 +1,12 @@
+{
+    "version"	: "1.0-beta",
+    "igVersion":"V2_IG_LTCF_R2_DSTU_R1.1_2014MAR",
+    "name"	:"Lab Order Interface",
+    "domain"		:"NIST HL7 V2 Validation tool - Laboratory Orders from EHR, Release 1 - US Realm",
+    "adminEmail"	:"robert.snelick@nist.gov",
+    "description"	:"(LOI)",
+    "header" 	:"Lab Order Interface Tool @ NIST",
+    "homeTitle":"Welcome to the NIST Lab Order Interface Validation Suite",
+    "homeContent":"<p>The NIST Lab Order Interface Validation Suite is intended for use by LOI pilots. The validation suite provides functionality to test LOI senders.</p><p>NOTE: The tool is in development stage and will be updated frequently and without notice. The developers will periodically update the tool to match the state of the implementation guide. The tool at this point is to help pilots test their system and to identify issues in the LOI implementation guide.</p><p>A Google Group () has been established for discussion/questions of the Implementation Guide, testing tool and testing issues. No membership is required. A google account is required for posting.<ul style='padding-left:40px'><li>Site:<a href='https://groups.google.com/forum/?hl=en#!forum/hl7v2-lab-orders-interface-testing'>https://groups.google.com/forum/?hl=en#!forum/hl7v2-lab-orders-interface-testing</a></li><li>Email: hl7v2-lab-orders-interface-testing@googlegroup.com</li></ul><p style='color:red'>The following browsers are supported: Internet Explorer versions 8 and 9, Firefox, and Chrome. Recommended browsers are Internet Explorer 9, Firefox and Chrome.</p>"
+
+}
