@@ -147,7 +147,7 @@ public class Bootstrap {
       vocabularyLibraries();
       integrationProfiles();
       cf();
-      // cb();
+      cb();
       obm = new ObjectMapper();
       logger.info("...Bootstrapping completed");
     } catch (IOException e) {
