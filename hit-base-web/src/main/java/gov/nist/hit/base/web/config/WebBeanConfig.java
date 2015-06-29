@@ -41,12 +41,12 @@ public class WebBeanConfig {
   // }
   //
   //
-  // return new Er7MessageParserImpl();
+  // return new Er7MessageParser();
   // }
 
   // @Bean
   // public MessageValidator er7Validator() {
-  // return new Er7MessageValidatorImpl();
+  // return new Er7MessageValidator();
   // }
 
 
@@ -59,14 +59,14 @@ public class WebBeanConfig {
 
   // @Bean
   // public Er7MessageParser er7Parser() {
-  // return new Er7MessageParserImpl();
+  // return new Er7MessageParser();
   // }
 
 
   //
   // @Bean
   // public Er7ValidationReportGenerator er7ReportGenerator() {
-  // return new Er7ValidationReportGeneratorImpl();
+  // return new Er7ValidationReportGenerator();
   // }
 
   // @Bean

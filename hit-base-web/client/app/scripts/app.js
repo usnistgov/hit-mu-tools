@@ -28,8 +28,9 @@ var app = angular.module('hit-tool', [
     'hit-tool-services',
     'commonServices',
     'smart-table',
-    'doc',
-    'ngMockE2E'
+    'doc'
+//    ,
+//    'ngMockE2E'
 ]);
 
 app.config(function ($routeProvider, $httpProvider) {

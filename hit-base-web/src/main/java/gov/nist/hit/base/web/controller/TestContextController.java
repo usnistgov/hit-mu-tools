@@ -13,8 +13,8 @@
 package gov.nist.hit.base.web.controller;
 
 import gov.nist.hit.base.web.model.MessageCommand;
+import gov.nist.hit.core.domain.Json;
 import gov.nist.hit.core.domain.TestContext;
-import gov.nist.hit.core.domain.ValidationResult;
 import gov.nist.hit.core.repo.TestCaseRepository;
 import gov.nist.hit.core.repo.TestContextRepository;
 import gov.nist.hit.core.repo.TestStepRepository;
@@ -95,15 +95,15 @@ public class TestContextController {
   }
 
   @RequestMapping(value = "/{testContextId}/validateMessage", method = RequestMethod.POST)
-  public ValidationResult validate(@PathVariable final Long testContextId,
+  public Json validate(@PathVariable final Long testContextId,
       @RequestBody final MessageCommand command) throws MessageValidationException {
     try {
       TestContext testContext = testContext(testContextId);
-      ValidationResult res =
+      String res =
           messageValidator.validate(command.getName(), getMessageContent(command), testContext
               .getProfile().getXml(), testContext.getConstraints().getXml(), testContext
               .getVocabularyLibrary().getXml());
-      return res;
+      return new Json(res);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
     } catch (MessageValidationException e) {

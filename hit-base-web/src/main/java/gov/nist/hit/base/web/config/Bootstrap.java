@@ -41,7 +41,6 @@ import gov.nist.hit.core.service.ValueSetLibrarySerializer;
 import gov.nist.hit.core.service.exception.ProfileParserException;
 import gov.nist.hit.core.service.impl.ValueSetLibrarySerializerImpl;
 import gov.nist.hit.core.service.util.FileUtil;
-import gov.nist.hit.rsb.ResourceBundle;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -101,7 +100,7 @@ public class Bootstrap {
   Map<String, VocabularyLibrary> vocabLibraryMap = new HashMap<String, VocabularyLibrary>();
   Map<String, Constraints> constraintMap = new HashMap<String, Constraints>();
 
-  ResourceBundleHelper resourceBundleHelper = new ResourceBundleHelper(ResourceBundle.class);
+  ResourceBundleHelper resourceBundleHelper = new ResourceBundleHelper(Bootstrap.class);
 
   @Autowired
   TestPlanRepository testPlanRepository;
