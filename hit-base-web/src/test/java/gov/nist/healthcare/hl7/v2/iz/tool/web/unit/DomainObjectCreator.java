@@ -13,7 +13,7 @@
 package gov.nist.healthcare.hl7.v2.iz.tool.web.unit;
 
 import gov.nist.hit.core.domain.Message;
-import gov.nist.hit.core.domain.Profile;
+import gov.nist.hit.core.domain.IntegrationProfile;
 import gov.nist.hit.core.domain.VocabularyLibrary;
 
 import java.io.IOException;
@@ -37,13 +37,13 @@ public class DomainObjectCreator {
     return tableLibrary;
   }
 
-  public Profile getProfile() throws IOException {
-    Profile profile = new Profile();
-    profile.setId(new Random().nextLong());
-    profile.setName("Profile-ELR");
-    profile.setXml(IOUtils.toString(DomainObjectCreator.class
+  public IntegrationProfile getProfile() throws IOException {
+    IntegrationProfile integrationProfile = new IntegrationProfile();
+    integrationProfile.setId(new Random().nextLong());
+    integrationProfile.setName("IntegrationProfile-ELR");
+    integrationProfile.setXml(IOUtils.toString(DomainObjectCreator.class
         .getResourceAsStream("/profiles/ELR.xml")));
-    return profile;
+    return integrationProfile;
   }
 
   public Message getMessage() throws IOException {

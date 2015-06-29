@@ -12,21 +12,10 @@
 package gov.nist.healthcare.hl7.v2.iz.tool.web.unit;
 
 import gov.nist.hit.base.web.controller.CFTestingController;
-import gov.nist.hit.core.domain.CFTestObject;
-import gov.nist.hit.core.domain.Constraints;
-import gov.nist.hit.core.domain.Message;
-import gov.nist.hit.core.domain.Profile;
-import gov.nist.hit.core.domain.TestContext;
 import gov.nist.hit.core.repo.CFTestObjectRepository;
-import gov.nist.hit.core.repo.ProfileRepository;
+import gov.nist.hit.core.repo.IntegrationProfileRepository;
 import gov.nist.hit.core.repo.TestContextRepository;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -50,7 +39,7 @@ public class CFTestingControllerTest {
   CFTestObjectRepository testObjectRepository;
 
   @Mock
-  ProfileRepository profileRepository;
+  IntegrationProfileRepository integrationProfileRepository;
 
   @Mock
   TestContextRepository testContextRepository;
@@ -206,46 +195,46 @@ public class CFTestingControllerTest {
   // // verifyNoMoreInteractions(mockProfileRepository);
   // }
 
-  private CFTestObject create() throws IOException {
-    CFTestObject tc = new CFTestObject();
-    tc.setId(new Random().nextLong());
-    tc.setName("IZ-TC-1");
-    TestContext testContext = new TestContext();
-    tc.setTestContext(testContext);
-    testContext.setProfile(getProfile());
-    testContext.setConstraints(getConstraints());
-    return tc;
-  }
-
-  private List<CFTestObject> getTestCases() throws IOException {
-    List<CFTestObject> res = new ArrayList<CFTestObject>();
-    for (int i = 0; i < 3; i++) {
-      res.add(create());
-    }
-    return res;
-  }
-
-  public Message getMessage() throws IOException {
-    Message message = new Message();
-    message.setId(new Random().nextLong());
-    message.setName("IZ-TC-" + new Random().nextInt());
-    message.setContent(IOUtils.toString(CFTestingControllerTest.class
-        .getResourceAsStream("/messages/ELR.txt")));
-    return message;
-  }
-
-  public Profile getProfile() throws IOException {
-    Profile profile = new Profile();
-    profile.setId(new Random().nextLong());
-    profile.setName("New Validation Profile");
-    profile.setXml(IOUtils.toString(CFTestingControllerTest.class
-        .getResourceAsStream("/profiles/Profile.xml")));
-    return profile;
-  }
-
-  public Constraints getConstraints() throws IOException {
-    return new Constraints(IOUtils.toString(CFTestingControllerTest.class
-        .getResourceAsStream("/profiles/Constraints.xml")));
-  }
+  // private CFTestObject create() throws IOException {
+  // CFTestObject tc = new CFTestObject();
+  // tc.setId(new Random().nextLong());
+  // tc.setName("IZ-TC-1");
+  // TestContext testContext = new TestContext();
+  // tc.setTestContext(testContext);
+  // testContext.setProfile(getProfile());
+  // testContext.setConstraints(getConstraints());
+  // return tc;
+  // }
+  //
+  // private List<CFTestObject> getTestCases() throws IOException {
+  // List<CFTestObject> res = new ArrayList<CFTestObject>();
+  // for (int i = 0; i < 3; i++) {
+  // res.add(create());
+  // }
+  // return res;
+  // }
+  //
+  // public Message getMessage() throws IOException {
+  // Message message = new Message();
+  // message.setId(new Random().nextLong());
+  // message.setName("IZ-TC-" + new Random().nextInt());
+  // message.setContent(IOUtils.toString(CFTestingControllerTest.class
+  // .getResourceAsStream("/messages/ELR.txt")));
+  // return message;
+  // }
+  //
+  // public IntegrationProfile getProfile() throws IOException {
+  // IntegrationProfile integrationProfile = new IntegrationProfile();
+  // integrationProfile.setId(new Random().nextLong());
+  // integrationProfile.setName("New Validation IntegrationProfile");
+  // integrationProfile.setXml(IOUtils.toString(CFTestingControllerTest.class
+  // .getResourceAsStream("/profiles/IntegrationProfile.xml")));
+  // return integrationProfile;
+  // }
+  //
+  // public Constraints getConstraints() throws IOException {
+  // return new Constraints(IOUtils.toString(CFTestingControllerTest.class
+  // .getResourceAsStream("/profiles/Constraints.xml")));
+  // }
 
 }

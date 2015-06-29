@@ -88,7 +88,8 @@ public class TestContextController {
       logger.info("Parsing message");
       TestContext testContext = testContext(testContextId);
       String message = getMessageContent(command);
-      return messageParser.parse(message, testContext.getProfile().getXml()).getElements();
+      return messageParser.parse(message,
+          testContext.getConformanceProfile().getIntegrationProfile().getXml()).getElements();
     } catch (MessageException e) {
       throw new MessageParserException(e.getMessage());
     }
@@ -101,8 +102,8 @@ public class TestContextController {
       TestContext testContext = testContext(testContextId);
       String res =
           messageValidator.validate(command.getName(), getMessageContent(command), testContext
-              .getProfile().getXml(), testContext.getConstraints().getXml(), testContext
-              .getVocabularyLibrary().getXml());
+              .getConformanceProfile().getIntegrationProfile().getXml(), testContext
+              .getConstraints().getXml(), testContext.getVocabularyLibrary().getXml());
       return new Json(res);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());

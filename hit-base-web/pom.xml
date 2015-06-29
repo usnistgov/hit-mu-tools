@@ -217,7 +217,7 @@
 		</dependency>
 
 		
-<!--  <dependency>
+  <dependency>
 			<artifactId>hit-example-resource-bundle</artifactId>
  			<groupId>gov.nist.hit.example.resource</groupId>
  			<version>1.0.0-SNAPSHOT</version>
@@ -227,7 +227,7 @@
 			<groupId>gov.nist.hit.core.hl7v2</groupId>
 			<artifactId>hit-core-hl7v2-service</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency>  -->
+		</dependency>  
 		
 
 	</dependencies>

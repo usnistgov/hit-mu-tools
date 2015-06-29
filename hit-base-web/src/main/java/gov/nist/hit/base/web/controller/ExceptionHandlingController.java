@@ -89,7 +89,7 @@ public class ExceptionHandlingController {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public String profileParserExeption(ProfileParserException ex) {
     logger.debug(ex.getMessage());
-    return "Sorry, profile cannot be parsed.\n";
+    return "Sorry, integrationProfile cannot be parsed.\n";
   }
 
 

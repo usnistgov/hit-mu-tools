@@ -12,12 +12,12 @@
 
 package gov.nist.hit.base.web.config;
 
-import gov.nist.hit.base.web.util.ResourceBundleHelper;
 import gov.nist.hit.core.domain.AppInfo;
 import gov.nist.hit.core.domain.CFTestObject;
+import gov.nist.hit.core.domain.ConformanceProfile;
 import gov.nist.hit.core.domain.Constraints;
+import gov.nist.hit.core.domain.IntegrationProfile;
 import gov.nist.hit.core.domain.Message;
-import gov.nist.hit.core.domain.Profile;
 import gov.nist.hit.core.domain.ProfileModel;
 import gov.nist.hit.core.domain.Stage;
 import gov.nist.hit.core.domain.TestArtifact;
@@ -31,8 +31,8 @@ import gov.nist.hit.core.domain.VocabularyLibrary;
 import gov.nist.hit.core.repo.AppInfoRepository;
 import gov.nist.hit.core.repo.CFTestObjectRepository;
 import gov.nist.hit.core.repo.ConstraintsRepository;
+import gov.nist.hit.core.repo.IntegrationProfileRepository;
 import gov.nist.hit.core.repo.MessageRepository;
-import gov.nist.hit.core.repo.ProfileRepository;
 import gov.nist.hit.core.repo.TestPlanRepository;
 import gov.nist.hit.core.repo.TestStepRepository;
 import gov.nist.hit.core.repo.VocabularyLibraryRepository;
@@ -40,6 +40,7 @@ import gov.nist.hit.core.service.ProfileParser;
 import gov.nist.hit.core.service.ValueSetLibrarySerializer;
 import gov.nist.hit.core.service.exception.ProfileParserException;
 import gov.nist.hit.core.service.util.FileUtil;
+import gov.nist.hit.core.service.util.ResourceBundleHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -65,6 +66,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -95,7 +97,7 @@ public class Bootstrap {
 
   final static String ABOUT_PATTERN = "About/";
 
-  Map<String, Profile> profileMap = new HashMap<String, Profile>();
+  Map<String, IntegrationProfile> profileMap = new HashMap<String, IntegrationProfile>();
   Map<String, VocabularyLibrary> vocabLibraryMap = new HashMap<String, VocabularyLibrary>();
   Map<String, Constraints> constraintMap = new HashMap<String, Constraints>();
 
@@ -121,7 +123,7 @@ public class Bootstrap {
 
 
   @Autowired
-  ProfileRepository profileRepository;
+  IntegrationProfileRepository integrationProfileRepository;
 
   @Autowired
   VocabularyLibraryRepository vocabularyLibraryRepository;
@@ -143,9 +145,9 @@ public class Bootstrap {
       appInfo();
       constraints();
       vocabularyLibraries();
-      profiles();
+      integrationProfiles();
       cf();
-      cb();
+      // cb();
       obm = new ObjectMapper();
       logger.info("...Bootstrapping completed");
     } catch (IOException e) {
@@ -182,9 +184,9 @@ public class Bootstrap {
   // }
 
   private void appInfo() throws JsonProcessingException, IOException {
-    Resource resource = resourceBundleHelper.getResource(ABOUT_PATTERN + "Metadata.json");
+    Resource resource = resourceBundleHelper.getResource(ABOUT_PATTERN + "MetaData.json");
     if (resource == null)
-      throw new RuntimeException("No Metadata.json found in the resource bundle");
+      throw new RuntimeException("No MetaData.json found in the resource bundle");
 
     AppInfo appInfo = new AppInfo();
     ObjectMapper mapper = new ObjectMapper();
@@ -210,12 +212,11 @@ public class Bootstrap {
     }
   }
 
-  private void profiles() throws IOException {
+  private void integrationProfiles() throws IOException {
     List<Resource> resources = resourceBundleHelper.getResources(PROFILE_PATTERN + "*");
     for (Resource resource : resources) {
-      String content = FileUtil.getContent(resource);
-      Profile p = profile(content);
-      profileMap.put(p.getSourceId(), p);
+      IntegrationProfile integrationProfile = integrationProfile(FileUtil.getContent(resource));
+      integrationProfileRepository.save(integrationProfile);
     }
   }
 
@@ -254,22 +255,33 @@ public class Bootstrap {
     }
     Constraints constraints = new Constraints();
     constraints.setXml(FileUtil.getContent(resource));
-    constraintsRepository.save(constraints);
     return constraints;
   }
 
-  private Profile profile(String content) {
+  private IntegrationProfile integrationProfile(String content) {
     Document doc = this.stringToDom(content);
-    Profile profile = new Profile();
+    IntegrationProfile integrationProfile = new IntegrationProfile();
     Element profileElement = (Element) doc.getElementsByTagName("ConformanceProfile").item(0);
-    profile.setType(profileElement.getAttribute("Type"));
-    profile.setHl7Version(profileElement.getAttribute("HL7Version"));
-    profile.setSchemaVersion(profileElement.getAttribute("SchemaVersion"));
-    profile.setSourceId(profileElement.getAttribute("ID"));
-    Element metaDataElement = (Element) profileElement.getElementsByTagName("Metadata").item(0);
-    profile.setName(metaDataElement.getAttribute("Name"));
-    profile.setXml(content);
-    return profile;
+    // integrationProfile.setType(profileElement.getAttribute("Type"));
+    // integrationProfile.setHl7Version(profileElement.getAttribute("HL7Version"));
+    // integrationProfile.setSchemaVersion(profileElement.getAttribute("SchemaVersion"));
+    integrationProfile.setSourceId(profileElement.getAttribute("ID"));
+    Element metaDataElement = (Element) profileElement.getElementsByTagName("MetaData").item(0);
+    integrationProfile.setName(metaDataElement.getAttribute("Name"));
+    integrationProfile.setXml(content);
+    Element conformanceProfilElementRoot =
+        (Element) profileElement.getElementsByTagName("Messages").item(0);
+    NodeList messages = conformanceProfilElementRoot.getElementsByTagName("Message");
+    for (int j = 0; j < messages.getLength(); j++) {
+      Element elmCode = (Element) messages.item(j);
+      String id = elmCode.getAttribute("ID");
+      if (profileMap.containsKey(id)) {
+        throw new RuntimeException("Found duplicate conformance profile ID " + id);
+      }
+      profileMap.put(id, integrationProfile);
+    }
+
+    return integrationProfile;
   }
 
 
@@ -277,7 +289,6 @@ public class Bootstrap {
     if (content != null) {
       Message m = new Message();
       m.setContent(content);
-      messageRepository.save(m);
       return m;
     }
     return null;
@@ -393,32 +404,12 @@ public class Bootstrap {
     JsonNode testPlanObj = mapper.readTree(descriptorContent);
     parent.setName(testPlanObj.findValue("name").getTextValue());
     parent.setDescription(testPlanObj.findValue("description").getTextValue());
-    JsonNode profileId = testPlanObj.findValue("profileId");
+    JsonNode messageId = testPlanObj.findValue("messageId");
     JsonNode constraintId = testPlanObj.findValue("constraintId");
     JsonNode valueSetLibraryId = testPlanObj.findValue("valueSetLibraryId");
-    if (profileId != null && constraintId != null && valueSetLibraryId != null) {
-      TestContext testContext = new TestContext();
-      parent.setTestContext(testContext);
-      Profile profile = getProfile(profileId.getTextValue());
-      testContext.setProfile(profile);
-      testContext.setConstraints(getConstraints(constraintId.getTextValue()));
-      testContext.setVocabularyLibrary((getVocabularyLibrary(valueSetLibraryId.getTextValue())));
-      testContext.setAddditionalConstraints(additionalConstraints(testObjectPath));
-      testContext.setMessage(message(FileUtil.getContent(resourceBundleHelper
-          .getResource(testObjectPath + "Message.txt"))));
-      try {
-        String json =
-            parseProfile(profile.getXml(), testContext.getConstraints().getXml(),
-                testContext.getAddditionalConstraints() != null ? testContext
-                    .getAddditionalConstraints().getXml() : null);
-        profile.setJson(json);
-        profileRepository.save(profile);
-
-      } catch (ProfileParserException e) {
-        throw new RuntimeException("Failed to parse profile at " + testObjectPath);
-      }
+    if (messageId != null && constraintId != null && valueSetLibraryId != null) {
+      parent.setTestContext(testContext(testObjectPath, testPlanObj));
     }
-
     List<Resource> resources = resourceBundleHelper.getDirectories(testObjectPath + "*/");
     for (Resource resource : resources) {
       String fileName = fileName(resource);
@@ -426,15 +417,46 @@ public class Bootstrap {
       CFTestObject testObject = cfTestObject(location);
       parent.getChildren().add(testObject);
     }
-
     return parent;
   }
 
-  public String parseProfile(String profileXml, String constraintsXml,
-      String additionalConstraintsXml) throws ProfileParserException, JsonProcessingException,
+  private TestContext testContext(String path, JsonNode parentObj) throws IOException {
+    TestContext testContext = new TestContext();
+    JsonNode messageId = parentObj.findValue("messageId");
+    JsonNode constraintId = parentObj.findValue("constraintId");
+    JsonNode valueSetLibraryId = parentObj.findValue("valueSetLibraryId");
+    if (messageId != null && valueSetLibraryId != null) {
+      if (constraintId != null) {
+        testContext.setConstraints(getConstraints(constraintId.getTextValue()));
+      }
+      testContext.setVocabularyLibrary((getVocabularyLibrary(valueSetLibraryId.getTextValue())));
+      testContext.setAddditionalConstraints(additionalConstraints(path));
+      testContext.setMessage(message(FileUtil.getContent(resourceBundleHelper.getResource(path
+          + "Message.txt"))));
+      try {
+        ConformanceProfile conformanceProfile = new ConformanceProfile();
+        IntegrationProfile integrationProfile = getIntegrationProfile(messageId.getTextValue());
+        conformanceProfile.setJson(generateJsonConformanceProfile(integrationProfile.getXml(),
+            messageId.getTextValue(), testContext.getConstraints() != null ? testContext
+                .getConstraints().getXml() : null,
+            testContext.getAddditionalConstraints() != null ? testContext
+                .getAddditionalConstraints().getXml() : null));
+        conformanceProfile.setIntegrationProfile(integrationProfile);
+        testContext.setConformanceProfile(conformanceProfile);
+      } catch (ProfileParserException e) {
+        throw new RuntimeException("Failed to parse integrationProfile at " + path);
+      }
+    }
+    return testContext;
+  }
+
+  public String generateJsonConformanceProfile(String integrationProfileXml,
+      String conformanceProfileId, String constraintsXml, String additionalConstraintsXml)
+      throws ProfileParserException, JsonProcessingException,
       com.fasterxml.jackson.core.JsonProcessingException {
     ProfileModel profileModel =
-        profileParser.parse(profileXml, constraintsXml, additionalConstraintsXml);
+        profileParser.parse(integrationProfileXml, conformanceProfileId, constraintsXml,
+            additionalConstraintsXml);
     com.fasterxml.jackson.databind.ObjectMapper obm =
         new com.fasterxml.jackson.databind.ObjectMapper();
     obm.setSerializationInclusion(Include.NON_NULL);
@@ -481,30 +503,7 @@ public class Bootstrap {
     JsonNode testPlanObj = mapper.readTree(descriptorContent);
     testStep.setName(testPlanObj.findValue("name").getTextValue());
     testStep.setDescription(testPlanObj.findValue("description").getTextValue());
-    TestContext testContext = new TestContext();
-    testStep.setTestContext(testContext);
-    Profile profile = getProfile(testPlanObj.findValue("profileId").getTextValue());
-    testContext.setProfile(profile);
-    Constraints constraints = getConstraints(testPlanObj.findValue("constraintId").getTextValue());
-    testContext.setConstraints(constraints);
-    testContext.setVocabularyLibrary((getVocabularyLibrary(testPlanObj.findValue(
-        "valueSetLibraryId").getTextValue())));
-    Constraints addditionalConstraints = additionalConstraints(location);
-    testContext.setAddditionalConstraints(addditionalConstraints);
-    testContext.setMessage(message(FileUtil.getContent(resourceBundleHelper.getResource(location
-        + "Message.txt"))));
-
-    try {
-      String json =
-          parseProfile(profile.getXml(), constraints.getXml(),
-              addditionalConstraints != null ? addditionalConstraints.getXml() : null);
-      profile.setJson(json);
-      profileRepository.save(profile);
-
-    } catch (ProfileParserException e) {
-      throw new RuntimeException("Failed to parse profile at " + location);
-
-    }
+    testStep.setTestContext(testContext(location, testPlanObj));
     testStep.setTestStory(testStory(location));
     testStep.setTestPackage(testPackage(location));
     testStep.setJurorDocument(jurorDocument(location));
@@ -614,10 +613,11 @@ public class Bootstrap {
 
 
 
-  private Profile getProfile(String id) throws IOException {
-    Profile p = profileMap.get(id);
+  private IntegrationProfile getIntegrationProfile(String id) throws IOException {
+    IntegrationProfile p = profileMap.get(id);
     if (p == null) {
-      throw new IllegalArgumentException("Profile with id = " + id + " not found");
+      throw new IllegalArgumentException(
+          "Cannot find IntegrationProfile associated to ConformanceProfile with id = " + id);
     }
 
     return p;

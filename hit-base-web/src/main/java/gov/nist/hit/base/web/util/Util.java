@@ -13,7 +13,7 @@
 package gov.nist.hit.base.web.util;
 
 import gov.nist.hit.core.domain.Command;
-import gov.nist.hit.core.domain.Profile;
+import gov.nist.hit.core.domain.IntegrationProfile;
 import gov.nist.hit.core.service.exception.MessageContentNotFoundException;
 import gov.nist.hit.core.service.exception.ProfileException;
 
@@ -23,11 +23,11 @@ import gov.nist.hit.core.service.exception.ProfileException;
  */
 public class Util {
 
-  public static String getContent(Profile profile) throws ProfileException {
-    if (profile == null || "".equals(profile.getXml())) {
-      throw new ProfileException("No profile found in the request");
+  public static String getContent(IntegrationProfile integrationProfile) throws ProfileException {
+    if (integrationProfile == null || "".equals(integrationProfile.getXml())) {
+      throw new ProfileException("No integrationProfile found in the request");
     }
-    return profile.getXml();
+    return integrationProfile.getXml();
   }
 
   public static String getContent(Command request) {
