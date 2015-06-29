@@ -39,7 +39,6 @@ import gov.nist.hit.core.repo.VocabularyLibraryRepository;
 import gov.nist.hit.core.service.ProfileParser;
 import gov.nist.hit.core.service.ValueSetLibrarySerializer;
 import gov.nist.hit.core.service.exception.ProfileParserException;
-import gov.nist.hit.core.service.impl.ValueSetLibrarySerializerImpl;
 import gov.nist.hit.core.service.util.FileUtil;
 
 import java.io.IOException;
@@ -118,7 +117,7 @@ public class Bootstrap {
   ProfileParser profileParser;
 
   @Autowired
-  ValueSetLibrarySerializer valueSetLibrarySerializer = new ValueSetLibrarySerializerImpl();
+  ValueSetLibrarySerializer valueSetLibrarySerializer;
 
 
   @Autowired
