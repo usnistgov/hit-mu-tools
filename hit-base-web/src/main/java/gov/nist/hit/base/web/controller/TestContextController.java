@@ -12,8 +12,8 @@
 
 package gov.nist.hit.base.web.controller;
 
-import gov.nist.hit.base.web.model.MessageCommand;
 import gov.nist.hit.core.domain.Json;
+import gov.nist.hit.core.domain.MessageCommand;
 import gov.nist.hit.core.domain.TestContext;
 import gov.nist.hit.core.repo.TestCaseRepository;
 import gov.nist.hit.core.repo.TestContextRepository;
