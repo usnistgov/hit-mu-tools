@@ -89,9 +89,9 @@
 
 <script type="text/ng-template" id="TableFoundCtrl.html">
     <div class="modal-header">
-        <h3 ng-show="table !== null" class="modal-title">ValueSet:{{table.tdId}}</h3>
+        <h3 ng-show="table !== null" class="modal-title">ValueSet:{{table.bindingIdentifier}}</h3>
 
-        <h3 ng-show="table === null" class="modal-title">Table Not Found</h3>
+        <h3 ng-show="table === null" class="modal-title">Value Set Not Found</h3>
     </div>
     <div class="modal-body">
         <div ng-show="table !== null">
@@ -100,13 +100,18 @@
                 <div class="panel-heading">Value Set Attributes</div>
                 <!-- Table -->
                 <table class="table table-bordered">
-                    <tr ng-show="table.tdId != null && table.tdId != ''">
+                    <tr ng-show="table.bindingIdentifier != null && table.bindingIdentifier != ''">
                         <td>Table Id</td>
-                        <td ng-bind="table.tdId"></td>
+                        <td ng-bind="table.bindingIdentifier"></td>
                     </tr>
                     <tr ng-show="table.name != null && table.name != ''">
                         <td>Value Set Name</td>
                         <td ng-bind="table.name"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Value Set Description</td>
+                        <td ng-bind="table.description"></td>
                     </tr>
 
                     <tr>
@@ -116,14 +121,12 @@
 
                     <tr>
                         <td>Code System</td>
-                        <td ng-bind="table.codesys"></td>
+                        <td ng-bind="table.codeSystem"></td>
                     </tr>
 
                     <tr ng-show="table.oid != '' &&  table.oid != null">
                         <td>Value Set OID</td>
-                        <td>
-                            <a class="point"
-                               ng-href="'http://phinvads.cdc.gov/vads/ViewValueSet.action?oid={{table.oid}}'">{{table.oid}}</a>
+                        <td> {{table.oid}}
                         </td>
                     </tr>
                     <tr ng-show="table.type != null && table.type != ''">
@@ -191,93 +194,6 @@
     </div>
 </script>
 
-
-<script type="text/ng-template" id="TreeNode.html">
-    <tr ng-show="show(node)" tt-node
-        is-branch="node.children != null && node.children.length > 0">
-        <td class="col-fixed-450">
-            <img ng-show="node.icon != null"
-                 style="width:15px; height:15px"
-                 ng-src="images/{{node.icon}}">
-                                <span ng-if="node.type === 'FIELD' || node.type === 'COMPONENT' || node.type === 'SUBCOMPONENT'">
-                                    <span ng-show="nodeData.type !== 'DATATYPE'">{{node.path}}:{{node.name}}</span>
-                                    <span ng-show="nodeData.type === 'DATATYPE'">{{node.position}}:{{node.name}}</span>
-                                 </span>
-            <span ng-if="node.type === 'DATATYPE'">{{node.id}}:{{node.longName}}</span>
-            <span ng-if="node.type === 'SEGMENT'">{{node.name}}:{{node.longName}}</span>
-            <span ng-if="node.type === 'GROUP'">{{node.name}}</span>
-        </td>
-        <td class="col-fixed-80">
-            <span ng-show="node.type === 'DATATYPE'">-</span>
-                                <span ng-hide="node.type === 'DATATYPE'">
-                                <span
-                                        ng-show="!node.predicates || node.predicates == null || node.predicates.length == 0"
-                                        ng-bind="node.usage"></span>
-                                <span ng-show="node.predicates != null && node.predicates.length > 0">C({{node.predicates[0].trueUsage}}/{{node.predicates[0].falseUsage}})</span>
-                                </span>
-        </td>
-        <td class="col-fixed-80" ng-hide="nodeData.type === 'DATATYPE'">
-            <span ng-show="node.type === 'DATATYPE'">-</span>
-                                <span ng-hide="node.type === 'DATATYPE'">
-                                <span
-                                        ng-show="node.minOccurs != undefined && node.maxOccurs != undefined">[{{node.minOccurs}}, {{node.maxOccurs}}]</span>
-                                </span>
-        </td>
-        <td class="col-fixed-80" ng-hide="nodeData.type != 'MESSAGE'"><a class="point"
-                                                                         ng-click="showRefSegment(node.reference.id)"
-                                                                         ng-bind="node.reference.name"></a>
-        </td>
-        <td class="col-fixed-100" ng-hide="nodeData.type=== 'MESSAGE'">
-            <span ng-show="node.type === 'DATATYPE'">-</span>
-                                <span ng-hide="node.type === 'DATATYPE'">
-                                <span
-                                        ng-bind="node.dataType"></span>
-                                </span>
-
-        </td>
-        <td class="col-fixed-80" ng-hide="nodeData.type=== 'MESSAGE'">
-            <span ng-show="node.type === 'DATATYPE'">-</span>
-                                <span ng-hide="node.type === 'DATATYPE'">
-                                <span
-                                        ng-show="node.minLength && node.maxLength">[{{node.minLength}},{{node.maxLength}}]</span>
-                                    </span>
-        </td>
-        <td class="col-fixed-150" ng-hide="nodeData.type== 'MESSAGE'">
-            <span ng-show="node.type === 'DATATYPE'">-</span>
-                                <span ng-hide="node.type === 'DATATYPE'">
-                                <a class="point"
-                                   ng-click="showValueSetDefinition(node.table)"
-                                   ng-bind="node.table"></a>
-                                 </span>
-        </td>
-
-        <td>
-                                            <span ng-show="trim" class="constraint_trim">
-                                              <span ng-repeat="predicate in node.predicates">
-                                                 {{predicate.description}}
-                                              </span>
-                                            </span>
-                                         <span ng-show="!trim" class="constraint_verbose">
-                                              <p ng-repeat="predicate in node.predicates">
-                                                  {{predicate.description}}
-                                              </p>
-                                            </span>
-        </td>
-        <td>
-
-                                 <span ng-show="trim" class="constraint_trim">
-                                               <span ng-repeat="conStatement in node.conformanceStatements">
-                                                    {{conStatement.id}} : {{conStatement.description}}
-                                             </span>
-                                            </span>
-                                         <span ng-show="!trim" class="constraint_verbose">
-                                              <p ng-repeat="conStatement in node.conformanceStatements">
-                                                  {{conStatement.id}} : {{conStatement.description}}
-                                              </p>
-                                            </span>
-        </td>
-    </tr>
-</script>
 
 
 <script type="text/ng-template" id="CBTestCase.html">

@@ -259,7 +259,7 @@ angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function 
 
 angular.module('hit-tool-services').controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;
-    $scope.tmpTableElements = [].concat(table != null ? table.tableElements : []);
+    $scope.tmpTableElements = [].concat(table != null ? table.valueSetElements : []);
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };

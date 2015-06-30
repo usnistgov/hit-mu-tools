@@ -50,6 +50,6 @@ public class AppInfoController {
   private String getUrl(HttpServletRequest request) {
     String scheme = request.getScheme();
     String host = request.getHeader("Host");
-    return scheme + "://" + host + "/iztool";
+    return scheme + "://" + host + "/hit-tool";
   }
 }

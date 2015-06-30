@@ -89,9 +89,9 @@
 
 <script type="text/ng-template" id="TableFoundCtrl.html">
     <div class="modal-header">
-        <h3 ng-show="table !== null" class="modal-title">ValueSet:{{table.tdId}}</h3>
+        <h3 ng-show="table !== null" class="modal-title">ValueSet:{{table.bindingIdentifier}}</h3>
 
-        <h3 ng-show="table === null" class="modal-title">Table Not Found</h3>
+        <h3 ng-show="table === null" class="modal-title">Value Set Not Found</h3>
     </div>
     <div class="modal-body">
         <div ng-show="table !== null">
@@ -100,13 +100,18 @@
                 <div class="panel-heading">Value Set Attributes</div>
                 <!-- Table -->
                 <table class="table table-bordered">
-                    <tr ng-show="table.tdId != null && table.tdId != ''">
+                    <tr ng-show="table.bindingIdentifier != null && table.bindingIdentifier != ''">
                         <td>Table Id</td>
-                        <td ng-bind="table.tdId"></td>
+                        <td ng-bind="table.bindingIdentifier"></td>
                     </tr>
                     <tr ng-show="table.name != null && table.name != ''">
                         <td>Value Set Name</td>
                         <td ng-bind="table.name"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Value Set Description</td>
+                        <td ng-bind="table.description"></td>
                     </tr>
 
                     <tr>
@@ -116,14 +121,12 @@
 
                     <tr>
                         <td>Code System</td>
-                        <td ng-bind="table.codesys"></td>
+                        <td ng-bind="table.codeSystem"></td>
                     </tr>
 
                     <tr ng-show="table.oid != '' &&  table.oid != null">
                         <td>Value Set OID</td>
-                        <td>
-                            <a class="point"
-                               ng-href="'http://phinvads.cdc.gov/vads/ViewValueSet.action?oid={{table.oid}}'">{{table.oid}}</a>
+                        <td> {{table.oid}}
                         </td>
                     </tr>
                     <tr ng-show="table.type != null && table.type != ''">
