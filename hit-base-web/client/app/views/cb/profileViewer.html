@@ -1,21 +1,9 @@
-<div ng-controller="CBProfileViewerCtrl" ng-init="init()">
+<div class="container" ng-controller="CBProfileViewerCtrl">
     <div ng-show="cb.testCase != null">
         <div class="page-header">
             <h3>{{cb.testCase.type}}: {{cb.testCase.name}}</h3>
         </div>
-        <div ng-show="!loading" style="margin:20px">
-            <div ng-show="error === null" style="margin-top: 20px">
-                 <profile-viewer type="cb" />
-            </div>
-            <div ng-show="error !== null" style="margin-top: 20px ">
-                <br/>
-                <div class="alert alert-danger" role="alert" ng-bind="error"></div>
-            </div>
-        </div>
-        <div ng-show="loading" style="text-align:center">
-            <i class="fa fa-spinner fa-pulse fa-2x"></i>
-        </div>
-
+        <div profile-viewer type="cb"></div>
     </div>
     <div ng-show="cb.testCase === null">
         No TestCase Loaded.

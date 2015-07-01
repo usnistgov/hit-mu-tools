@@ -32,6 +32,16 @@ angular.module('cf').factory('CFTestCaseListLoader', ['$q','$http',
                     delay.reject(response.data);
                 }
             );
+//            $http.get("../../resources/cf/testCases.json", {timeout: 60000}).then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
+
             return delay.promise;
         };
     }

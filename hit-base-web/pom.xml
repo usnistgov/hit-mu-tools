@@ -83,7 +83,7 @@
 		</dependency>
 
 
-<dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
@@ -216,20 +216,19 @@
 			<version>3.4.4</version>
 		</dependency>
 
-		
-<!--   <dependency>
+
+		<dependency>
 			<artifactId>hit-example-resource-bundle</artifactId>
- 			<groupId>gov.nist.hit.example.resource</groupId>
- 			<version>1.0.0-SNAPSHOT</version>
+			<groupId>gov.nist.hit.example.resource</groupId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-		 
+
 		<dependency>
 			<groupId>gov.nist.hit.core.hl7v2</groupId>
 			<artifactId>hit-core-hl7v2-service</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency>  
-		
- -->
+		</dependency>
+
 	</dependencies>
 
 	<repositories>

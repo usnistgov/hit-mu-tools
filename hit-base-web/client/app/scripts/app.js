@@ -28,6 +28,9 @@ var app = angular.module('hit-tool', [
     'hit-tool-services',
     'commonServices',
     'smart-table',
+    'hit-profile-viewer',
+    'hit-validation-result',
+    'hit-vocab-search',
     'doc'
 //    ,
 //    'ngMockE2E'
