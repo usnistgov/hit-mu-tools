@@ -483,27 +483,27 @@ angular.module('commonServices').factory('MessageValidator', function ($http, $q
     };
     MessageValidator.prototype.validate = function (testContextId, content) {
         var delay = $q.defer();
-//             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content})).then(
-//                function (object) {
-//                    try {
-//                        delay.resolve(angular.fromJson(object.data));
-//                    } catch (e) {
-//                        delay.reject("Invalid character in the message");
-//                    }
-//                },
-//                function (response) {
-//                    delay.reject(response.data);
-//                }
-//            );
+             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content})).then(
+                function (object) {
+                    try {
+                        delay.resolve(angular.fromJson(object.data));
+                    } catch (e) {
+                        delay.reject("Invalid character in the message");
+                    }
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
 
-        $http.get('../../resources/cb/messageValidationResult.json', angular.fromJson({"content": content})).then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
+//        $http.get('../../resources/cb/messageValidationResult.json', angular.fromJson({"content": content})).then(
+//            function (object) {
+//                delay.resolve(angular.fromJson(object.data));
+//            },
+//            function (response) {
+//                delay.reject(response.data);
+//            }
+//        );
 
 
          return delay.promise;
@@ -517,16 +517,7 @@ angular.module('commonServices').factory('MessageParser', function ($http, $q, H
     };
     MessageParser.prototype.parse = function (testContextId, content) {
         var delay = $q.defer();
-//        $http.post('api/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-        $http.get('../../resources/cb/messageObject.json', angular.fromJson({"content": content})).then(
+        $http.post('api/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
             function (object) {
                 delay.resolve(angular.fromJson(object.data));
             },
@@ -534,6 +525,15 @@ angular.module('commonServices').factory('MessageParser', function ($http, $q, H
                 delay.reject(response.data);
             }
         );
+
+//        $http.get('../../resources/cb/messageObject.json', angular.fromJson({"content": content})).then(
+//            function (object) {
+//                delay.resolve(angular.fromJson(object.data));
+//            },
+//            function (response) {
+//                delay.reject(response.data);
+//            }
+//        );
 
         return delay.promise;
     };

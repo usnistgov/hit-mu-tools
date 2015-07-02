@@ -11,7 +11,7 @@
             scope: {
                 type: '@'
             },
-            templateUrl: '/lib/vocab-search/vocab-search.html',
+            templateUrl: 'lib/vocab-search/vocab-search.html',
             replace: false,
             controller: 'VocabSearchCtrl'
         };
@@ -238,7 +238,7 @@ angular.module('hit-vocab-search')
         if (t != null) {
             var modalInstance = $modal.open({
                 templateUrl: 'TableFoundCtrl.html',
-                controller: 'TableFoundCtrl',
+                controller: 'ValueSetDetailsCtrl',
                 windowClass: 'app-modal-window',
                 resolve: {
                     table: function () {
@@ -252,4 +252,15 @@ angular.module('hit-vocab-search')
     return VocabularyService;
 
 });
+
+
+    mod.controller('ValueSetDetailsCtrl', function ($scope, $modalInstance, table) {
+        $scope.table = table;
+        $scope.tmpValueSetElements = [].concat(table != null ? table.valueSetElements : []);
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    });
+
+
 })( angular );

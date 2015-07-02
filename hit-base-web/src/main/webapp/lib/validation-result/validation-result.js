@@ -17,7 +17,7 @@
                 tree:'=',
                 editor:'='
             },
-            templateUrl:'/lib/validation-result/validation-result.html',
+            templateUrl:'lib/validation-result/validation-result.html',
             replace: false,
             controller: 'ValidationResultCtrl'
         };
