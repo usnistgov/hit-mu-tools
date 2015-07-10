@@ -103,8 +103,8 @@ public class TestContextController {
       String res =
           messageValidator.validate(command.getName(), getMessageContent(command), testContext
               .getConformanceProfile().getIntegrationProfile().getXml(), testContext
-              .getConstraints().getXml(), testContext.getAddditionalConstraints().getXml(),
-              testContext.getVocabularyLibrary().getXml());
+              .getVocabularyLibrary().getXml(), testContext.getConstraints().getXml(), testContext
+              .getAddditionalConstraints().getXml());
       return new Json(res);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
