@@ -8,7 +8,7 @@
             <div class="col-md-2">
                 <div class="panel panel-info">
                     <!-- Default panel contents -->
-                    <div class="panel-heading point" ng-click="openProfileInfo()"><i class="fa fa-list"></i>Profiles <i class="point fa fa-info-circle"></i>
+                    <div class="panel-heading point" ng-click="openProfileInfo()"><i class="fa fa-list"></i>Profile Selection <i class="point fa fa-info-circle"></i>
                     </div>
                     <div class="panel-body">
                         <div class="tc-tree">
@@ -33,7 +33,7 @@
                 <div ng-show="testCase !== null">
                     <div class="panel panel-info">
                         <!-- Default panel contents -->
-                        <div class="panel-heading"><i class="glyphicon glyphicon-list"></i>Profile: {{testCase.name}}
+                        <div class="panel-heading"><i class="glyphicon glyphicon-list"></i>Profile Selected: {{testCase.name}}
                         </div>
                         <div class="panel-body">
                     <tabset>
@@ -62,7 +62,7 @@
                         <tab select="setActiveTab(3)" active="tabs[3]">
                             <tab-heading>
                                 <i class="fa fa-book"></i>
-                                Vocabulary
+                                ValueSets
                             </tab-heading>
                             <div ng-include="'views/cf/vocabulary.html'"></div>
                         </tab>

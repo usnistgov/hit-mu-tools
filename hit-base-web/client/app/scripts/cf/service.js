@@ -2,23 +2,20 @@
 
 
 angular.module('cf').factory('CF',
-    ['$rootScope', '$http', '$q', 'HL7', 'Editor', 'EDICursor', 'NewValidationResult','Message', 'DataInstanceReport', 'Tree', function ($rootScope, $http, $q, HL7, Editor, EDICursor, NewValidationResult, Message, DataInstanceReport, Tree) {
+    ['$rootScope', '$http', '$q', 'HL7', 'Editor', 'EDICursor','Message','Tree', function ($rootScope, $http, $q, HL7, Editor, EDICursor, Message, Tree) {
         var CF = {
             editor: new Editor(),
             cursor: new EDICursor(),
             tree: new Tree(),
-            validationResult: null,
             dqaValidationResult: null,
             testCase: null,
             selectedTestCase: null,
             message: new Message(),
-            searchTableId: 0,
-            report: new DataInstanceReport()
+            searchTableId: 0
         };
 
         return CF;
     }]);
-
 
 angular.module('cf').factory('CFTestCaseListLoader', ['$q','$http',
     function ($q,$http) {

@@ -2,16 +2,14 @@
 
 
 angular.module('cb').factory('CB',
-    ['$http', '$q', 'Editor', 'EDICursor', 'ValidationResult', 'DataInstanceReport', 'Message', 'ValidationSettings', 'Tree', function ($http, $q, Editor, EDICursor, ValidationResult, DataInstanceReport, Message, ValidationSettings,Tree) {
+    ['$http', '$q', 'Editor', 'EDICursor', 'Message', 'ValidationSettings', 'Tree', function ($http, $q, Editor, EDICursor, Message, ValidationSettings,Tree) {
         var CB = {
             testCase: null,
             selectedTestCase: null,
             editor: new Editor(),
             tree: new Tree(),
             cursor: new EDICursor(),
-            validationResult: new ValidationResult(),
             message: new Message(),
-            report: new DataInstanceReport(),
             validationSettings: new ValidationSettings(),
             setContent: function (value) {
                 CB.message.content = value;

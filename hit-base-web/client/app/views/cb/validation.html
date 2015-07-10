@@ -1,8 +1,8 @@
 <div ng-controller="CBValidatorCtrl" ng-init="init()">
 <div ng-show="cb.testCase != null">
-<div class="page-header">
-    <h3>{{cb.testCase.type}}: {{cb.testCase.name}}</h3>
-</div>
+<!--<div class="page-header">-->
+    <!--<h3>{{cb.testCase.type}}: {{cb.testCase.name}}</h3>-->
+<!--</div>-->
 
 <div class="row">
     <div ng-show="error != null">
@@ -15,7 +15,7 @@
         <!-- Default panel contents -->
         <div class="panel-heading"><i class="glyphicon glyphicon-list"></i> Message Tree
         </div>
-        <div class="panel-body">
+        <div class="panel-body container-message-tree">
             <div ng-show="!tLoading">
                 <div ng-show="tError === null" class="message-tree">
                     <abn-tree tree-control="cb.tree.root" tree-data="messageObject" icon-leaf=""
@@ -106,7 +106,7 @@
 
         </form>
     </div>
-    <div class="panel-body message-content">
+    <div class="panel-body container-message-editor">
 
         <div ng-show="mError != null">
             <div class="alert alert-danger" role="alert" ng-bind="mError"></div>
@@ -131,7 +131,7 @@
                                 </button>
        </span>
 </div>
-<div class="panel-body">
+<div class="panel-body container-validation-result">
 
 <div ng-show="!vLoading">
 
@@ -140,11 +140,7 @@
 </div>
 
 <div ng-show="!vError || vError == null">
-
-<div ng-show="validationResult !== null">
-    <div validation-result type="cb" message="cb.message" editor="cb.editor" report="cb.report" tree="cb.tree"></div>
-</div>
-
+    <div validation-result type="cb" message="cb.message" editor="cb.editor" tree="cb.tree"></div>
 </div>
 
 </div>

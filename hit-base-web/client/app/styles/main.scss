@@ -1191,3 +1191,30 @@ table.cf-profiles{
 .navbar {
    margin-bottom: 0px;
 }
+
+
+
+.message-tree{
+  max-height: 850px !important;
+  overflow: auto;
+  margin-bottom: 10px;
+}
+
+.container-validation-result{
+  height:450px;
+}
+
+.container-message-tree{
+  height:900px
+}
+
+.container-validation-table{
+  height: 350px !important;
+  max-height:350px !important;
+  overflow: scroll;
+  //  margin-top: 20px;
+}
+
+.container-message-editor {
+  height: 400px;
+}
