@@ -95,7 +95,6 @@ angular.module('cf')
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
         $scope.selectedMessage = {};
-        $scope.validationResult = null;
         $scope.loading = true;
         $scope.error = null;
         $scope.vError = null;
@@ -191,7 +190,7 @@ angular.module('cf')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 300);
+            $scope.editor.setSize(null, 350);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
@@ -263,55 +262,16 @@ angular.module('cf')
 
 
         $scope.setValidationResult = function (mvResult) {
+            var report = null;
+            var validationResult = null;
             if (mvResult !== null) {
-                $scope.cf.validationResult = new NewValidationResult();
-                $scope.cf.validationResult.init(mvResult);
-                $scope.validationResult = $scope.cf.validationResult;
-                $scope.cf.report["result"] = $scope.validationResult;
-                if (!angular.equals(mvResult, {})) {
-                    $scope.cf.report["metaData"] = {
-                        reportHeader: {
-                            title: "Message Validation Report",
-                            date: new Date().getTime()
-                        },
-                        validationTypeHeader: {
-                            title: "Validation Type",
-                            type: "Context-free"
-                        },
-                        toolHeader: {
-                            title: "Testing Tool",
-                            name: "NIST-CDC Immunization Test Suite - HL7 V2.5.1 Validation Tool",
-                            versionRelease: "1.0"
-                        },
-                        profileHeader: {
-                            name: "",
-                            organization: "NIST",
-                            type: "",
-                            profileVersion: "",
-                            profileDate: "",
-                            standard: "HL7 Version 2.5.1 Implementation Guide For Immunization Messaging Rel .1.5 (10/01/2014) Immunization Clarification Addendum (Date)"
-                        },
-                        messageHeader: {
-                            encoding: "ER7"
-                        },
-                        summaryHeader: {
-                            errorCount: $scope.cf.report.result.errors.categories[0].data.length,
-                            warningCount: $scope.cf.report.result.warnings.categories[0].data.length,
-                            informationalCount: $scope.cf.report.result.informationals.categories[0].data.length,
-                            alertCount: $scope.cf.report.result.alerts.categories[0].data.length,
-                            affirmativeCount: $scope.cf.report.result.affirmatives.categories[0].data.length
-                        }
-                    };
-                } else {
-                    $scope.cf.report.result = null;
-                    $scope.cf.report.metaData = null;
-                }
-            } else {
-                $scope.cf.validationResult = null;
-                $scope.validationResult = null;
-                $scope.cf.report["result"] = null;
+                report = {};
+                validationResult = new NewValidationResult();
+                validationResult.init(mvResult);
+                report["result"] = validationResult;
             }
-            $rootScope.$broadcast('cf:validationResultLoaded', $scope.cf.validationResult);
+            $rootScope.$broadcast('cf:reportLoaded', report);
+            $rootScope.$broadcast('cf:validationResultLoaded', validationResult);
         };
 
 
@@ -322,24 +282,6 @@ angular.module('cf')
                 $scope.cf.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
                 HL7EditorUtils.select($scope.editor, $scope.cf.cursor);
             }
-        };
-
-        $scope.showDetails = function (element) {
-            var modalInstance = $modal.open({
-                templateUrl: 'ValidationResultDetailsCtrl.html',
-                controller: 'ValidationResultDetailsCtrl',
-                resolve: {
-                    selectedElement: function () {
-                        return element;
-                    }
-                }
-            });
-//
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selectedElement = selectedItem;
-            }, function () {
-                //$log.info('Modal dismissed at: ' + new Date());
-            });
         };
 
         $scope.clearMessage = function () {
@@ -414,7 +356,7 @@ angular.module('cf')
             $scope.mError = null;
             $scope.vError = null;
             $scope.initCodemirror();
-            $scope.setValidationResult({});
+            $scope.setValidationResult(null);
             $scope.$on('cf:refreshEditor', function (event) {
                 $scope.refreshEditor();
                 event.preventDefault();
@@ -431,13 +373,6 @@ angular.module('cf')
 angular.module('cf')
     .controller('CFReportCtrl', ['$scope', '$sce', '$http', 'CF', function ($scope, $sce, $http, CF) {
         $scope.cf = CF;
-        $scope.error = null;
-        $scope.loading = false;
-        $scope.init = function () {
-        };
-        $scope.downloadAs = function (format) {
-            $scope.cf.report.downloadByFormat($scope.cf.report, format);
-        };
     }]);
 
 angular.module('cf')

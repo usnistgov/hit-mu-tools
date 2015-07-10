@@ -9,9 +9,6 @@ angular.module('cb')
         $scope.setActiveTab = function (value) {
             $scope.tabs[0] = false;
             $scope.tabs[1] = false;
-            $scope.tabs[2] = false;
-            $scope.tabs[3] = false;
-            $scope.tabs[4] = false;
             $scope.activeTab = value;
             $scope.tabs[$scope.activeTab] = true;
         };
@@ -24,7 +21,6 @@ angular.module('cb')
             $scope.error = null;
             $scope.loading = false;
             $scope.setActiveTab(0);
-
             $rootScope.$on('cb:testCaseLoaded', function (event) {
                 if (CB.testCase != null && CB.testCase.id != null) {
                     $scope.setActiveTab(1);
@@ -32,15 +28,48 @@ angular.module('cb')
             });
         };
 
-        $scope.disabled  = function () {
-            return CB.testCase == null || CB.testCase.id  === null;
+        $scope.disabled = function () {
+            return CB.testCase == null || CB.testCase.id === null;
         };
 
     }]);
 
 
 angular.module('cb')
-    .controller('CBTestCaseCtrl', ['$scope', '$window', '$rootScope', 'CB', 'ngTreetableParams', '$timeout', 'CBTestCaseListLoader', function ($scope, $window, $rootScope, CB, ngTreetableParams,$timeout,CBTestCaseListLoader) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', function ($scope, $window, $rootScope) {
+        $scope.loading = true;
+        $scope.error = null;
+        $scope.tabs = new Array();
+        $scope.testCase = null;
+        $scope.setActiveTab = function (value) {
+            $scope.tabs[0] = false;
+            $scope.tabs[1] = false;
+            $scope.tabs[2] = false;
+            $scope.tabs[3] = false;
+            $scope.activeTab = value;
+            $scope.tabs[$scope.activeTab] = true;
+        };
+
+        $scope.getTestType = function () {
+            return $scope.testCase != null ? $scope.testCase.type : '';
+        };
+
+        $scope.init = function () {
+            $scope.error = null;
+            $scope.loading = false;
+            $scope.setActiveTab(0);
+            $rootScope.$on('cb:testCaseLoaded', function (event, testCase) {
+                $scope.testCase = testCase;
+                $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
+                $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+            });
+        };
+
+    }]);
+
+
+angular.module('cb')
+    .controller('CBTestCaseCtrl', ['$scope', '$window', '$rootScope', 'CB', 'ngTreetableParams', '$timeout', 'CBTestCaseListLoader', function ($scope, $window, $rootScope, CB, ngTreetableParams, $timeout, CBTestCaseListLoader) {
         $scope.selectedTestCase = CB.selectedTestCase;
         $scope.testCase = CB.testCase;
         $scope.testCases = [];
@@ -120,17 +149,17 @@ angular.module('cb')
                 $scope.loading = false;
             }, function (error) {
                 $scope.loading = false;
-                 $scope.error = "Sorry,cannot load the test cases. Please refresh your page and try again.";
+                $scope.error = "Sorry,cannot load the test cases. Please refresh your page and try again.";
             });
-         };
+        };
 
         $scope.refreshEditor = function () {
             $timeout(function () {
-                if($scope.editor) {
+                if ($scope.editor) {
                     $scope.editor.refresh();
                 }
             }, 1000);
-         };
+        };
 
         $scope.selectTestCase = function (node) {
             $scope.selectedTestCase = node;
@@ -140,14 +169,12 @@ angular.module('cb')
         $scope.loadTestCase = function () {
             CB.testCase = $scope.selectedTestCase;
             $scope.testCase = CB.testCase;
-            $rootScope.$broadcast('cb:testCaseLoaded');
-            $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
-            $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+            $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase);
         };
 
-        $scope.downloadTestStory = function(){
+        $scope.downloadTestStory = function () {
             if ($scope.selectedTestCase != null) {
-                 var form = document.createElement("form");
+                var form = document.createElement("form");
                 form.action = "api/teststory/download";
                 form.method = "POST";
                 form.target = "_target";
@@ -177,13 +204,12 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'MessageValidator', 'MessageParser', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope,MessageValidator,MessageParser) {
+    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'MessageValidator', 'MessageParser', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, MessageValidator, MessageParser) {
 
         $scope.cb = CB;
         $scope.testCase = CB.testCase;
         $scope.message = CB.message;
         $scope.selectedMessage = {};
-        $scope.validationResult = null;
         $scope.loading = true;
         $scope.error = null;
         $scope.vError = null;
@@ -254,8 +280,8 @@ angular.module('cb')
             var testCase = $scope.cb.testCase;
             var testContext = testCase.testContext;
             var message = $scope.cb.testCase.testContext.message;
-            var messageContent = message ? message.content: null;
-            if (testContext.message != null && messageContent!= null && messageContent!= "") {
+            var messageContent = message ? message.content : null;
+            if (testContext.message != null && messageContent != null && messageContent != "") {
                 $scope.nodelay = true;
                 $scope.selectedMessage = $scope.cb.testCase.testContext.message;
                 if ($scope.selectedMessage != null) {
@@ -282,7 +308,7 @@ angular.module('cb')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 300);
+            $scope.editor.setSize(null, 350);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
@@ -325,7 +351,7 @@ angular.module('cb')
             $scope.vError = null;
             if ($scope.cb.testCase != null && $scope.cb.message.content !== "") {
                 try {
-                    var validator =  new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
+                    var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
                     validator.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.setValidationResult(mvResult);
@@ -359,57 +385,16 @@ angular.module('cb')
         };
 
         $scope.setValidationResult = function (mvResult) {
+            var report = null;
+            var validationResult = null;
             if (mvResult !== null) {
-                $scope.cb.validationResult = new NewValidationResult();
-                $scope.cb.validationResult.init(mvResult);
-                $scope.validationResult = $scope.cb.validationResult;
-                $scope.cb.report["result"] = $scope.validationResult;
-                if (!angular.equals(mvResult, {})) {
-                    $scope.cb.report["metaData"] = {
-                        reportHeader: {
-                            title: "Message Validation Report",
-                            date: new Date().getTime()
-                        },
-                        validationTypeHeader: {
-                            title: "Validation Type",
-                            type: "Context-based"
-                        },
-                        toolHeader: {
-                            title: "Testing Tool",
-                            name: "NIST-CDC Immunization Test Suite - HL7 V2.5.1 Validation Tool",
-                            versionRelease: "1.0"
-                        },
-                        profileHeader: {
-                            name: "Profile Name",
-                            organization: "NIST",
-                            type: "See Profile MetaData Slide",
-                            profileVersion: "",
-                            profileDate: "",
-                            standard: "HL7 Version 2.5.1 Implementation Guide For Immunization Messaging Rel .1.5 (10/01/2014) Immunization Clarification Addendum (Date)"
-                        },
-                        messageHeader: {
-                            encoding: "ER7"
-                        },
-                        summaryHeader: {
-                            errorCount: $scope.cb.report.result.errors.categories[0].data.length,
-                            warningCount: $scope.cb.report.result.warnings.categories[0].data.length,
-                            informationalCount: $scope.cb.report.result.informationals.categories[0].data.length,
-                            alertCount: $scope.cb.report.result.alerts.categories[0].data.length,
-                            affirmativeCount: $scope.cb.report.result.affirmatives.categories[0].data.length
-                        }
-                    };
-
-                 } else {
-                    $scope.cb.report.result = null;
-                    $scope.cb.report.metaData = null;
-                }
-            } else {
-                $scope.cb.validationResult = null;
-                $scope.validationResult = null;
-                $scope.cb.report["result"] = null;
+                report = {};
+                validationResult = new NewValidationResult();
+                validationResult.init(mvResult);
+                report["result"] = validationResult;
             }
-
-            $rootScope.$broadcast('cb:validationResultLoaded', $scope.cb.validationResult);
+            $rootScope.$broadcast('cb:reportLoaded', report);
+            $rootScope.$broadcast('cb:validationResultLoaded', validationResult);
         };
 
 
@@ -439,7 +424,7 @@ angular.module('cb')
         $scope.parseMessage = function () {
             $scope.tLoading = true;
             if ($scope.cb.testCase != null && $scope.cb.message.content != '') {
-                var parsed =  new MessageParser().parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
+                var parsed = new MessageParser().parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
                 parsed.then(function (value) {
                     $scope.tLoading = false;
                     $scope.messageObject = value;
@@ -480,7 +465,7 @@ angular.module('cb')
             $scope.vError = null;
 
             $scope.initCodemirror();
-            $scope.setValidationResult({});
+            $scope.setValidationResult(null);
 
             $scope.$on('cb:refreshEditor', function (event) {
                 $scope.refreshEditor();
@@ -500,21 +485,13 @@ angular.module('cb')
 ;
 
 
-
 angular.module('cb')
     .controller('CBReportCtrl', ['$scope', '$sce', '$http', 'CB', function ($scope, $sce, $http, CB) {
         $scope.cb = CB;
-        $scope.error = null;
-        $scope.loading = false;
-        $scope.init = function () {
-        };
-        $scope.downloadAs = function (format) {
-            $scope.cb.report.downloadByFormat($scope.cb.report, format);
-        };
     }]);
 
 angular.module('cb')
-    .controller('CBVocabularyCtrl', ['$scope','CB', function ($scope, CB) {
+    .controller('CBVocabularyCtrl', ['$scope', 'CB', function ($scope, CB) {
         $scope.cb = CB;
     }]);
 
