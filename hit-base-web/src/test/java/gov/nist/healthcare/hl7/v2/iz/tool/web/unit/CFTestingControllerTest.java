@@ -12,7 +12,7 @@
 package gov.nist.healthcare.hl7.v2.iz.tool.web.unit;
 
 import gov.nist.hit.base.web.controller.CFTestingController;
-import gov.nist.hit.core.repo.CFTestObjectRepository;
+import gov.nist.hit.core.repo.TestObjectRepository;
 import gov.nist.hit.core.repo.IntegrationProfileRepository;
 import gov.nist.hit.core.repo.TestContextRepository;
 
@@ -36,7 +36,7 @@ public class CFTestingControllerTest {
 
 
   @Mock
-  CFTestObjectRepository testObjectRepository;
+  TestObjectRepository testObjectRepository;
 
   @Mock
   IntegrationProfileRepository integrationProfileRepository;
@@ -62,7 +62,7 @@ public class CFTestingControllerTest {
 
   // @Test
   // public void testGetTestCases() throws Exception {
-  // List<CFTestObject> testCases = getTestCases();
+  // List<TestObject> testCases = getTestCases();
   // when(testObjectRepository.findAll()).thenReturn(testCases);
   // MvcResult mvcResult =
   // mockMvc.perform(get("/cf/testcases")).andExpect(request().asyncStarted()).andReturn();
@@ -195,8 +195,8 @@ public class CFTestingControllerTest {
   // // verifyNoMoreInteractions(mockProfileRepository);
   // }
 
-  // private CFTestObject create() throws IOException {
-  // CFTestObject tc = new CFTestObject();
+  // private TestObject create() throws IOException {
+  // TestObject tc = new TestObject();
   // tc.setId(new Random().nextLong());
   // tc.setName("IZ-TC-1");
   // TestContext testContext = new TestContext();
@@ -206,8 +206,8 @@ public class CFTestingControllerTest {
   // return tc;
   // }
   //
-  // private List<CFTestObject> getTestCases() throws IOException {
-  // List<CFTestObject> res = new ArrayList<CFTestObject>();
+  // private List<TestObject> getTestCases() throws IOException {
+  // List<TestObject> res = new ArrayList<TestObject>();
   // for (int i = 0; i < 3; i++) {
   // res.add(create());
   // }
