@@ -32,6 +32,7 @@ var app = angular.module('hit-tool', [
     'hit-validation-result',
     'hit-vocab-search',
     'hit-report-viewer',
+    'hit-testcase-viewer',
     'doc'
 //    ,
 //    'ngMockE2E'

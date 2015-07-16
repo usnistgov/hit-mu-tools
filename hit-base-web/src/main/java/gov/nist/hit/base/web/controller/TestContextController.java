@@ -79,6 +79,22 @@ public class TestContextController {
 
   }
 
+  @RequestMapping(value = "/{testContextId}/profile")
+  public Json profile(@PathVariable final Long testContextId) {
+    logger.info("Fetching testContext with id=" + testContextId);
+    TestContext testContext = testContext(testContextId);
+    String value = testContext.getConformanceProfile().getJson();
+    return new Json(value);
+  }
+
+  @RequestMapping(value = "/{testContextId}/valuesets")
+  public Json valueSets(@PathVariable final Long testContextId) {
+    logger.info("Fetching testContext with id=" + testContextId);
+    TestContext testContext = testContext(testContextId);
+    String value = testContext.getVocabularyLibrary().getJson();
+    return new Json(value);
+  }
+
 
   @RequestMapping(value = "/{testContextId}/parseMessage", method = RequestMethod.POST)
   public List<gov.nist.hit.core.domain.MessageElement> parse(
