@@ -80,40 +80,39 @@ angular.module('cb')
             if (obj.testCases) {
                 if (!obj["children"]) {
                     obj["children"] = obj.testCases;
-
                 } else {
                     angular.forEach(obj.testCases, function (testCase) {
                         obj["children"].push(testCase);
                         $scope.createTreeStruct(testCase);
                     });
                 }
+                obj["children"] = $filter('orderBy')(obj["children"], 'position');
                 delete obj.testCases;
             }
 
             if (obj.testCaseGroups) {
                 if (!obj["children"]) {
                     obj["children"] = obj.testCaseGroups;
-
                 } else {
                     angular.forEach(obj.testCaseGroups, function (testCaseGroup) {
                         obj["children"].push(testCaseGroup);
                         $scope.createTreeStruct(testCaseGroup);
                     });
                 }
-
+                obj["children"] = $filter('orderBy')(obj["children"], 'position');
                 delete obj.testCaseGroups;
             }
 
             if (obj.testSteps) {
                 if (!obj["children"]) {
                     obj["children"] = obj.testSteps;
-
                 } else {
                     angular.forEach(obj.testSteps, function (testStep) {
                         obj["children"].push(testStep);
                         $scope.createTreeStruct(testStep);
                     });
                 }
+                obj["children"] = $filter('orderBy')(obj["children"], 'position');
                 delete obj.testSteps;
             }
 
