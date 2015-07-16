@@ -12,11 +12,12 @@
 package gov.nist.healthcare.hl7.v2.iz.tool.web.unit;
 
 import gov.nist.hit.base.web.controller.CFTestingController;
-import gov.nist.hit.core.repo.TestObjectRepository;
 import gov.nist.hit.core.repo.IntegrationProfileRepository;
 import gov.nist.hit.core.repo.TestContextRepository;
+import gov.nist.hit.core.repo.TestObjectRepository;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
@@ -31,6 +32,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  * @author Harold Affo
  * 
  */
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 public class CFTestingControllerTest {
 

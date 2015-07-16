@@ -1,18 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>hit-base-web</artifactId>
-	<name>hit-base-web</name>
+	<artifactId>loi-r2-web</artifactId>
+	<name>loi-r2-web</name>
 	<description>Immunization tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
-		<artifactId>hit-base-tool</artifactId>
+		<artifactId>loi-r2</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<build>
-		<finalName>hit-base-tool</finalName>
+		<finalName>loi-r2</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
