@@ -163,7 +163,7 @@ angular.module('cb')
 
         $scope.selectTestCase = function (node) {
             $scope.selectedTestCase = node;
-            $rootScope.$broadcast('cb:testCaseSelected');
+            $rootScope.$broadcast('cb:testCaseSelected',$scope.selectedTestCase);
         };
 
         $scope.loadTestCase = function () {
@@ -172,28 +172,6 @@ angular.module('cb')
             $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase);
         };
 
-        $scope.downloadTestStory = function () {
-            if ($scope.selectedTestCase != null) {
-                var form = document.createElement("form");
-                form.action = "api/teststory/download";
-                form.method = "POST";
-                form.target = "_target";
-
-                var path = document.createElement("input");
-                path.name = "path";
-                path.value = $scope.selectedTestCase.testStory.pdfPath;
-                form.appendChild(path);
-
-                var title = document.createElement("input");
-                title.name = "title";
-                title.value = $scope.selectedTestCase.name;
-                form.appendChild(title);
-
-                form.style.display = 'none';
-                document.body.appendChild(form);
-                form.submit();
-            }
-        };
 
     }]);
 
