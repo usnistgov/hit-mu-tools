@@ -16,7 +16,7 @@
                 <!-- Default panel contents -->
                 <div class="panel-heading">Description</div>
                 <div class="panel-body">
-                    <p class="test-details-content" ng-bind-html="testStory.description"></p>
+                    <p class="test-details-content" ng-bind-html="testStory.teststorydesc"></p>
                 </div>
             </div>
 
@@ -25,7 +25,7 @@
                 <!-- Default panel contents -->
                 <div class="panel-heading">Comments</div>
                 <div class="panel-body">
-                    <p class="test-details-content" ng-bind-html="toHTML(testStory.comment)"></p>
+                    <p class="test-details-content" ng-bind-html="toHTML(testStory.comments)"></p>
                 </div>
             </div>
 
@@ -60,9 +60,9 @@
             <div class="panel panel-info"
                     >
                 <!-- Default panel contents -->
-                <div class="panel-heading">Note to Testers</div>
+                <div class="panel-heading">Note</div>
                 <div class="panel-body">
-                    <p class="test-details-content" ng-bind-html="toHTML(testStory.noteToTesters)"></p>
+                    <p class="test-details-content" ng-bind-html="toHTML(testStory.notes)"></p>
                 </div>
             </div>
 
