@@ -79,23 +79,6 @@ public class TestContextController {
 
   }
 
-  @RequestMapping(value = "/{testContextId}/profile")
-  public Json profile(@PathVariable final Long testContextId) {
-    logger.info("Fetching testContext with id=" + testContextId);
-    TestContext testContext = testContext(testContextId);
-    String value = testContext.getConformanceProfile().getJson();
-    return new Json(value);
-  }
-
-  @RequestMapping(value = "/{testContextId}/valuesets")
-  public Json valueSets(@PathVariable final Long testContextId) {
-    logger.info("Fetching testContext with id=" + testContextId);
-    TestContext testContext = testContext(testContextId);
-    String value = testContext.getVocabularyLibrary().getJson();
-    return new Json(value);
-  }
-
-
   @RequestMapping(value = "/{testContextId}/parseMessage", method = RequestMethod.POST)
   public List<gov.nist.hit.core.domain.MessageElement> parse(
       @PathVariable final Long testContextId, @RequestBody final MessageCommand command)
@@ -105,7 +88,8 @@ public class TestContextController {
       TestContext testContext = testContext(testContextId);
       String message = getMessageContent(command);
       return messageParser.parse(message,
-          testContext.getConformanceProfile().getIntegrationProfile().getXml()).getElements();
+          testContext.getConformanceProfile().getIntegrationProfile().getXml(),
+          testContext.getConformanceProfile().getSourceId()).getElements();
     } catch (MessageException e) {
       throw new MessageParserException(e.getMessage());
     }
@@ -118,9 +102,10 @@ public class TestContextController {
       TestContext testContext = testContext(testContextId);
       String res =
           messageValidator.validate(command.getName(), getMessageContent(command), testContext
-              .getConformanceProfile().getIntegrationProfile().getXml(), testContext
-              .getVocabularyLibrary().getXml(), testContext.getConstraints().getXml(), testContext
-              .getAddditionalConstraints().getXml());
+              .getConformanceProfile().getSourceId(), testContext.getConformanceProfile()
+              .getIntegrationProfile().getXml(), testContext.getVocabularyLibrary().getXml(),
+              testContext.getConstraints().getXml(), testContext.getAddditionalConstraints()
+                  .getXml());
       return new Json(res);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
