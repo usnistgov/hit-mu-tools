@@ -36,6 +36,9 @@ public class Bootstrap {
   @PostConstruct
   public void init() throws Exception {
     try {
+    	
+    	this.getClass().getClassLoader().getResource("application.conf");
+    	
       logger.info("Bootstrapping data...");
       resourcebundleLoader.appInfo();
       resourcebundleLoader.constraints();
