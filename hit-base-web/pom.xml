@@ -1,18 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>hit-base-web</artifactId>
-	<name>hit-base-web</name>
+	<artifactId>edos-r2-web</artifactId>
+	<name>edos-r2-web</name>
 	<description>Immunization tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
-		<artifactId>hit-base-tool</artifactId>
+		<artifactId>edos-r2</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<build>
-		<finalName>hit-base-tool</finalName>
+		<finalName>edos-r2</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -83,7 +83,7 @@
 		</dependency>
 
 
-		<dependency>
+<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
@@ -216,18 +216,37 @@
 			<version>3.4.4</version>
 		</dependency>
 
-<!-- 
-  <dependency>
-			<artifactId>hit-example-resource-bundle</artifactId>
-			<groupId>gov.nist.hit.example.resource</groupId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>  -->
-<!--   <dependency>
+		<dependency>
+		  <groupId>gov.nist.healthcare.mu.edos</groupId>
+		  <artifactId>edos-message-validation</artifactId>
+		  <version>0.1.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>gov.nist.healthcare.mu.edos</groupId>
+		  <artifactId>edos-resource-bundle</artifactId>
+		  <version>0.1.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>gov.nist.hit.core.hl7v2</groupId>
 			<artifactId>hit-core-hl7v2-service</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency> -->
- 
+		</dependency>  
+		
+<!--   <dependency>
+			<artifactId>hit-example-resource-bundle</artifactId>
+ 			<groupId>gov.nist.hit.example.resource</groupId>
+ 			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		 
+		<dependency>
+			<groupId>gov.nist.hit.core.hl7v2</groupId>
+			<artifactId>hit-core-hl7v2-service</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>  
+		
+ -->
 	</dependencies>
 
 	<repositories>
