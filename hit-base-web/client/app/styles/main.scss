@@ -32,7 +32,7 @@ body {
 //  background: #f5f5f5;
 //  color: black;
 
-//  font: 76%/ 1.4em Arial, Geneva, Verdana, Helvetica, sans-serif;
+  font: 76% 1.4em Arial, Geneva, Verdana, Helvetica, sans-serif;
 //  background: #021a4c;
 //  color: #000;
 //     font: 76%/ 1.4em Arial, Geneva, Verdana, Helvetica, sans-serif;
@@ -1143,9 +1143,24 @@ margin-top:2px;
 }
 
 .tc-tree {
-  max-width: 100% !important;
+  max-width: 95% !important;
   overflow: auto;
 }
+
+.container-testcase{
+  max-width: 99% !important;
+  overflow: auto;
+}
+
+//
+//.container-testcase{
+////  max-width:100% !important;
+////  overflow: auto;
+//
+//    max-width: 95% !important;
+//    overflow: auto;
+//
+//}
 
 .tc-tree-node{
   padding-top:0px;  padding-bottom:0px;
@@ -1196,6 +1211,7 @@ table.cf-profiles{
 
 .message-tree{
   max-height: 850px !important;
+  max-width: 99% !important;
   overflow: auto;
   margin-bottom: 10px;
 }
@@ -1205,16 +1221,25 @@ table.cf-profiles{
 }
 
 .container-message-tree{
-  height:900px
+  height:900px;
+//  max-width: 99% !important;
+//  overflow: auto;
 }
 
 .container-validation-table{
-  height: 350px !important;
+  height: 300px !important;
   max-height:350px !important;
-  overflow: scroll;
+  overflow: auto;
   //  margin-top: 20px;
 }
 
 .container-message-editor {
   height: 400px;
 }
+
+.panel {
+  border-radius: 0px;
+}
+
+
+

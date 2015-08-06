@@ -14,7 +14,8 @@
                     type: '@',
                     message: '=',
                     tree:'=',
-                    editor:'='
+                    editor:'=',
+                    cursor:'='
                 },
                 templateUrl:'lib/validation-result/validation-result.html',
                 replace: false,
@@ -23,8 +24,20 @@
         }
     ]);
 
+    mod.directive('validationResultTable', [
+        function () {
+            return {
+                restrict: 'A',
+                templateUrl:'lib/validation-result/validation-result-table.html',
+                replace: false
+             };
+        }
+    ]);
+
+
+
     mod
-        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter) {
+        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce','HL7TreeUtils','HL7EditorUtils', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter,$sce,HL7TreeUtils,HL7EditorUtils) {
             $scope.validationTabs = new Array();
             $scope.activeTab = 0;
             $scope.validationResult = null;
@@ -57,9 +70,22 @@
                 }
             };
 
+
+            $scope.select = function (element) {
+                if (element != undefined && element.path != null && element.line != -1) {
+                    var node = HL7TreeUtils.selectNodeByPath($scope.tree.root, element.line, element.path);
+                    var data = node != null ? node.data : null;
+                    $scope.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
+                    HL7EditorUtils.select($scope.editor.instance, $scope.cursor);
+                }
+            };
+
+
             $rootScope.$on($scope.type + ':validationResultLoaded', function (event,validationResult) {
                 $scope.validationResult = validationResult;
+
                 $scope.validResultHighlither = new ValidationResultHighlighter($scope.failuresConfig,$scope.message, $scope.validationResult, $scope.tree, $scope.editor);
+
                 $scope.validationTabs[0] = true;
                 $scope.failuresConfig.errors.checked = false;
                 $scope.failuresConfig.warnings.checked = false;
@@ -67,12 +93,14 @@
                 $scope.failuresConfig.informationals.checked = false;
                 $scope.failuresConfig.affirmatives.checked = false;
                 $scope.hideAllFailures();
-            });
+             });
 
 
             $scope.hideAllFailures = function () {
-                if($scope.validResultHighlither != null)
+                if($scope.validResultHighlither != null) {
                     $scope.validResultHighlither.hideAllFailures();
+                 }
+
             };
 
             $scope.showFailures = function (type, event) {
@@ -83,6 +111,51 @@
             $scope.isVFailureChecked = function (type) {
                 return $scope.failuresConfig[type].checked;
             };
+
+
+            $scope.toHTML = function (content) {
+                return $sce.trustAsHtml(content);
+            };
+
+
+
+        }]);
+
+
+    mod
+        .controller('ValidationResultTableCtrl', ['$scope', '$filter', '$modal', '$rootScope', '$timeout', '$sce','$q','quickRepeatList',function ($scope, $filter, $modal, $rootScope, $timeout,$sce,$q,quickRepeatList) {
+            $scope.data = [];
+            $scope.gridOptions = {};
+            $scope.gridOptions.columnDefs = [
+                { name:'path'},
+                { name:'description'},
+                { name:'column'},
+                { name:'stackTrace',cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">StackTrace</a></div>'},
+                { name:'metaData', cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">MetaData</a></div>'}
+            ];
+            $scope.gridOptions.data = 'data';
+            $scope.gridOptions.enableColumnResizing = true;
+            $scope.gridOptions.enableGridMenu = true;
+            $scope.gridOptions.showColumnFooter = true;
+            $scope.gridOptions.fastWatch = true;
+
+            $scope.gridOptions.rowIdentity = function(row) {
+                return row.id;
+            };
+            $scope.gridOptions.getRowIdentity = function(row) {
+                return row.id;
+            };
+
+            $scope.gridOptions.onRegisterApi = function(gridApi){
+                $scope.gridApi = gridApi;
+            };
+
+
+
+
+
+
+//            $scope.gridOptions.data = $scope.data;
 
             $scope.showDetails = function (element) {
                 var modalInstance = $modal.open({
@@ -100,7 +173,42 @@
                 });
             };
 
+//            $scope.initValidationData = function(data){
+//                $scope.data = data;
+////                $scope.gridOptions.data = $scope.data;
+////                $scope.$apply();
+//            };
+
+
+            $scope.initValidationData = function(data){
+                 var timeout = $timeout(function () {
+                    var i = 0;
+                    $scope.data = [];
+                    data.forEach(function(row){
+                        row.id = i;
+                        i++;
+                        $scope.data.push(row);
+                    });
+                }, 100);
+//                var timeout = $timeout(function() {
+//                    $interval.cancel(sec);
+//                    $scope.left = '';
+//                }, 2000);
+
+                $scope.$on('$destroy', function(){
+                    $timeout.cancel(timeout);
+                 });
+
+            };
+
+
+//
+//            $scope.gridOptions.onRegisterApi = function (gridApi) {
+//                $scope.gridApi = gridApi;
+//            }
+
         }]);
+
 
 
     mod.factory('ValidationResultHighlighter', function ($http, $q, HL7TreeUtils) {
@@ -222,6 +330,18 @@
 //        other.data.push(result);
 //    };
 
+
+        NewValidationResult.prototype.guid = function() {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random()*16)%16 | 0;
+                d = Math.floor(d/16);
+                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+            return uuid;
+        };
+
+
         NewValidationResult.prototype.addResult = function (entryObject, entry) {
             var all = this.getCategory(entryObject, "All");
             all.data.push(entry);
@@ -230,12 +350,15 @@
         };
 
 
+
+
         NewValidationResult.prototype.getCategory = function (entryObject, categoryType) {
             if (categoryType) {
                 var category = null;
                 for (var i = 0; i < entryObject.categories.length; i++) {
                     if (entryObject.categories[i].title === categoryType) {
                         category = entryObject.categories[i];
+                        break;
                     }
                 }
                 if (category === null) {
@@ -251,22 +374,21 @@
 
         NewValidationResult.prototype.addItem = function (entry) {
             try {
+                entry['id'] = this.guid();
                 if (entry['classification'] === 'Error') {
                     this.addResult(this.errors, entry);
-                } else if (entry['classification'] === 'Informational' || entry['classification'] === 'Info') {
-                    this.addResult(this.informationals, entry);
-                } else if (entry['classification'] === 'Warning') {
+                }else if (entry['classification'] === 'Warning') {
                     this.addResult(this.warnings, entry);
-                } else if (entry['classification'] === 'Alert') {
+                }else if (entry['classification'] === 'Alert') {
                     this.addResult(this.alerts, entry);
-                } else if (entry['classification'] === 'Affirmative') {
+                }else if (entry['classification'] === 'Affirmative' || entry['classification'] === 'Informational' || entry['classification'] === 'Info') {
                     this.addResult(this.affirmatives, entry);
                 }
 //                else if (entry['classification'] === 'DQA') {
 //                    this.addResult(this.dqas, entry);
 //                }
             } catch (error) {
-                console.log(error);
+//                console.log(error);
             }
         };
 
@@ -305,25 +427,29 @@
 
         var entriesNode = report.entries;
         if(entriesNode) {
+            var that = this;
             this.structure = entriesNode.structure;
             this.content = entriesNode.content;
             this.valueSet = entriesNode['value-set'];
             if (this.structure) {
-                for (var i = 0; i < this.structure.length; i++) {
-                    this.addItem(this.structure [i]);
-                }
+                angular.forEach(this.structure, function (item) {
+                    that.addItem(item);
+                });
             }
             if (this.content) {
-                for (var i = 0; i < this.content.length; i++) {
-                    this.addItem(this.content [i]);
-                }
+                angular.forEach(this.content, function (item) {
+                    that.addItem(item);
+                });
             }
 
             if (this.valueSet) {
-                for (var i = 0; i < this.valueSet.length; i++) {
-                    this.addItem(this.valueSet [i]);
-                }
+                angular.forEach(this.valueSet, function (item) {
+                    that.addItem(item);
+                });
             }
+
+            console.log("vresult processed");
+
         }
 
         };

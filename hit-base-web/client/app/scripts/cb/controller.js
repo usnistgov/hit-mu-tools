@@ -261,7 +261,7 @@ angular.module('cb')
             if (testContext.message != null && messageContent != null && messageContent != "") {
                 $scope.nodelay = true;
                 $scope.selectedMessage = $scope.cb.testCase.testContext.message;
-                if ($scope.selectedMessage != null) {
+                if ($scope.selectedMessage != null  && $scope.selectedMessage.content != null) {
                     $scope.editor.doc.setValue($scope.selectedMessage.content);
                 } else {
                     $scope.editor.doc.setValue('');
