@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <div ng-controller="CFTestingCtrl" ng-init="init()" class="appcontent container">
 
     <br>
@@ -106,33 +107,28 @@
                 <div style="font-size: 14px">
                     <h4 class="page-header">Standard</h4>
                     <ul>
-                        <li>CDC HL7 Version 2.5.1 Implementation Guide for Immunization Messaging</li>
-                        <li>Release 1.5 (10/01/2014)</li>
+                        <li>HL7 VERSION 2.5.1 IMPLEMENTATION GUIDE: S&I FRAMEWORK LABORATORY ORDERS FROM EHR, DSTU RELEASE 2 – US REALM</li>
+                        <li>Current version : V251_IG_SIF_LABORDERS_DSTUR2_D1_2014SEP_V3</li>
                     </ul>
-                    <!--<p>CDC HL7 Version 2.5.1 Implementation Guide for Immunization Messaging</p>-->
-                    <!--<p>Release 1.5 (10/01/2014)</p>-->
                 </div>
                 <div style="font-size: 14px">
                     <h4 class="page-header">Profiles</h4>
                     <ul>
-                    <li>Z22(VXU)- Send Immunization </li>
-                     <li>Z23(ACK)- Acknowledgement </li>
-                     <li>Z34(QBP)- Query: Complete Immunization History </li>
-                     <li>Z44(QBP)- Query: Evaluated Immunization History And Forecast </li>
-                     <li>Z31(RSP)- Response: List Of Candidates Profile </li>
-                     <li>Z32(RSP)- Response: Complete Immunization History </li>
-                     <li>Z33(RSP)- Response: Acknowledgement With No Person Records </li>
-                     <li>Z42(RSP)- Response: Evaluated History AND Forecast </li>
+					<li>OML - Laboratory Order Message  - New and Append Order (OML^O21)</li>
+					<li>OML - Laboratory Order Message  - Cancel Order (OML^O21)</li>
+					<li>ORL - Laboratory Order Message – Application Level Acknowledgement (ORL^O22)</li>
                     </ul>
                 </div>
                 <div style="font-size: 14px">
-                    <h4 class="page-header">Pairs</h4>
-                    <ul><li>Z22:Z23 - Send Immunization/ACK </li>
-                     <li>Z34:Z31 - Query History/Respond Candidates </li>
-                     <li>Z34:Z32 - Query History/Respond History </li>
-                     <li>Z34:Z33 - Query History/Respond Person Not Found </li>
-                     <li>Z44:Z42 - Query History & Forecast/Respond History & Forecast </li>
-                     <li>Z44:Z33 - Query History & Forecast/Respond Person Not Found </li>
+                    <h4 class="page-header">Mandatory profile components</h4>
+                    <ul><li>NG (Non-Globally Unique) or GU (Globally Unique)</li>
+					<li>PRU ((Unique Placer Order Number) or PRN (Non-Unique Placer Order Number)</li>
+                    </ul>
+                </div>
+				<div style="font-size: 14px">
+                    <h4 class="page-header">Optional profile components</h4>
+                    <ul><li>FI (Financial Information)</li>
+					<li>PH (Public Health)</li>
                     </ul>
                 </div>
             </div>
