@@ -217,15 +217,15 @@
 		</dependency>
 
 		<dependency>
-		  <groupId>gov.nist.healthcare.mu.lri</groupId>
-		  <artifactId>lri-message-validation</artifactId>
+		  <groupId>gov.nist.healthcare.mu.lri.r2</groupId>
+		  <artifactId>lri-r2-message-validation</artifactId>
 		  <version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
-		  <groupId>gov.nist.healthcare.mu.lri</groupId>
-		  <artifactId>lri-resource-bundle</artifactId>
-		  <version>0.1.0-SNAPSHOT</version>
+		  <groupId>gov.nist.healthcare.mu.lri.r2</groupId>
+		  <artifactId>lri-r2-resource-bundle</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
