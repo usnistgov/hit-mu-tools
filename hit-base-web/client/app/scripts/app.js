@@ -18,6 +18,8 @@ var app = angular.module('hit-tool', [
     'ngAnimate',
     'ui.bootstrap',
     'angularBootstrapNavTree',
+    'ui.grid', 'ui.grid.infiniteScroll',
+    'QuickList',
     'xml',
     'hl7',
     'cf',
