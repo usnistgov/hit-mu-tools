@@ -52,14 +52,10 @@ angular.module('cf')
 
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
-//                $scope.testCases = $filter('orderBy')(testCases, 'position');
-//                if( $scope.testCases.length > 0){
-//                    $scope.loadTestCase($scope.testCases[0]);
-//                }
                 angular.forEach(testCases, function (testPlan) {
                     $scope.sortByPosition(testPlan);
                 });
-                $scope.testCases = testCases;
+                $scope.testCases = $filter('orderBy')(testCases, 'position');
                 $scope.loading = false;
                 $scope.error = null;
                 $scope.params.refresh();
@@ -76,6 +72,10 @@ angular.module('cf')
                     $scope.sortByPosition(child);
                 });
             }
+        };
+
+        $scope.expandChildren = function (node) {
+//            $scope.params.expandChildren(node);
         };
 
         $scope.openProfileInfo = function () {

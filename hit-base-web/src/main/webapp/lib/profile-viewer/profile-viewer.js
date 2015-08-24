@@ -20,18 +20,23 @@
     ]);
 
     mod
-        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'ngTreetableParams', 'ProfileService', '$http', function ($scope, $rootScope, ngTreetableParams, ProfileService, $http) {
+        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'ngTreetableParams', 'ProfileService', '$http', '$filter', function ($scope, $rootScope, ngTreetableParams, ProfileService, $http,$filter) {
             $scope.testCase = null;
             $scope.elements = [];
+            $scope.confStatements = [];
+            $scope.tmpConfStatements = [].concat($scope.confStatements);
+            $scope.confStatementsActive = false;
             $scope.nodeData = [];
             $scope.loading = false;
             $scope.error = null;
             $scope.profile = null;
-            $scope.relevance = true;
-            $scope.trim = true;
             $scope.profileService = new ProfileService();
             $scope.loading = false;
             $scope.error = null;
+            $scope.options = {
+                concise:true,
+                relevance:true
+            };
 
             $scope.getConstraintsAsString = function (constraints) {
                 var str = '';
@@ -39,6 +44,19 @@
                     str = str + "<p style=\"text-align: left\">" + constraints[index].id + " - " + constraints[index].description + "</p>";
                 }
                 return str;
+            };
+
+            $scope.isBranch = function (node) {
+                var isBranch = false;
+                if(node.children != null && node.children.length > 0){
+                    for(var i=0; i < node.children.length; i++){
+                        if($scope.show(node.children[i])){
+                            isBranch = true;
+                            break;
+                        }
+                    }
+                }
+                return isBranch;
             };
 
             $scope.showRefSegment = function (id) {
@@ -52,7 +70,25 @@
             };
 
             $scope.show = function (node) {
-                return !$scope.relevance || ($scope.relevance && node.relevent);
+                return !$scope.options.relevance || ($scope.options.relevance && node.relevent);
+            };
+
+            $scope.collectConfStatements = function (obj,confStatementsMap) {
+                if(obj) {
+                    if(obj.conformanceStatements && obj.conformanceStatements !== null){
+                            angular.forEach(obj.conformanceStatements, function (conformanceStatement) {
+                                if(!confStatementsMap.hasOwnProperty(conformanceStatement.id)){
+                                    confStatementsMap[conformanceStatement.id] = conformanceStatement;
+                                    $scope.confStatements.push(conformanceStatement);
+                                }
+                            });
+                    }
+                    if(obj.children) {
+                        angular.forEach(obj.children, function (child) {
+                            $scope.collectConfStatements(child, confStatementsMap);
+                        });
+                    }
+                }
             };
 
 
@@ -73,6 +109,9 @@
                         $scope.elements = profile.json.elements;
                         var datatypes = null;
                         var segments = [];
+                        var message = null;
+                        var confStatementsMap= {};
+                        $scope.confStatements = [];
                         angular.forEach($scope.elements, function (element) {
                             if (element.name === 'Datatypes' && datatypes === null) {
                                 datatypes = element;
@@ -80,26 +119,33 @@
                             if (element.type === 'SEGMENT') {
                                 segments.push(element);
                             }
+                            $scope.collectConfStatements(element, confStatementsMap);
                         });
+                        $scope.confStatements = $filter('orderBy')($scope.confStatements, 'id');
+                        $scope.tmpConfStatements = [].concat($scope.confStatements);
                         $scope.profileService.setDatatypesTypesAndIcons(datatypes);
-                        var valueSetIds = $scope.profileService.getValueSetIds(segments, datatypes.children);
-                        $rootScope.$broadcast($scope.type + ':valueSetIdsCollected', valueSetIds);
+//                        var valueSetIds = $scope.profileService.getValueSetIds(segments, datatypes.children);
+//                        $rootScope.$broadcast($scope.type + ':valueSetIdsCollected', valueSetIds);
                         $scope.nodeData = $scope.elements[0];
-                        $scope.params.refresh();
+                        $scope.refresh('expanded');
                         $scope.loading = false;
                     }, function (error) {
                         $scope.error = "Sorry, Cannot load the profile.";
                         $scope.loading = false;
                         $scope.nodeData = [];
                         $scope.elements = [];
-                        $scope.params.refresh();
+                        $scope.confStatements = [];
+                        $scope.tmpConfStatements = [].concat($scope.confStatements);
+                        $scope.refresh('collapsed');
                     });
                 } else {
                     $scope.loading = false;
                     $scope.nodeData = [];
                     $scope.elements = [];
-                    $scope.params.refresh();
+                    $scope.refresh('collapsed');
                     $scope.loading = false;
+                    $scope.confStatements = [];
+                    $scope.tmpConfStatements = [].concat($scope.confStatements);
 
                 }
             });
@@ -110,16 +156,36 @@
                 getTemplate: function (node) {
                     return 'ProfileViewerNode.html';
                 }
+                ,
+                options: {
+                    initialState: 'collapsed'
+                }
             });
+            $scope.refresh = function (state) {
+                $scope.params.refreshWithState(state);
+            };
 
             $scope.getNodeContent = function (selectedNode) {
+                $scope.confStatementsActive = false;
                 $scope.nodeData = selectedNode;
-                $scope.params.refresh();
-                //$scope.params.expandAll();
+                $scope.refresh(selectedNode.type === 'MESSAGE' ? 'expanded':'collapsed');
+            };
+
+            $scope.showConfStatements = function () {
+                $scope.confStatementsActive = true;
             };
 
         }]);
 
+    mod.directive('stRatio',function(){
+        return {
+
+            link:function(scope, element, attr){
+                var ratio=+(attr.stRatio);
+                element.css('width',ratio+'%');
+            }
+        };
+    });
 
     mod.factory('ProfileService', function ($http, $q, $filter) {
         var ProfileService = function () {
@@ -206,6 +272,16 @@
                     delay.reject(response.data);
                 }
             );
+
+//            $http.get('../../resources/cf/profile.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
             return delay.promise;
         };
 

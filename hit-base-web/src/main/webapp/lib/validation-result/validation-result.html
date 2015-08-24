@@ -1,82 +1,83 @@
 <div ng-show="validationResult !== null">
     <tabset>
-        <tab active="validationTabs[0]">
+        <tab ng-click="initValidationData(validationResult.errors.categories[0].data)">
             <tab-heading>
                 <input type="checkbox"
-                       ng-model="failuresConfig.errors.checked"
-                       ng-click="showFailures('errors', $event)"
+                        ng-click="showFailures('errors', validationResult.errors.categories[0].data, $event)"
                         >
-                <span class="badge failure failure-errors" ng-bind="validationResult.errors.categories[0].data.length"></span>
+                <span class="badge failure failure-errors"
+                      ng-bind="validationResult.errors.categories[0].data.length"></span>
                 Errors
             </tab-heading>
-            <div class="">
+
                 <tabset>
-                    <tab ng-repeat="category in validationResult.errors.categories" class="categortyTab"  >
+                    <tab ng-repeat="category in validationResult.errors.categories" class="validation-result-subtab"
+                         ng-click="initValidationData(category.data)">
                         <tab-heading>
-                            <span class="badge failure failure-errors" ng-bind="category.data.length"></span> {{category.title}}
+                            <input type="checkbox"
+                                    ng-click="showFailures('errors',category.data, $event)"
+                                    >
+                            <span class="badge failure failure-errors" ng-bind="category.data.length"></span>
+                            {{category.title}}
                         </tab-heading>
-                        <div class="container-validation-table" ng-controller="ValidationResultTableCtrl" ng-init="initValidationData(category.data)">
-                            <div validation-result-table></div>
-                         </div>
                     </tab>
                 </tabset>
-            </div>
-        </tab>
 
+         </tab>
 
-        <tab>
+        <tab ng-click="initValidationData(validationResult.warnings.categories[0].data)">
             <tab-heading>
                 <input type="checkbox"
-                       ng-model="failuresConfig.warnings.checked"
-                       ng-click="showFailures('warnings', $event)"
+                        ng-click="showFailures('warnings',validationResult.warnings.categories[0].data, $event)"
                         >
         <span class="badge failure failure-warnings"
               ng-bind="validationResult.warnings.categories[0].data.length"></span> Warnings
             </tab-heading>
-            <div class="">
-                <tabset>
-                    <tab ng-repeat="category in validationResult.warnings.categories" class="categortyTab">
-                        <tab-heading>
 
+                <tabset>
+                    <tab ng-repeat="category in validationResult.warnings.categories" class="validation-result-subtab"
+                         ng-click="initValidationData(category.data)">
+                        <tab-heading>
+                            <input type="checkbox"
+                                    ng-click="showFailures('warnings',category.data, $event)"
+                                    >
                             <span class="badge failure failure-warnings" ng-bind="category.data.length"></span>
                             {{category.title}}
                         </tab-heading>
-                        <div class="container-validation-table" ng-controller="ValidationResultTableCtrl" ng-init="initValidationData(category.data)">
-                             <div validation-result-table></div>
-                        </div>
                     </tab>
                 </tabset>
-            </div>
-
         </tab>
-        <tab>
+        <tab ng-click="initValidationData(validationResult.alerts.categories[0].data)">
             <tab-heading>
                 <input type="checkbox"
-                       ng-model="failuresConfig.alerts.checked"
-                       ng-click="showFailures('alerts', $event)"
+                        ng-click="showFailures('alerts',validationResult.alerts.categories[0].data, $event)"
                         >
-                <span class="badge failure failure-alerts" ng-bind="validationResult.alerts.categories[0].data.length"></span>
+                <span class="badge failure failure-alerts"
+                      ng-bind="validationResult.alerts.categories[0].data.length"></span>
                 Alerts
             </tab-heading>
-            <div class="">
-                <tabset>
-                    <tab ng-repeat="category in validationResult.alerts.categories" class="categortyTab">
-                        <tab-heading>
 
-                            <span class="badge failure failure-alerts" ng-bind="category.data.length"></span> {{category.title}}
+                <tabset>
+                    <tab ng-repeat="category in validationResult.alerts.categories" class="validation-result-subtab"
+                         ng-click="initValidationData(category.data)">
+                        <tab-heading>
+                            <input type="checkbox"
+                                    ng-click="showFailures('alerts',category.data, $event)"
+                                    >
+                            <span class="badge failure failure-alerts" ng-bind="category.data.length"></span>
+                            {{category.title}}
                         </tab-heading>
-                        <div class="container-validation-table" ng-controller="ValidationResultTableCtrl" ng-init="initValidationData(category.data)">
-                            <div validation-result-table></div>
-                        </div>
                     </tab>
                 </tabset>
-            </div>
-
-        </tab>
-
+         </tab>
     </tabset>
-
-
+    <div class="panel panel-default">
+        <div class="panel-body">
+    <div class="container-validation-table">
+        <div validation-result-table></div>
+    </div>
+    </div>
+        </div>
 
 </div>
 
@@ -94,7 +95,7 @@
             <pre>
                 {{selectedElement.stackTrace | json}}
             </pre>
-            <br />
+            <br/>
             <h4>MetaData</h4>
             <pre>
                 {{selectedElement.metaData | json}}
@@ -120,7 +121,7 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td ng-bind="selectedElement.detailed_desc"></td>
+                    <td compile="selectedElement.detailed_desc"></td>
                 </tr>
 
                 <tr ng-show="selectedElement.potential_issue_id">
