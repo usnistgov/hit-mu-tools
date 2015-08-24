@@ -25,6 +25,7 @@
             $scope.testStory = null;
 //            $scope.messageContent = null;
 
+
             $rootScope.$on($scope.type + ':testCaseSelected', function (event, testCase) {
                 $scope.testCase = testCase;
                 $scope.testStory = null;
