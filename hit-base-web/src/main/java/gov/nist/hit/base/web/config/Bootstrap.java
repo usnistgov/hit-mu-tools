@@ -41,7 +41,7 @@ public class Bootstrap {
       resourcebundleLoader.constraints();
       resourcebundleLoader.vocabularyLibraries();
       resourcebundleLoader.integrationProfiles();
-//      resourcebundleLoader.cf();
+      resourcebundleLoader.cf();
       resourcebundleLoader.cb();
       logger.info("...Bootstrapping completed");
     } catch (IOException e) {
