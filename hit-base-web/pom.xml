@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>edos-r2-web</artifactId>
 	<name>edos-r2-web</name>
-	<description>Immunization tool</description>
+	<description>Electronic Directory of Service tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
