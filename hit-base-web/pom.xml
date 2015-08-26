@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>hit-base-web</artifactId>
-	<name>hit-base-web</name>
-	<description>Immunization tool</description>
+	<artifactId>ss-r2-web</artifactId>
+	<name>ss-r2-web</name>
+	<description>Syndromic Surveillance tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
@@ -12,7 +12,7 @@
 	</parent>
 
 	<build>
-		<finalName>hit-base-tool</finalName>
+		<finalName>ss-r2-tool</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
