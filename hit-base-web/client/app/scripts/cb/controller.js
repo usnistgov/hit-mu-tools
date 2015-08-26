@@ -315,19 +315,19 @@ angular.module('cb')
                     var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
                     validator.then(function (mvResult) {
                         $scope.vLoading = false;
-                        $scope.setValidationResult(mvResult);
+                        $scope.loadValidationResult(mvResult);
                     }, function (error) {
                         $scope.vLoading = false;
                         $scope.vError = error;
-                        $scope.setValidationResult(null);
+                        $scope.loadValidationResult(null);
                     });
                 } catch (e) {
                     $scope.vLoading = false;
                     $scope.vError = e;
-                    $scope.setValidationResult(null);
+                    $scope.loadValidationResult(null);
                 }
             } else {
-                $scope.setValidationResult(null);
+                $scope.loadValidationResult(null);
                 $scope.vLoading = false;
                 $scope.vError = null;
             }
@@ -345,19 +345,9 @@ angular.module('cb')
             return $scope.failuresConfig[type].checked;
         };
 
-        $scope.setValidationResult = function (mvResult) {
-            var report = null;
-            var validationResult = null;
-            if (mvResult !== null) {
-                report = {};
-                validationResult = new NewValidationResult();
-                validationResult.init(mvResult);
-                report["result"] = validationResult;
-            }
-            $rootScope.$broadcast('cb:reportLoaded', report);
-            $rootScope.$broadcast('cb:validationResultLoaded', validationResult);
+        $scope.loadValidationResult = function (mvResult) {
+            $rootScope.$broadcast('cb:validationResultLoaded', mvResult);
         };
-
 
         $scope.select = function (element) {
             if (element != undefined && element.path != null && element.line != -1) {
@@ -426,7 +416,7 @@ angular.module('cb')
             $scope.vError = null;
 
             $scope.initCodemirror();
-            $scope.setValidationResult(null);
+            $scope.loadValidationResult(null);
 
             $scope.$on('cb:refreshEditor', function (event) {
                 $scope.refreshEditor();
