@@ -5,7 +5,7 @@
 	<artifactId>lri-r2</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>lri-r2</name>
-	<description>Immunization tool</description>
+	<description>Laboratory Results Interface tool</description>
 	<packaging>pom</packaging>
 	<modules>
  		<module>hit-base-service</module>

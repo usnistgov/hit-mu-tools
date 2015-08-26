@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>lri-r2-web</artifactId>
 	<name>lri-r2-web</name>
-	<description>Immunization tool</description>
+	<description>Laboratory Results Interface tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
