@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>loi-r2-web</artifactId>
 	<name>loi-r2-web</name>
-	<description>Immunization tool</description>
+	<description>Laboratory Orders Interface tool</description>
 	<packaging>war</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>

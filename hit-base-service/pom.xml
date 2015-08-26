@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>loi-r2-service</artifactId>
 	<name>loi-r2-service</name>
-	<description>HIT base tool service package</description>
+	<description>Laboratory Orders Interface tool service package</description>
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
