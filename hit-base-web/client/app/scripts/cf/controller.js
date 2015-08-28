@@ -46,7 +46,11 @@ angular.module('cf')
                     return parent && parent != null ? parent.children : $scope.testCases;
                 },
                 getTemplate: function (node) {
-                    return 'CFTestCase.html';
+                    if(!node.testContext || node.testContext === null){
+                        return 'CFTestCase.html';
+                    }else{
+                        return  'CFTestStep.html';
+                    }
                 }
             });
 
@@ -203,7 +207,7 @@ angular.module('cf')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 350);
+            $scope.editor.setSize("100%", 350);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {

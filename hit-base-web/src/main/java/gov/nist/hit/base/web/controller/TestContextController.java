@@ -12,7 +12,6 @@
 
 package gov.nist.hit.base.web.controller;
 
-import gov.nist.hit.core.domain.Json;
 import gov.nist.hit.core.domain.MessageCommand;
 import gov.nist.hit.core.domain.TestContext;
 import gov.nist.hit.core.repo.TestCaseRepository;
@@ -26,6 +25,7 @@ import gov.nist.hit.core.service.exception.MessageParserException;
 import gov.nist.hit.core.service.exception.MessageValidationException;
 import gov.nist.hit.core.service.exception.TestCaseException;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -96,18 +96,22 @@ public class TestContextController {
   }
 
   @RequestMapping(value = "/{testContextId}/validateMessage", method = RequestMethod.POST)
-  public Json validate(@PathVariable final Long testContextId,
+  public HashMap<String, Object> validate(@PathVariable final Long testContextId,
       @RequestBody final MessageCommand command) throws MessageValidationException {
     try {
+      HashMap<String, Object> resultMap = new HashMap<String, Object>();
       TestContext testContext = testContext(testContextId);
-      String res =
+      String hl7Report =
           messageValidator.validate(command.getName(), getMessageContent(command), testContext
               .getConformanceProfile().getSourceId(), testContext.getConformanceProfile()
               .getIntegrationProfile().getXml(), testContext.getVocabularyLibrary().getXml(),
               testContext.getConstraints().getXml(),
               testContext.getAddditionalConstraints() != null ? testContext
                   .getAddditionalConstraints().getXml() : null);
-      return new Json(res);
+      resultMap.put("hl7Report", hl7Report);
+
+      return resultMap;
+
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
     } catch (MessageValidationException e) {

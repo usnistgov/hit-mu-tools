@@ -1,27 +1,54 @@
-<div>
+<script type="text/ng-template" id="CBTestCase.html">
+    <tr tt-node style="white-space: nowrap"
+        is-branch="node.children != null && node.children.length > 0">
+        <td style="padding-top:0px;  padding-bottom:0px; white-space: nowrap"
+            ng-class="{ 'node-active': node.id === selectedTestCase.id && 'TestCase' === selectedTestCase.type}">
+            <a class="point"
+               ng-click="selectTestCase(node)">{{::node.name}}</a>
+            <!--<input ng-if="node.children != null && node.children.length > 0" title="Expand All" ng-click="expand($event)" type="checkbox">-->
+        </td>
+    </tr>
+</script>
 
-    <script type="text/ng-template" id="CBTestCase.html">
-        <tr tt-node style="white-space: nowrap"
-            is-branch="node.children != null && node.children.length > 0">
-            <td style="padding-top:0px;  padding-bottom:0px;white-space: nowrap"
-                ng-class="{ 'node-active': node.id === selectedTestCase.id && (node.type === 'TestStep' ||  node.type  === 'TestCase') && node.type === selectedTestCase.type}">
-                <a class="point" ng-show="node.type  === 'TestCase'"
-                   ng-click="selectTestCase(node)">{{node.name}}</a>
-                <a class="point" ng-show="node.type === 'TestStep'"
-                   ng-click="selectTestCase(node)">{{node.position}}.{{node.name}}</a>
-                <span ng-show="node.type === 'TestPlan' || node.type === 'TestCaseGroup'">{{node.name}}</span>
-            </td>
-        </tr>
-    </script>
+<script type="text/ng-template" id="CBTestStep.html">
+    <tr tt-node style="white-space: nowrap"
+        is-branch="node.children != null && node.children.length > 0">
+        <td style="padding-top:0px;  padding-bottom:0px; white-space: nowrap"
+            ng-class="{ 'node-active': node.id === selectedTestCase.id && 'TestStep' === selectedTestCase.type}">
+            <a class="point"
+               ng-click="selectTestCase(node)">{{::node.position}}.{{::node.name}}</a>
+        </td>
+    </tr>
+</script>
 
-    <script type="text/ng-template" id="CFTestCase.html">
-        <tr tt-node  style="white-space: nowrap"
-            is-branch="node.children != null && node.children.length > 0">
-            <td style="padding:0;white-space: nowrap" ng-class="{ 'node-active': node.id === testCase.id && node.type === testCase.type}">
-                <a class="point" ng-show="node.testContext && node.testContext !== null" ng-click="loadTestCase(node)">{{node.name}}</a>
-                <span ng-show="!node.testContext || node.testContext === null">{{node.name}}</span>
-            </td>
-        </tr>
-    </script>
 
-</div>
+<script type="text/ng-template" id="CBTestPlanOrTestCaseGroup.html">
+    <tr tt-node style="white-space: nowrap"
+        is-branch="node.children != null && node.children.length > 0">
+        <td style="padding-top:0px;  padding-bottom:0px; white-space: nowrap">
+            <span>{{::node.name}}</span>
+            <!--<input ng-if="node.children != null && node.children.length > 0" title="Expand All" ng-click="expand($event)" type="checkbox">-->
+        </td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="CFTestCase.html">
+    <tr tt-node style="white-space: nowrap"
+        is-branch="node.children != null && node.children.length > 0">
+        <td style="padding:0;white-space: nowrap"
+            ng-class="{ 'node-active': node.id === testCase.id && node.type === testCase.type}">
+            <span>{{::node.name}}</span>
+            <!--<input ng-if="node.children != null && node.children.length > 0" title="Expand All" ng-click="expand($event)" type="checkbox">-->
+        </td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="CFTestStep.html">
+    <tr tt-node style="white-space: nowrap"
+        is-branch="node.children != null && node.children.length > 0">
+        <td style="padding:0;white-space: nowrap"
+            ng-class="{ 'node-active': node.id === testCase.id && node.type === testCase.type}">
+            <a class="point" ng-click="loadTestCase(node)">{{::node.name}}</a>
+        </td>
+    </tr>
+</script>
