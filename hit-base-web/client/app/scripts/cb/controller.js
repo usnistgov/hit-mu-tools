@@ -117,7 +117,13 @@ angular.module('cb')
                     return parent && parent != null ? parent.children : $scope.testCases;
                 },
                 getTemplate: function (node) {
-                    return 'CBTestCase.html';
+                    if(node.type  === 'TestCase'){
+                        return 'CBTestCase.html';
+                    }else if(node.type === 'TestStep'){
+                        return  'CBTestStep.html';
+                    }else if(node.type === 'TestPlan' || node.type === 'TestCaseGroup'){
+                        return  'CBTestPlanOrTestCaseGroup.html';
+                    }
                 }
             });
 
@@ -269,7 +275,7 @@ angular.module('cb')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 350);
+            $scope.editor.setSize("100%", 350);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
