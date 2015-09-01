@@ -12,7 +12,6 @@
 
 package gov.nist.hit.base.web.controller;
 
-import gov.nist.healthcare.unified.model.EnhancedReport;
 import gov.nist.hit.core.domain.MessageCommand;
 import gov.nist.hit.core.domain.TestContext;
 import gov.nist.hit.core.repo.TestCaseRepository;
@@ -21,6 +20,7 @@ import gov.nist.hit.core.repo.TestStepRepository;
 import gov.nist.hit.core.service.MessageParser;
 import gov.nist.hit.core.service.MessageValidator;
 import gov.nist.hit.core.service.ProfileParser;
+import gov.nist.hit.core.service.ReportService;
 import gov.nist.hit.core.service.exception.MessageException;
 import gov.nist.hit.core.service.exception.MessageParserException;
 import gov.nist.hit.core.service.exception.MessageValidationException;
@@ -64,6 +64,8 @@ public class TestContextController {
   @Autowired
   private ProfileParser profileParser;
 
+  @Autowired
+  private ReportService reportService;
 
 
   @Autowired
@@ -100,7 +102,6 @@ public class TestContextController {
   public HashMap<String, String> validate(@PathVariable final Long testContextId,
       @RequestBody final MessageCommand command) throws MessageValidationException {
     try {
-      HashMap<String, String> resultMap = new HashMap<String, String>();
       TestContext testContext = testContext(testContextId);
       String json =
           messageValidator.validate(command.getName(), command.getContextType(),
@@ -109,13 +110,7 @@ public class TestContextController {
                   .getVocabularyLibrary().getXml(), testContext.getConstraints().getXml(),
               testContext.getAddditionalConstraints() != null ? testContext
                   .getAddditionalConstraints().getXml() : null);
-
-      EnhancedReport report = EnhancedReport.from("json", json);
-      resultMap.put("json", report.to("json").toString());
-      resultMap.put("html", report.render("iz-report", null));
-
-      return resultMap;
-
+      return reportService.getReports(json);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
     } catch (MessageValidationException e) {
