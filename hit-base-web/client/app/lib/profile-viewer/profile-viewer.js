@@ -20,7 +20,7 @@
     ]);
 
     mod
-        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'PvTreetableParams', 'ProfileService', '$http', '$filter', '$sce', function ($scope, $rootScope, PvTreetableParams, ProfileService, $http, $filter,$sce) {
+        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'PvTreetableParams', 'ProfileService', '$http', '$filter', '$cookies', '$sce', function ($scope, $rootScope, PvTreetableParams, ProfileService, $http, $filter, $cookies,$sce) {
             $scope.testCase = null;
             $scope.elements = [];
             $scope.confStatements = [];
@@ -265,7 +265,7 @@
                 if (!$scope.options.concise) {
                     $('table.pvt tr td span.concise-view').hide();
                     $('table.pvt tr td span.expanded-view').show();
-                 } else {
+                } else {
                     $('table.pvt tr td span.concise-view').show();
                     $('table.pvt tr td span.expanded-view').hide();
                 }
@@ -404,27 +404,27 @@
 
         ProfileService.prototype.getJson = function (id) {
             var delay = $q.defer();
-//            $http.post('api/profile/' + id).then(
-//                function (object) {
-//                    try {
-//                        delay.resolve(angular.fromJson(object.data));
-//                    } catch (e) {
-//                        delay.reject("Invalid character");
-//                    }
-//                },
-//                function (response) {
-//                    delay.reject(response.data);
-//                }
-//            );
-
-            $http.get('../../resources/cf/profile.json').then(
+            $http.post('api/profile/' + id).then(
                 function (object) {
-                    delay.resolve(angular.fromJson(object.data));
+                    try {
+                        delay.resolve(angular.fromJson(object.data));
+                    } catch (e) {
+                        delay.reject("Invalid character");
+                    }
                 },
                 function (response) {
                     delay.reject(response.data);
                 }
             );
+
+//            $http.get('../../resources/cf/profile.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
 
             return delay.promise;
         };
@@ -568,12 +568,14 @@
          * Rebuilds the entire table.
          */
         $scope.refresh = function () {
-            var rootNodes = table.data('treetable').nodes;
-            while (rootNodes.length > 0) {
-                table.treetable('removeNode', rootNodes[0].id);
+            if(table && table.data('treetable')) {
+                var rootNodes = table.data('treetable').nodes;
+                while (rootNodes.length > 0) {
+                    table.treetable('removeNode', rootNodes[0].id);
+                }
+                $scope.addChildren(null, $scope.shouldExpand());
+                $scope.toggleAllView();
             }
-            $scope.addChildren(null, $scope.shouldExpand());
-            $scope.toggleAllView();
         };
 
         $scope.toggleAllView = function () {
@@ -670,7 +672,7 @@
         }
     }]);
 
-    mod.directive('pvNode', ['$rootScope', function ($rootScope) {
+    mod.directive('pvNode', ['$cookies', '$rootScope', function ($cookies, $rootScope) {
         var ttNodeCounter = 0;
         return {
             restrict: 'AC',
