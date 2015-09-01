@@ -2,7 +2,7 @@
 
 
 angular.module('cf')
-    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'ngTreetableParams', 'CFTestCaseListLoader', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, ngTreetableParams, CFTestCaseListLoader) {
+    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'ngTreetableParams', 'CFTestCaseListLoader','$timeout', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, ngTreetableParams, CFTestCaseListLoader,$timeout) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -20,7 +20,9 @@ angular.module('cf')
             $scope.activeTab = value;
             $scope.tabs[$scope.activeTab] = true;
             if ($scope.activeTab == 0) {
-                $scope.$broadcast("cf:refreshEditor");
+                $timeout(function() {
+                    $scope.$broadcast("cf:refreshEditor");
+                });
             }
         };
 
@@ -31,9 +33,15 @@ angular.module('cf')
         $scope.loadTestCase = function (tc) {
             CF.testCase = tc;
             $scope.testCase = CF.testCase;
-            $rootScope.$broadcast('cf:testCaseLoaded');
-            $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
-            $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+            $timeout(function() {
+                $rootScope.$broadcast('cf:testCaseLoaded');
+            });
+            $timeout(function() {
+                $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
+            });
+            $timeout(function() {
+                $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+            });
         };
 
         $scope.init = function () {
@@ -255,7 +263,7 @@ angular.module('cf')
                     var id = $scope.cf.testCase.testContext.id;
                     var content = $scope.cf.message.content;
                     var label = $scope.cf.testCase.label;
-                    var validated = new MessageValidator().validate(id, content);
+                    var validated = new MessageValidator().validate(id, content,"","Free");
                     validated.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.loadValidationResult(mvResult);
@@ -279,7 +287,9 @@ angular.module('cf')
 
 
         $scope.loadValidationResult = function (mvResult) {
-            $rootScope.$broadcast('cf:validationResultLoaded', mvResult);
+            $timeout(function() {
+                $rootScope.$broadcast('cf:validationResultLoaded', mvResult);
+            });
         };
 
 
