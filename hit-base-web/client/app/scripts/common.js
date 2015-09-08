@@ -393,9 +393,9 @@ angular.module('commonServices').factory('DataInstanceReport', function ($http, 
 angular.module('commonServices').factory('MessageValidator', function ($http, $q, HL7EditorUtils) {
     var MessageValidator = function () {
     };
-    MessageValidator.prototype.validate = function (testContextId, content) {
+    MessageValidator.prototype.validate = function (testContextId, content,label, contextType) {
         var delay = $q.defer();
-             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content})).then(
+             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType":contextType})).then(
                 function (object) {
                     try {
                         delay.resolve(angular.fromJson(object.data));

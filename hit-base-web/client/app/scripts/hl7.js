@@ -508,17 +508,17 @@ angular.module('hl7').factory('HL7Utils', function () {
                     }
                     case "FIELD":
                     {
-                        // MSH[1].7[1]
-                        return path.split("-")[1].split(".")[0];
+                        // MSH[1]-4[1]
+                        return path.split("-")[1].split("[")[0];
                     }
                     case "COMPONENT":
                     {
-                        // MSH[1].7[1].3[1]
+                        // MSH[1]-4[1].1
                         return path.split(".")[1];
                     }
                     case "SUB_COMPONENT":
                     {
-                        // MSH[1].7[1].3[1].4[1]
+                        // MSH[1]-4[1].1.2
                         return path.split(".")[2];
                     }
                 }
@@ -531,26 +531,27 @@ angular.module('hl7').factory('HL7Utils', function () {
         getInstanceNumber: function (path, type) {
             try {
                 switch (type) {
-                        case "SEGMENT":
-                        {
-                            // MSH[1]
-                            return path.split("[")[1].split("]")[0];
-                        }
-                        case "FIELD":
-                        {
-                            // MSH[1].7[1]
-                            return path.split("-")[1].split("[")[1].split("]")[0];
-                        }
-                        case "COMPONENT":
-                        {
-                            // MSH[1].7[1].3[1]
-                            return path.split("-")[2].split("[")[1].split("]")[0];
-                        }
-                        case "SUB_COMPONENT":
-                        {
-                            // MSH[1].7[1].3[1].4[1]
-                            return path.split("-")[3].split("[")[1].split("]")[0];
-                        }
+                    case "SEGMENT":
+                    {
+                        // MSH[1]
+                        return path.split("[")[1].split("]")[0];
+                    }
+                    case "FIELD":
+                    {
+
+                        // MSH[1]-4[1]
+                        return path.split("-")[1].split("[")[1].split("]")[0];
+                    }
+                    case "COMPONENT":
+                    {
+                        //                            return path.split("-")[2].split("[")[1].split("]")[0];
+                        return 1;
+                    }
+                    case "SUB_COMPONENT":
+                    {
+                        //                            return path.split("-")[3].split("[")[1].split("]")[0];
+                        return 1;
+                    }
                 }
             }catch(e){
                 return 1;
@@ -558,12 +559,16 @@ angular.module('hl7').factory('HL7Utils', function () {
         },
 
         getType: function (path) {
+
+            //MSH[1]-3[1].1
+
             if(path.indexOf("-") > 0){
-                if (path.split(".").length === 1) {
+                var path =  path.split("-")[1];
+                if (path.split(".").length === 0) {
                     return "FIELD";
-                } else if (path.split(".").length === 2) {
+                } else if (path.split(".").length === 1) {
                     return "COMPONENT";
-                } else if (path.split(".").length === 3) {
+                } else if (path.split(".").length === 2) {
                     return "SUB_COMPONENT";
                 }
             }else{
@@ -574,90 +579,13 @@ angular.module('hl7').factory('HL7Utils', function () {
 
         prettyPath: function (path) {
             return path.replace(/\[[^\]]*?\]/g, '');
-         }
+        }
 
 
     }
 
 });
 
-//
-//angular.module('hl7').factory('ValidationBinder',
-//    [ 'HL7TreeUtils', function (HL7TreeUtils) {
-//        return  {
-//            tree: null,
-//            editor: null,
-//            result: null,
-//            init: function (tree, editor, result) {
-//                this.tree = tree;
-//                this.editor = editor;
-//                this.result = result;
-//                var firstNode = tree.get_first_branch();
-//                var children = tree.get_siblings(firstNode);
-//                if (children && children.length > 0) {
-//                    for (var i = 0; i < children.length; i++) {
-//                        this.initNode(children[i]);
-//                    }
-//                }
-//            },
-//            initNode: function (node) {
-//                this.setEndIndex(node);
-//                this.setValidationResults(node);
-//                var children = this.tree.get_children(node);
-//                if (children && children.length > 0) {
-//                    for (var i = 0; i < children.length; i++) {
-//                        this.initNode(children[i]);
-//                    }
-//                }
-//            },
-//
-//            setEndIndex: function (node) {
-//                var endIndex = HL7TreeUtils.getEndIndex(node, this.editor.doc.getValue());
-//                node.data.endIndex = endIndex;
-//            },
-//
-//
-//            setValidationResults: function (node) {
-//                node["validation"] = [];
-//                node.validation["errors"] = [];
-//                node.validation["alerts"] = [];
-//                node.validation["informationals"] = [];
-//
-//                if (this.result.errors.data && this.result.errors.data.length > 0) {
-//                    for (var i = 0; i < this.result.errors.data.length; i++) {
-//                        var error = this.result.errors.data[i];
-//                        if (error.path === node.data.path) {
-//                            node.validation.errors.push(error);
-//                        }
-//                    }
-//                }
-//                if (this.result.alerts.data && this.result.alerts.data.length > 0) {
-//                    for (var i = 0; i < this.result.alerts.data.length; i++) {
-//                        var error = this.result.alerts.data[i];
-//                        if (error.path === node.data.path) {
-//                            node.validation.alerts.push(error);
-//                        }
-//                    }
-//
-//                }
-//
-//                if (this.result.informationals.data && this.result.informationals.data.length > 0) {
-//                    for (var i = 0; i < this.result.informationals.data.length; i++) {
-//                        var error = this.result.informationals.data[i];
-//                        if (error.path === node.data.path) {
-//                            node.validation.informationals.push(error);
-//                        }
-//                    }
-//                }
-//            },
-//
-//            clear: function () {
-//                this.tree = null;
-//                this.editor = null;
-//                this.result = null;
-//            }
-//        }
-//    }]);
 
 angular.module('hl7').factory('HL7TreeUtils',
     ['$rootScope', '$http', '$q', 'HL7CursorUtils', 'HL7Utils', function ($rootScope, $http, $q, HL7CursorUtils, HL7Utils) {
@@ -792,6 +720,7 @@ angular.module('hl7').factory('HL7TreeUtils',
                         treeObject.expand_branch(found);
                     }
                 }
+                return found;
             },
             selectNodeByPath: function (treeObject, lineNumber, path) {
                 var found = this.findByPath(treeObject, lineNumber, path);
@@ -803,6 +732,8 @@ angular.module('hl7').factory('HL7TreeUtils',
                         treeObject.expand_branch(found);
                     }
                 }
+                return found;
+
             },
 
             /**
@@ -813,33 +744,33 @@ angular.module('hl7').factory('HL7TreeUtils',
              * @returns {*}
              */
             getStringValue: function (type, path, segment) {
-                     var position = HL7Utils.getPosition(path, type);
-                    var instanceNumber = HL7Utils.getInstanceNumber(path, type);
-                    switch (type) {
-                        case "SEGMENT":
-                        {
-                            return segment.replace("\r", "");
-                        }
-                        case "FIELD":
-                        {
-                            if (segment.startsWith("MSH") && position == 1) return "";
-                            var index = segment.startsWith("MSH") ? position - 2 : position - 1;
-                            var container = segment.substring(4).split("|");
-                            return (instanceNumber > 1 ? container[index].split("~")[instanceNumber - 1] : container[index]).replace("\r", "");
-                        }
-                        case "COMPONENT":
-                        {
-                            var container = this.getStringValue("FIELD", path, segment);
-                            return (instanceNumber > 1 ? container.split("^")[position - 1].split("~")[instanceNumber - 1] : container.split("^")[position - 1]).replace("\r", "");
-                        }
-
-                        case "SUB_COMPONENT":
-                        {
-                            var container = this.getStringValue("COMPONENT", path, segment);
-                            var children = container.split("&");
-                            return  (instanceNumber > 1 ? children[position - 1].split("~")[instanceNumber - 1] : children[position - 1]).replace("\r", "");
-                        }
+                var position = HL7Utils.getPosition(path, type);
+                var instanceNumber = HL7Utils.getInstanceNumber(path, type);
+                switch (type) {
+                    case "SEGMENT":
+                    {
+                        return segment.replace("\r", "");
                     }
+                    case "FIELD":
+                    {
+                        if (segment.startsWith("MSH") && position == 1) return "";
+                        var index = segment.startsWith("MSH") ? position - 2 : position - 1;
+                        var container = segment.substring(4).split("|");
+                        return (instanceNumber > 1 ? container[index].split("~")[instanceNumber - 1] : container[index]).replace("\r", "");
+                    }
+                    case "COMPONENT":
+                    {
+                        var container = this.getStringValue("FIELD", path, segment);
+                        return (instanceNumber > 1 ? container.split("^")[position - 1].split("~")[instanceNumber - 1] : container.split("^")[position - 1]).replace("\r", "");
+                    }
+
+                    case "SUB_COMPONENT":
+                    {
+                        var container = this.getStringValue("COMPONENT", path, segment);
+                        var children = container.split("&");
+                        return  (instanceNumber > 1 ? children[position - 1].split("~")[instanceNumber - 1] : children[position - 1]).replace("\r", "");
+                    }
+                }
             },
 
             getEndIndex: function (node, message) {
@@ -854,7 +785,7 @@ angular.module('hl7').factory('HL7TreeUtils',
 //                    return data.lineNumber - 1 < segments.length ? segments[data.lineNumber - 1] != null && !angular.equals("", segments[data.lineNumber - 1].toString().trim()) ? data.startIndex + this.getStringValue(data.type, data.path, segments[data.lineNumber - 1]).length : -1 : -1;
 //
                 }catch(error){
-                     return -1;
+                    return -1;
                 }
             },
             getEndColumn: function (line, column, type,path, message) {

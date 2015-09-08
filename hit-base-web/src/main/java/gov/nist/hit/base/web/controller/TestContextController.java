@@ -20,6 +20,7 @@ import gov.nist.hit.core.repo.TestStepRepository;
 import gov.nist.hit.core.service.MessageParser;
 import gov.nist.hit.core.service.MessageValidator;
 import gov.nist.hit.core.service.ProfileParser;
+import gov.nist.hit.core.service.ReportService;
 import gov.nist.hit.core.service.exception.MessageException;
 import gov.nist.hit.core.service.exception.MessageParserException;
 import gov.nist.hit.core.service.exception.MessageValidationException;
@@ -63,6 +64,8 @@ public class TestContextController {
   @Autowired
   private ProfileParser profileParser;
 
+  @Autowired
+  private ReportService reportService;
 
 
   @Autowired
@@ -96,25 +99,23 @@ public class TestContextController {
   }
 
   @RequestMapping(value = "/{testContextId}/validateMessage", method = RequestMethod.POST)
-  public HashMap<String, Object> validate(@PathVariable final Long testContextId,
+  public HashMap<String, String> validate(@PathVariable final Long testContextId,
       @RequestBody final MessageCommand command) throws MessageValidationException {
     try {
-      HashMap<String, Object> resultMap = new HashMap<String, Object>();
       TestContext testContext = testContext(testContextId);
-      String hl7Report =
-          messageValidator.validate(command.getName(), getMessageContent(command), testContext
-              .getConformanceProfile().getSourceId(), testContext.getConformanceProfile()
-              .getIntegrationProfile().getXml(), testContext.getVocabularyLibrary().getXml(),
-              testContext.getConstraints().getXml(),
+      String json =
+          messageValidator.validate(command.getName(), command.getContextType(),
+              getMessageContent(command), testContext.getConformanceProfile().getSourceId(),
+              testContext.getConformanceProfile().getIntegrationProfile().getXml(), testContext
+                  .getVocabularyLibrary().getXml(), testContext.getConstraints().getXml(),
               testContext.getAddditionalConstraints() != null ? testContext
                   .getAddditionalConstraints().getXml() : null);
-      resultMap.put("hl7Report", hl7Report);
-
-      return resultMap;
-
+      return reportService.getReports(json);
     } catch (MessageException e) {
       throw new MessageValidationException(e.getMessage());
     } catch (MessageValidationException e) {
+      throw new MessageValidationException(e.getMessage());
+    } catch (Exception e) {
       throw new MessageValidationException(e.getMessage());
     }
   }

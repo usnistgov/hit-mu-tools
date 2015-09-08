@@ -1471,3 +1471,45 @@ li.validation-result-subtab {
   border: 2px;
   color: white;
 }
+
+
+
+.concise-view {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+}
+
+.predicate-concise-view {
+  max-width: 250px;
+}
+//
+.cs-concise-view {
+  max-width: 100%;
+}
+
+.expanded-view {
+  display: block;
+  text-align:left;
+  //  margin-top: 1px;
+  //  margin-bottom: 1px;
+  //  margin-left: 0;
+  //  margin-right: 0;
+}
+
+//.constraints-tooltip{
+////  background-color: black;
+//
+//}
+
+.tooltip.constraints-tooltip .tooltip-inner {
+  color: white;
+  background-color: black;
+}
+
+//.pvt{
+//  width:800px;
+//}
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
