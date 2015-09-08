@@ -1,5 +1,5 @@
 <div ng-show="loading" style="text-align:center">
-    <i class="fa fa-spinner fa-pulse fa-2x"></i>
+    <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
 </div>
 <div ng-show="!loading">
 <div ng-show="error !== null">
@@ -313,7 +313,6 @@
 <script type="text/ng-template" id="TableFoundCtrl.html">
     <div class="modal-header">
         <h3 ng-show="table !== null" class="modal-title">ValueSet:{{table.bindingIdentifier}}</h3>
-
         <h3 ng-show="table === null" class="modal-title">Value Set Not Found</h3>
     </div>
     <div class="modal-body">
