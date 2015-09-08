@@ -20,9 +20,13 @@
     ]);
 
     mod
-        .controller('TestCaseViewerCtrl', ['$scope', '$rootScope', '$sce', 'TestCaseViewerService', '$compile', function ($scope, $rootScope, $sce, TestCaseViewerService, $compile) {
+        .controller('TestCaseViewerCtrl', ['$scope', '$rootScope', '$sce', 'TestCaseViewerService', '$compile', '$timeout', function ($scope, $rootScope, $sce, TestCaseViewerService, $compile,$timeout) {
             $scope.tabs = [];
             $scope.loading = false;
+            $scope.editor = null;
+
+
+
             var testCaseViewerService = new TestCaseViewerService();
             $rootScope.$on($scope.type + ':testCaseSelected', function (event, testCase) {
                 $scope.tabs[0] = true;
@@ -32,39 +36,48 @@
                 $scope.tabs[4] = false;
                 $scope.testCase = testCase;
                 $scope.loading = true;
-//                if (!$scope.testCase['jurorDocument'] || $scope.testCase['jurorDocument'] === null || !$scope.testCase['testStory'] || $scope.testCase['testStory'] === null || !$scope.testCase['messageContent'] || $scope.testCase['messageContent'] === null || !$scope.testCase['testDataSpecification'] || $scope.testCase['testDataSpecification'] === null) {
                 testCaseViewerService.artifacts(testCase.type, testCase.id).then(function (result) {
                     $scope.testCase['testStory'] = result['testStory'];
-//                        if ($scope.testCase['testStory'] !== null) {
-//                            $scope.testCase['testStory']['json'] = angular.fromJson(result['testStory']['json']);
-//                        }
                     $scope.testCase['jurorDocument'] = result['jurorDocument'];
                     $scope.testCase['testDataSpecification'] = result['testDataSpecification'];
                     $scope.testCase['messageContent'] = result['messageContent'];
                     $scope.testCase['testPackage'] = result['testPackage'];
-                    $scope.compileArtifact('testStory');
-                    $scope.compileArtifact('jurorDocument');
-                    $scope.compileArtifact('testDataSpecification');
-                    $scope.compileArtifact('messageContent');
+                    if(testCase.type === 'TestPlan'){
+                        $scope.compileArtifact('testPackage');
+                        $scope.uncompileArtifact('testStory');
+                    }else{
+                        $scope.compileArtifact('testStory');
+                        $scope.uncompileArtifact('testPackage');
+                    }
+                    $scope.uncompileArtifact('jurorDocument');
+                    $scope.uncompileArtifact('testDataSpecification');
+                    $scope.uncompileArtifact('messageContent');
                     $scope.loading = false;
                 }, function (error) {
                     $scope.testCase['testStory'] = null;
+                    $scope.testCase['testPackage'] = null;
                     $scope.testCase['jurorDocument'] = null;
                     $scope.testCase['testDataSpecification'] = null;
                     $scope.testCase['messageContent'] = null;
                     $scope.testCase['testPackage'] = null;
                     $scope.loading = false;
                 });
-//                } else {
-//                    $scope.loading = false;
-//                }
             });
 
             $scope.compileArtifact = function (artifactType) {
-                if ($scope.testCase && $scope.testCase !== null && $scope.testCase[artifactType] !== null) {
+                if ($scope.testCase && $scope.testCase !== null && $scope.testCase[artifactType] && $scope.testCase[artifactType] !== null) {
                     var element = $('#' + artifactType);
-                    element.html($scope.testCase[artifactType].html);
-                    $compile(element.contents())($scope);
+                    if(element.html() == '') {
+                        element.html($scope.testCase[artifactType].html);
+                        $compile(element.contents())($scope);
+                    }
+                }
+            };
+
+            $scope.uncompileArtifact = function (artifactType) {
+                var element = $('#' + artifactType);
+                if(element && element != null) {
+                    element.html('');
                 }
             };
 
@@ -149,6 +162,30 @@
 
             $scope.toHTML = function (content) {
                 return $sce.trustAsHtml(content);
+            };
+
+            $scope.buildTextEditor = function(){
+               $timeout(function() {
+                   if($scope.editor && $scope.editor != null){
+                       $scope.editor.setValue($scope.testCase.testContext.message.content);
+                   }else {
+                        $scope.editor = CodeMirror(document.getElementById("exampleMsg"), {
+                           value: $scope.testCase.testContext.message.content,
+                           lineNumbers: true,
+                           fixedGutter: true,
+                           theme: "elegant",
+                           mode: 'edi',
+                           readOnly: true,
+                           showCursorWhenSelecting: false,
+                           gutters: ["CodeMirror-linenumbers", "cm-edi-segment-name"]
+                       });
+                    }
+
+//                   $scope.editor.setSize("100%", 500);
+
+//                 $scope.editor.setValue($scope.testCase.testContext.message.content);
+//             $scope.editor.setSize("100%", 350);
+               },100);
             };
         }]);
 

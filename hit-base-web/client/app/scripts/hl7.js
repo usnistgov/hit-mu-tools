@@ -629,7 +629,8 @@ angular.module('hl7').factory('HL7TreeUtils',
             findNodeByPath: function (tree, node, lineNumber, path) {
                 if (path.startsWith(node.data.path)) {
                     if (angular.equals(node.data.path , path)) {
-                        return this.findLastChild(tree, node);
+//                        return this.findLastChild(tree, node);
+                        return node;
                     }
                     var children = tree.get_children(node);
                     if (children && children.length > 0) {

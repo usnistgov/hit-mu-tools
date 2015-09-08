@@ -66,6 +66,18 @@ public class TestArtifactController {
         response.setContentType("application/pdf");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName);
         FileCopyUtils.copy(content, response.getOutputStream());
+      } else if (path != null && path.endsWith("docx")) {
+        InputStream content = null;
+        String fileName = path.substring(path.lastIndexOf("/") + 1);
+        if (!path.startsWith("/")) {
+          content = TestArtifactController.class.getResourceAsStream("/" + path);
+        } else {
+          content = TestArtifactController.class.getResourceAsStream(path);
+        }
+        response
+            .setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        FileCopyUtils.copy(content, response.getOutputStream());
       }
 
       throw new IllegalArgumentException("Invalid Path Provided");
