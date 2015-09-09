@@ -31,18 +31,18 @@ angular.module('cf')
         };
 
         $scope.loadTestCase = function (tc) {
-            CF.testCase = tc;
-            $scope.testCase = CF.testCase;
-            $timeout(function() {
-                $rootScope.$broadcast('cf:testCaseLoaded');
-            });
-            $timeout(function() {
-                $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
-            });
-            $timeout(function() {
-                $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
-            });
-        };
+                CF.testCase = tc;
+                $scope.testCase = CF.testCase;
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:testCaseLoaded');
+                });
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
+                });
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+                });
+         };
 
         $scope.init = function () {
             $scope.error = null;
