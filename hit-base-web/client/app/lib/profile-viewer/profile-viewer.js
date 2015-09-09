@@ -20,7 +20,7 @@
     ]);
 
     mod
-        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'PvTreetableParams', 'ProfileService', '$http', '$filter', '$cookies', '$sce', function ($scope, $rootScope, PvTreetableParams, ProfileService, $http, $filter, $cookies,$sce) {
+        .controller('ProfileViewerCtrl', ['$scope', '$rootScope', 'PvTreetableParams', 'ProfileService', '$http', '$filter', '$cookies', '$sce', '$timeout', function ($scope, $rootScope, PvTreetableParams, ProfileService, $http, $filter, $cookies, $sce,$timeout) {
             $scope.testCase = null;
             $scope.elements = [];
             $scope.confStatements = [];
@@ -100,51 +100,62 @@
 
 
             $scope.showValueSetDefinition = function (tableId) {
-                $rootScope.$broadcast($scope.type + ':showValueSetDefinition', tableId);
+                $timeout(function () {
+                    $rootScope.$broadcast($scope.type + ':showValueSetDefinition', tableId);
+                });
+            };
+
+            $scope.getValueSet = function (tableStr) {
+                if (tableStr && tableStr != null) {
+                    return tableStr.split(":");
+                }
+                return [];
             };
 
             $rootScope.$on($scope.type + ':profileLoaded', function (event, profile) {
-                $scope.loading = true;
-                $scope.options.collapse = true;
                 if (profile && profile.id != null) {
-                    $scope.profile = profile;
-                    $scope.profileService.getJson($scope.profile.id).then(function (jsonObject) {
-                        $scope.loading = false;
+                    if ($scope.profile === null || $scope.profile.id != profile.id) {
                         $scope.loading = true;
-                        $scope.nodeData = [];
-                        $scope.loading = false;
-                        profile['json'] = angular.fromJson(jsonObject);
-                        $scope.elements = profile.json.elements;
-                        var datatypes = null;
-                        var segments = [];
-                        var message = null;
-                        var confStatementsMap = {};
-                        $scope.confStatements = [];
-                        angular.forEach($scope.elements, function (element) {
-                            if (element.name === 'Datatypes' && datatypes === null) {
-                                datatypes = element;
-                            }
-                            if (element.type === 'SEGMENT') {
-                                segments.push(element);
-                            }
-                            $scope.collectConfStatements(element, confStatementsMap);
-                        });
-                        $scope.confStatements = $filter('orderBy')($scope.confStatements, 'id');
-                        $scope.tmpConfStatements = [].concat($scope.confStatements);
-                        $scope.profileService.setDatatypesTypesAndIcons(datatypes);
+                        $scope.options.collapse = true;
+                        $scope.profile = profile;
+                        $scope.profileService.getJson($scope.profile.id).then(function (jsonObject) {
+                            $scope.loading = false;
+                            $scope.loading = true;
+                            $scope.nodeData = [];
+                            $scope.loading = false;
+                            profile['json'] = angular.fromJson(jsonObject);
+                            $scope.elements = profile.json.elements;
+                            var datatypes = null;
+                            var segments = [];
+                            var message = null;
+                            var confStatementsMap = {};
+                            $scope.confStatements = [];
+                            angular.forEach($scope.elements, function (element) {
+                                if (element.name === 'Datatypes' && datatypes === null) {
+                                    datatypes = element;
+                                }
+                                if (element.type === 'SEGMENT') {
+                                    segments.push(element);
+                                }
+                                $scope.collectConfStatements(element, confStatementsMap);
+                            });
+                            $scope.confStatements = $filter('orderBy')($scope.confStatements, 'id');
+                            $scope.tmpConfStatements = [].concat($scope.confStatements);
+                            $scope.profileService.setDatatypesTypesAndIcons(datatypes);
 //                        var valueSetIds = $scope.profileService.getValueSetIds(segments, datatypes.children);
 //                        $rootScope.$broadcast($scope.type + ':valueSetIdsCollected', valueSetIds);
-                        $scope.getNodeContent($scope.elements[0]);
-                        $scope.loading = false;
-                    }, function (error) {
-                        $scope.error = "Sorry, Cannot load the profile.";
-                        $scope.loading = false;
-                        $scope.nodeData = [];
-                        $scope.elements = [];
-                        $scope.confStatements = [];
-                        $scope.tmpConfStatements = [].concat($scope.confStatements);
-                        $scope.refresh();
-                    });
+                            $scope.getNodeContent($scope.elements[0]);
+                            $scope.loading = false;
+                        }, function (error) {
+                            $scope.error = "Sorry, Cannot load the profile.";
+                            $scope.loading = false;
+                            $scope.nodeData = [];
+                            $scope.elements = [];
+                            $scope.confStatements = [];
+                            $scope.tmpConfStatements = [].concat($scope.confStatements);
+                            $scope.refresh();
+                        });
+                    }
                 } else {
                     $scope.loading = false;
                     $scope.nodeData = [];
@@ -245,7 +256,7 @@
                     $('table.pvt tr.notRelevant').show();
                 } else {
                     $('table.pvt tr.notRelevant').hide();
-                    var branches = $('table.pvt tr.branch[data-tt-parent-id="'+ rowId+"'"+']').not('.ng-hide').not('.notRelevant');
+                    var branches = $('table.pvt tr.branch[data-tt-parent-id="' + rowId + "'" + ']').not('.ng-hide').not('.notRelevant');
                     for (var i = 0; i < branches.length; i++) {
                         var branch = $(branches[i]);
                         var id = branch.attr('data-tt-id');
@@ -260,7 +271,7 @@
                 }
             };
 
-            $scope.setAllConcise = function(value){
+            $scope.setAllConcise = function (value) {
                 $scope.options.concise = value;
                 if (!$scope.options.concise) {
                     $('table.pvt tr td span.concise-view').hide();
@@ -275,7 +286,7 @@
                 $scope.confStatementsActive = true;
             };
 
-            $scope.getPredicatesAsMultipleLinesString = function(node){
+            $scope.getPredicatesAsMultipleLinesString = function (node) {
                 var html = "";
                 angular.forEach(node.predicates, function (predicate) {
                     html = html + "<p>" + predicate.description + "</p>";
@@ -283,7 +294,7 @@
                 return html;
             };
 
-            $scope.getPredicatesAsOneLineString = function(node){
+            $scope.getPredicatesAsOneLineString = function (node) {
                 var html = "";
                 angular.forEach(node.predicates, function (predicate) {
                     html = html + predicate.description;
@@ -292,7 +303,7 @@
             };
 
 
-            $scope.getConfStatementsAsMultipleLinesString = function(node){
+            $scope.getConfStatementsAsMultipleLinesString = function (node) {
                 var html = "";
                 angular.forEach(node.conformanceStatements, function (conStatement) {
                     html = html + "<p>" + conStatement.id + " : " + conStatement.description + "</p>";
@@ -300,10 +311,10 @@
                 return html;
             };
 
-            $scope.getConfStatementsAsOneLineString = function(node){
+            $scope.getConfStatementsAsOneLineString = function (node) {
                 var html = "";
                 angular.forEach(node.conformanceStatements, function (conStatement) {
-                    html = html +  conStatement.id + " : " + conStatement.description ;
+                    html = html + conStatement.id + " : " + conStatement.description;
                 });
                 return $sce.trustAsHtml(html);
             };
@@ -474,7 +485,7 @@
 
             if (angular.isObject(baseConfiguration)) {
                 angular.forEach(baseConfiguration, function (val, key) {
-                    if (['getNodes', 'getTemplate', 'options', 'getRelevance', 'toggleRelevance', 'toggleConcise','getConcise'].indexOf(key) > -1) {
+                    if (['getNodes', 'getTemplate', 'options', 'getRelevance', 'toggleRelevance', 'toggleConcise', 'getConcise'].indexOf(key) > -1) {
                         self[key] = val;
                     } else {
                         $log.warn('PvTreetableParams - Ignoring unexpected property "' + key + '".');
@@ -568,7 +579,7 @@
          * Rebuilds the entire table.
          */
         $scope.refresh = function () {
-            if(table && table.data('treetable')) {
+            if (table && table.data('treetable')) {
                 var rootNodes = table.data('treetable').nodes;
                 while (rootNodes.length > 0) {
                     table.treetable('removeNode', rootNodes[0].id);
@@ -586,7 +597,7 @@
         };
 
 
-        $scope.setRowConcise = function(rowId){
+        $scope.setRowConcise = function (rowId) {
 
         };
 
@@ -693,7 +704,7 @@
 
                 var data = angular.isDefined(scope.data) ? scope.data : null;
                 if (data != null) {
-                    if(!data.relevent) {
+                    if (!data.relevent) {
                         element.addClass('notRelevant');
                     }
                     $rootScope.pvNodesMap[id] = data;

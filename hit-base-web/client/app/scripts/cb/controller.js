@@ -44,9 +44,11 @@ angular.module('cb')
             $rootScope.$on('cb:testCaseLoaded', function (event, testCase) {
                 $rootScope.setSubActive('/cb_execution');
                 $scope.testCase = testCase;
+
                 $timeout(function() {
                     $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
                 });
+
                 $timeout(function() {
                     $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
                 });
@@ -155,10 +157,12 @@ angular.module('cb')
         };
 
         $scope.selectTestCase = function (node) {
-            $scope.selectedTestCase = node;
-            $timeout(function() {
-                $rootScope.$broadcast('cb:testCaseSelected', $scope.selectedTestCase);
-            });
+            if($scope.selectedTestCase == null || $scope.selectedTestCase.id != node.id) {
+                $scope.selectedTestCase = node;
+                $timeout(function () {
+                    $rootScope.$broadcast('cb:testCaseSelected', $scope.selectedTestCase);
+                });
+            }
         };
 
         $scope.loadTestCase = function () {

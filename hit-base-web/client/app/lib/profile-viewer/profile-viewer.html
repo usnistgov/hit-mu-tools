@@ -221,9 +221,7 @@
                                          ng-show="node.minLength && node.maxLength">[{{::node.minLength}},{{::node.maxLength}}]</span>
         </td>
         <td class="col-fixed-150">
-            <a class="point"
-               ng-click="showValueSetDefinition(node.table)"
-                    >{{::node.table}}</a>
+            <a ng-repeat="valueSet in getValueSet(node.table)" class="point valueset" ng-click="showValueSetDefinition(valueSet)">{{::valueSet}}</a>
         </td>
         <td class="col-predicate">
             <span class="predicate-concise-view concise-view"  ng-show="options.concise" tooltip-html="getPredicatesAsMultipleLinesString(node)"  tooltip-append-to-body="true" tooltip-class="constraints-tooltip" ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger tooltip-animation="false" tooltip-placement="left" />
@@ -270,7 +268,7 @@
                                          ng-show="node.minLength && node.maxLength">[{{::node.minLength}},{{::node.maxLength}}]</span>
         </td>
         <td class="col-fixed-150">
-            <a class="point" ng-click="showValueSetDefinition(node.table)">{{::node.table}}</a>
+            <a ng-repeat="valueSet in getValueSet(node.table)" class="point valueset" ng-click="showValueSetDefinition(valueSet)">{{::valueSet}}</a>
         </td>
 
         <td class="col-predicate">
@@ -313,7 +311,7 @@
                                          ng-show="node.minLength && node.maxLength">[{{::node.minLength}},{{::node.maxLength}}]</span>
         </td>
         <td class="col-fixed-150">
-            <a class="point" ng-click="showValueSetDefinition(node.table)">{{::node.table}}</a>
+            <a ng-repeat="valueSet in getValueSet(node.table)" class="point valueset" ng-click="showValueSetDefinition(valueSet)">{{::valueSet}}</a>
         </td>
 
         <td class="col-predicate">

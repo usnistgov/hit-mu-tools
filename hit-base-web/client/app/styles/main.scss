@@ -1513,3 +1513,23 @@ li.validation-result-subtab {
 //}
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.nav-tabs > li.focus > a, .nav-tabs > li > a:focus, .nav-tabs > li.active > a:focus {
+  background-color: #428bca;
+  border-color: #bce8f1;
+  color: white;
+}
+
+.valueset {
+  display: block;
+  text-align:left;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.validation-pagination{
+  margin:0px;
+  padding:0px;
+}
