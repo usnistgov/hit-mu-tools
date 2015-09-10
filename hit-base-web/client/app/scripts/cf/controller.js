@@ -8,7 +8,7 @@ angular.module('cf')
         $scope.loading = false;
         $scope.error = null;
         $scope.testCases = [];
-        $scope.testCase = CF.testCase;
+        $scope.testCase = null;
         $scope.tabs = new Array();
         $scope.error = null;
 

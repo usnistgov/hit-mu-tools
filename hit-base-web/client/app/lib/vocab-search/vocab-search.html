@@ -17,7 +17,7 @@
             <div ng-show="error == null">
                 <tabset>
                     <tab ng-repeat="valueSetDefinitionGroup in valueSetDefinitionGroups | orderBy : 'position'"
-                         heading="{{valueSetDefinitionGroup.name}}">
+                         heading="{{valueSetDefinitionGroup.grouping}}">
                         <div class="panel panel-info">
                             <div class="panel-body">
                                 <div ng-controller="VocabGroupCtrl"
@@ -410,7 +410,7 @@
     </div>
     <div class="modal-footer">
         <button title="Close" type="button" class="pull-right btn btn-sm btn-primary"
-                ng-click="cancel()">
+                ng-click="close()">
             <i class="fa fa-times"></i>Close
         </button>
     </div>
