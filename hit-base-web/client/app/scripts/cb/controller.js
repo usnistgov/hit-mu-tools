@@ -2,30 +2,13 @@
 
 angular.module('cb')
     .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', function ($scope, $window, $rootScope, CB) {
-        $scope.loading = true;
-        $scope.error = null;
-        $scope.tabs = new Array();
-
-        $scope.setActiveTab = function (value) {
-            $scope.tabs[0] = false;
-            $scope.tabs[1] = false;
-            $scope.activeTab = value;
-            $scope.tabs[$scope.activeTab] = true;
-        };
 
         $scope.getTestType = function () {
             return CB.testCase.type;
         };
 
         $scope.init = function () {
-            $scope.error = null;
-            $scope.loading = false;
-            $scope.setActiveTab(0);
-            $rootScope.$on('cb:testCaseLoaded', function (event) {
-                if (CB.testCase != null && CB.testCase.id != null) {
-                    $scope.setActiveTab(1);
-                }
-            });
+            $rootScope.setSubActive('/cb_testcase');
         };
 
         $scope.disabled = function () {
@@ -36,7 +19,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', function ($scope, $window, $rootScope) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', '$timeout',function ($scope, $window, $rootScope,$timeout) {
         $scope.loading = true;
         $scope.error = null;
         $scope.tabs = new Array();
@@ -59,9 +42,16 @@ angular.module('cb')
             $scope.loading = false;
             $scope.setActiveTab(0);
             $rootScope.$on('cb:testCaseLoaded', function (event, testCase) {
+                $rootScope.setSubActive('/cb_execution');
                 $scope.testCase = testCase;
-                $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
-                $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+
+                $timeout(function() {
+                    $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
+                });
+
+                $timeout(function() {
+                    $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+                });
             });
         };
 
@@ -133,7 +123,13 @@ angular.module('cb')
                     return parent && parent != null ? parent.children : $scope.testCases;
                 },
                 getTemplate: function (node) {
-                    return 'CBTestCase.html';
+                    if(node.type  === 'TestCase'){
+                        return 'CBTestCase.html';
+                    }else if(node.type === 'TestStep'){
+                        return  'CBTestStep.html';
+                    }else if(node.type === 'TestPlan' || node.type === 'TestCaseGroup'){
+                        return  'CBTestPlanOrTestCaseGroup.html';
+                    }
                 }
             });
 
@@ -161,14 +157,20 @@ angular.module('cb')
         };
 
         $scope.selectTestCase = function (node) {
-            $scope.selectedTestCase = node;
-            $rootScope.$broadcast('cb:testCaseSelected',$scope.selectedTestCase);
+            if($scope.selectedTestCase == null || $scope.selectedTestCase.id != node.id) {
+                $scope.selectedTestCase = node;
+                $timeout(function () {
+                    $rootScope.$broadcast('cb:testCaseSelected', $scope.selectedTestCase);
+                });
+            }
         };
 
         $scope.loadTestCase = function () {
             CB.testCase = $scope.selectedTestCase;
             $scope.testCase = CB.testCase;
-            $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase);
+            $timeout(function() {
+                $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase);
+            });
         };
 
 
@@ -261,7 +263,7 @@ angular.module('cb')
             if (testContext.message != null && messageContent != null && messageContent != "") {
                 $scope.nodelay = true;
                 $scope.selectedMessage = $scope.cb.testCase.testContext.message;
-                if ($scope.selectedMessage != null) {
+                if ($scope.selectedMessage != null  && $scope.selectedMessage.content != null) {
                     $scope.editor.doc.setValue($scope.selectedMessage.content);
                 } else {
                     $scope.editor.doc.setValue('');
@@ -285,7 +287,7 @@ angular.module('cb')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 350);
+            $scope.editor.setSize("100%", 345);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
@@ -328,22 +330,22 @@ angular.module('cb')
             $scope.vError = null;
             if ($scope.cb.testCase != null && $scope.cb.message.content !== "") {
                 try {
-                    var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
+                    var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
                     validator.then(function (mvResult) {
                         $scope.vLoading = false;
-                        $scope.setValidationResult(mvResult);
+                        $scope.loadValidationResult(mvResult);
                     }, function (error) {
                         $scope.vLoading = false;
                         $scope.vError = error;
-                        $scope.setValidationResult(null);
+                        $scope.loadValidationResult(null);
                     });
                 } catch (e) {
                     $scope.vLoading = false;
                     $scope.vError = e;
-                    $scope.setValidationResult(null);
+                    $scope.loadValidationResult(null);
                 }
             } else {
-                $scope.setValidationResult(null);
+                $scope.loadValidationResult(null);
                 $scope.vLoading = false;
                 $scope.vError = null;
             }
@@ -361,19 +363,11 @@ angular.module('cb')
             return $scope.failuresConfig[type].checked;
         };
 
-        $scope.setValidationResult = function (mvResult) {
-            var report = null;
-            var validationResult = null;
-            if (mvResult !== null) {
-                report = {};
-                validationResult = new NewValidationResult();
-                validationResult.init(mvResult);
-                report["result"] = validationResult;
-            }
-            $rootScope.$broadcast('cb:reportLoaded', report);
-            $rootScope.$broadcast('cb:validationResultLoaded', validationResult);
+        $scope.loadValidationResult = function (mvResult) {
+            $timeout(function() {
+                $rootScope.$broadcast('cb:validationResultLoaded', mvResult);
+            });
         };
-
 
         $scope.select = function (element) {
             if (element != undefined && element.path != null && element.line != -1) {
@@ -442,7 +436,7 @@ angular.module('cb')
             $scope.vError = null;
 
             $scope.initCodemirror();
-            $scope.setValidationResult(null);
+            $scope.loadValidationResult(null);
 
             $scope.$on('cb:refreshEditor', function (event) {
                 $scope.refreshEditor();

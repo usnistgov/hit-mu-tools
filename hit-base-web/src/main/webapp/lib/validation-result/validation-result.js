@@ -2,9 +2,9 @@
  * Created by haffo on 5/4/15.
  */
 
-(function ( angular ) {
+(function (angular) {
     'use strict';
-    var mod =  angular.module('hit-validation-result', [] );
+    var mod = angular.module('hit-validation-result', []);
 
     mod.directive('validationResult', [
         function () {
@@ -13,76 +13,117 @@
                 scope: {
                     type: '@',
                     message: '=',
-                    tree:'=',
-                    editor:'='
+                    dqa: '=',
+                    tree: '=',
+                    editor: '=',
+                    cursor: '='
                 },
-                templateUrl:'lib/validation-result/validation-result.html',
+                templateUrl: 'lib/validation-result/validation-result.html',
                 replace: false,
                 controller: 'ValidationResultCtrl'
             };
         }
     ]);
 
+
+    mod.directive('validationResultTable', [
+        function () {
+            return {
+                restrict: 'A',
+                templateUrl: 'lib/validation-result/validation-result-table.html',
+                replace: false
+            };
+        }
+    ]);
+
     mod
-        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter) {
+        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'HL7TreeUtils', 'HL7EditorUtils', 'NewValidationResult', '$timeout', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, HL7TreeUtils, HL7EditorUtils,NewValidationResult,$timeout) {
             $scope.validationTabs = new Array();
             $scope.activeTab = 0;
             $scope.validationResult = null;
+            $scope.loadingCategory = false;
             $scope.validResultHighlither = null;
-            $scope.validationConfig = {
-                dqa : {
-                    checked:false
-                }
+            $scope.active = {
+                errors:true,
+                alerts:false,
+                warnings: false,
+                informationals:false,
+                affirmatives: false
             };
+
+            $scope.subActive = {
+                errors: {
+                 },
+                alerts: {
+                 },
+                warnings: {
+                 },
+                informationals: {
+                 },
+                affirmatives: {
+                 }
+            };
+
             $scope.failuresConfig = {
-                errors : {
-                    className : "failure failure-errors",
-                    checked:false
+                errors: {
+                    className: "failure failure-errors",
+                    checked: false,
+                    active:false
                 },
-                alerts : {
-                    className : "failure failure-alerts",
-                    checked:false
+                alerts: {
+                    className: "failure failure-alerts",
+                    checked: false,
+                    active:false
                 },
-                warnings : {
-                    className : "failure failure-warnings",
-                    checked:false
+                warnings: {
+                    className: "failure failure-warnings",
+                    checked: false,
+                    active:false
                 },
-                informationals : {
-                    className : "failure failure-infos",
-                    checked:false
+                informationals: {
+                    className: "failure failure-infos",
+                    checked: false,
+                    active:false
                 },
-                affirmatives : {
-                    className : "failure failure-affirmatives",
-                    checked:false
+                affirmatives: {
+                    className: "failure failure-affirmatives",
+                    checked: false,
+                    active:false
                 }
+//                ,
+//                dqa: {
+//                    className: "failure failure-dqa",
+//                    checked: false,
+//                    active:false
+//                }
             };
 
-            $rootScope.$on($scope.type + ':validationResultLoaded', function (event,validationResult) {
-                $scope.validationResult = validationResult;
-                $scope.validResultHighlither = new ValidationResultHighlighter($scope.failuresConfig,$scope.message, $scope.validationResult, $scope.tree, $scope.editor);
-                $scope.validationTabs[0] = true;
-                $scope.failuresConfig.errors.checked = false;
-                $scope.failuresConfig.warnings.checked = false;
-                $scope.failuresConfig.alerts.checked = false;
-                $scope.failuresConfig.informationals.checked = false;
-                $scope.failuresConfig.affirmatives.checked = false;
-                $scope.hideAllFailures();
-            });
-
-
-            $scope.hideAllFailures = function () {
-                if($scope.validResultHighlither != null)
-                    $scope.validResultHighlither.hideAllFailures();
-            };
-
-            $scope.showFailures = function (type, event) {
-                if($scope.validResultHighlither != null)
-                    $scope.validResultHighlither.showFailures(type, event);
-            };
-
-            $scope.isVFailureChecked = function (type) {
-                return $scope.failuresConfig[type].checked;
-            };
+            $scope.data = [];
+            $scope.tmpData = [];
+//            $scope.gridOptions = {};
+//            $scope.gridOptions.columnDefs = [
+//                { name:'path',width:40},
+//                { name:'description'},
+//                { name:'column',width:20},
+//                { name:'stackTrace',width:40,cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">StackTrace</a></div>'},
+//                { name:'metaData',width:40, cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">MetaData</a></div>'}
+//            ];
+//            $scope.gridOptions.data = 'data';
+//            $scope.gridOptions.enableColumnResizing = true;
+//            $scope.gridOptions.enableGridMenu = true;
+//            $scope.gridOptions.showColumnFooter = true;
+//            $scope.gridOptions.fastWatch = true;
+//
+//            $scope.gridOptions.rowIdentity = function(row) {
+//                return row.id;
+//            };
+//            $scope.gridOptions.getRowIdentity = function(row) {
+//                return row.id;
+//            };
+//
+//            $scope.gridOptions.onRegisterApi = function(gridApi){
+//                $scope.gridApi = gridApi;
+//            };
 
             $scope.showDetails = function (element) {
                 var modalInstance = $modal.open({
@@ -100,6 +141,83 @@
                 });
             };
 
+//            $scope.initValidationData = function (data) {
+//                $scope.loadingCategory = true;
+//                $scope.data = data;
+//                $scope.tmpData = [].concat($scope.data);
+//                $scope.loadingCategory = false;
+//            };
+
+            $scope.showValidationTable = function (category,type) {
+                $scope.loadingCategory = true;
+                $scope.data = category.data;
+                $scope.tmpData = [].concat($scope.data);
+                $scope.subActive = {};
+                $scope.subActive[type] = {};
+                $scope.subActive[type][category.title] = true;
+                $scope.loadingCategory = false;
+            };
+
+
+            $scope.select = function (element) {
+                if (element != undefined && element.path != null && element.line != -1) {
+                    var node = HL7TreeUtils.selectNodeByPath($scope.tree.root, element.line, element.path);
+                    var data = node != null ? node.data : null;
+                    var endIndex =  HL7TreeUtils.getEndIndex(node, $scope.editor.instance.getValue());
+                    data.endIndex = endIndex;
+                    $scope.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
+                    HL7EditorUtils.select($scope.editor.instance, $scope.cursor);
+                }
+            };
+
+            $rootScope.$on($scope.type + ':validationResultLoaded', function (event, mvResult) {
+                var report = null;
+                var validationResult = null;
+                if (mvResult !== null) {
+                    validationResult = new NewValidationResult();
+                    validationResult.init(mvResult.json);
+                    mvResult['result'] = validationResult;
+                }
+                $timeout(function() {
+                    $rootScope.$broadcast($scope.type + ':reportLoaded', mvResult);
+                });
+
+                $scope.validationResult = validationResult;
+                if ($scope.validationResult && $scope.validationResult != null) {
+                    $scope.validResultHighlither = new ValidationResultHighlighter($scope.failuresConfig, $scope.message, $scope.validationResult, $scope.tree, $scope.editor);
+                    $scope.failuresConfig.errors.checked = false;
+                    $scope.failuresConfig.warnings.checked = false;
+                    $scope.failuresConfig.alerts.checked = false;
+                    $scope.failuresConfig.informationals.checked = false;
+                    $scope.failuresConfig.affirmatives.checked = false;
+                    $scope.firstLoaded = false;
+                    $scope.hideAllFailures();
+                    $scope.active = {};
+                    $scope.active["errors"] = true;
+                   $scope.showValidationTable($scope.validationResult['errors'].categories[0],'errors');
+
+                }
+            });
+
+
+            $scope.hideAllFailures = function () {
+                if ($scope.validResultHighlither != null) {
+                    $scope.validResultHighlither.hideAllFailures();
+                }
+            };
+
+            $scope.showFailures = function (type, category, event) {
+                if ($scope.validResultHighlither != null)
+                    $scope.validResultHighlither.showFailures(type, category, event);
+            };
+
+            $scope.isVFailureChecked = function (type) {
+                return $scope.failuresConfig[type].checked;
+            };
+
+            $scope.toHTML = function (content) {
+                return $sce.trustAsHtml(content);
+            };
         }]);
 
 
@@ -134,43 +252,43 @@
             this.hideFailures(this.histMarksMap['alerts']);
         };
 
-
-        ValidationResultHighlighter.prototype.showFailures = function (type, event) {
+        ValidationResultHighlighter.prototype.showFailures = function (type, category, event) {
             if (angular.element(event.currentTarget).prop('tagName') === 'INPUT') {
                 event.stopPropagation();
             }
-            if (this.result  && this.result != null && this.tree.root) {
-                var failures = this.result[type]["categories"][0].data;
-                var colorClass = this.failuresConfig[type].className;
-                var checked = this.failuresConfig[type].checked;
-                var hitMarks = this.histMarksMap[type];
-                var root = this.tree.root;
-                var editor = this.editor;
-                var content = this.message.content;
-                var histMarksMap = this.histMarksMap;
-                if (!hitMarks || hitMarks.length === 0) {
-                    angular.forEach(failures, function (failure) {
-                        var node = HL7TreeUtils.findByPath(root, failure.line, failure.path);
-                        if (node != null && node.data && node.data != null) {
-                            var endIndex = HL7TreeUtils.getEndIndex(node, content) - 1;
-                            var startIndex = node.data.startIndex - 1;
-                            var line = parseInt(failure.line) - 1;
-                            var markText = editor.instance.doc.markText({
-                                line: line,
-                                ch: startIndex
-                            }, {
-                                line: line,
-                                ch: endIndex
-                            }, {atomic: true, className: colorClass, clearWhenEmpty: true, clearOnEnter: true, title: failure.description
-                            });
+            if (this.result && this.result != null && this.tree.root) {
+                //if(category.checked) {
+                    var failures = category.data;
+                    var colorClass = this.failuresConfig[type].className;
+                    var hitMarks = this.histMarksMap[type];
+                    var root = this.tree.root;
+                    var editor = this.editor;
+                    var content = this.message.content;
+                    var histMarksMap = this.histMarksMap;
+                    if (!hitMarks || hitMarks.length === 0) {
+                        angular.forEach(failures, function (failure) {
+                            var node = HL7TreeUtils.findByPath(root, failure.line, failure.path);
+                            if (node != null && node.data && node.data != null) {
+                                var endIndex = HL7TreeUtils.getEndIndex(node, content) - 1;
+                                var startIndex = node.data.startIndex - 1;
+                                var line = parseInt(failure.line) - 1;
+                                var markText = editor.instance.doc.markText({
+                                    line: line,
+                                    ch: startIndex
+                                }, {
+                                    line: line,
+                                    ch: endIndex
+                                }, {atomic: true, className: colorClass, clearWhenEmpty: true, clearOnEnter: true, title: failure.description
+                                });
 
-                            if (!histMarksMap[type]) {
-                                histMarksMap[type] = [];
+                                if (!histMarksMap[type]) {
+                                    histMarksMap[type] = [];
+                                }
+                                histMarksMap[type].push(markText);
                             }
-                            histMarksMap[type].push(markText);
-                        }
-                    });
-                } else {
+                        });
+                    }
+                 else {
                     this.hideFailures(this.histMarksMap[type]);
                 }
             }
@@ -181,13 +299,10 @@
     });
 
 
-    mod.factory('NewValidationResult', function (ValidationResult, HL7Utils) {
+    mod.factory('NewValidationResult', function (ValidationResult, HL7Utils,ValidationResultItem) {
         var NewValidationResult = function (key) {
             ValidationResult.apply(this, arguments);
             this.json = null;
-            this.structure = null;
-            this.content = null;
-            this.valueSet = null;
         };
 
         var Entry = function () {
@@ -214,13 +329,16 @@
         NewValidationResult.prototype = Object.create(ValidationResult.prototype);
         NewValidationResult.prototype.constructor = NewValidationResult;
 
+        var guid = function () {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        };
 
-//    NewValidationResult.prototype.addResult = function (entryObject, result, categoryType) {
-//        var all = this.getCategory(entryObject, "All");
-//        all.data.push(result);
-//        var other = this.getCategory(entryObject, categoryType);
-//        other.data.push(result);
-//    };
 
         NewValidationResult.prototype.addResult = function (entryObject, entry) {
             var all = this.getCategory(entryObject, "All");
@@ -236,6 +354,7 @@
                 for (var i = 0; i < entryObject.categories.length; i++) {
                     if (entryObject.categories[i].title === categoryType) {
                         category = entryObject.categories[i];
+                        break;
                     }
                 }
                 if (category === null) {
@@ -249,86 +368,49 @@
         };
 
 
+
         NewValidationResult.prototype.addItem = function (entry) {
             try {
+                entry['id'] = guid();
                 if (entry['classification'] === 'Error') {
                     this.addResult(this.errors, entry);
-                } else if (entry['classification'] === 'Informational' || entry['classification'] === 'Info') {
-                    this.addResult(this.informationals, entry);
                 } else if (entry['classification'] === 'Warning') {
                     this.addResult(this.warnings, entry);
                 } else if (entry['classification'] === 'Alert') {
                     this.addResult(this.alerts, entry);
-                } else if (entry['classification'] === 'Affirmative') {
+                } else if (entry['classification'] === 'Affirmative' || entry['classification'] === 'Informational' || entry['classification'] === 'Info') {
                     this.addResult(this.affirmatives, entry);
                 }
-//                else if (entry['classification'] === 'DQA') {
-//                    this.addResult(this.dqas, entry);
-//                }
             } catch (error) {
                 console.log(error);
             }
         };
 
-        NewValidationResult.prototype.init = function (report) {
+
+        NewValidationResult.prototype.loadDetection = function (detection) {
+            if(detection) {
+                var that = this;
+                angular.forEach(detection, function (det) {
+                    angular.forEach(det, function (item) {
+                        that.addItem(item);
+                    });
+                });
+            }
+        };
+
+        NewValidationResult.prototype.init = function (result) {
             ValidationResult.prototype.clear.call(this);
-            this.json = report;
-//            if (report['Report']) {
-//                for (var i = 0; i < report['Report'].length; i++) {
-//                    var item = report['Report'][i];
-//                    this.addItem(item['Entry']);
-//                }
-//            }
-
-//        while(i < report.length) {
-//            var item = report[i];
-//            this.addItem(item);
-//
-//            while(x < parentJSON.length &&
-//                (x = parentJSON.indexOf(item, x)) != -1) {
-//
-//                count += 1;
-//                parentJSON.splice(x,1);
-//            }
-//
-//            parentJSON[i] = new Array(parentJSON[i],count);
-//            ++i;
-//        }
-
-
-//
-//        if(entries) {
-//            for (var i = 0; i < entries.length; i++) {
-//                this.addItem(entries[i]);
-//            }
-//        }
-
-        var entriesNode = report.entries;
-        if(entriesNode) {
-            this.structure = entriesNode.structure;
-            this.content = entriesNode.content;
-            this.valueSet = entriesNode['value-set'];
-            if (this.structure) {
-                for (var i = 0; i < this.structure.length; i++) {
-                    this.addItem(this.structure [i]);
-                }
+            if(result) {
+                this.json = angular.fromJson(result);
+                this.loadDetection(this.json.detections['Error']);
+                this.loadDetection(this.json.detections['Alert']);
+                this.loadDetection(this.json.detections['Warning']);
+                this.loadDetection(this.json.detections['Informational']);
             }
-            if (this.content) {
-                for (var i = 0; i < this.content.length; i++) {
-                    this.addItem(this.content [i]);
-                }
-            }
-
-            if (this.valueSet) {
-                for (var i = 0; i < this.valueSet.length; i++) {
-                    this.addItem(this.valueSet [i]);
-                }
-            }
-        }
 
         };
         return NewValidationResult;
     });
 
 
-})( angular );
+})(angular);

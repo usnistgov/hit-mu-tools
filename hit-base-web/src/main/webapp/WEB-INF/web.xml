@@ -8,10 +8,10 @@
 	</session-config>
 	<context-param>
 		<param-name>webAppRootKey</param-name>
-		<param-value>iztool</param-value>
+		<param-value>hit-base-tool</param-value>
 	</context-param>
 	<error-page>
-		<location>/error.html</location>
+		<location>/views/error.html</location>
 	</error-page>
 	<resource-ref>
 		<description>DB Connection</description>

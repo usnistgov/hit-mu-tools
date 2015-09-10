@@ -2,13 +2,13 @@
 
 
 angular.module('cf')
-    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'ngTreetableParams', 'CFTestCaseListLoader', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, ngTreetableParams, CFTestCaseListLoader) {
+    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'ngTreetableParams', 'CFTestCaseListLoader','$timeout', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, ngTreetableParams, CFTestCaseListLoader,$timeout) {
 
         $scope.cf = CF;
         $scope.loading = false;
         $scope.error = null;
         $scope.testCases = [];
-        $scope.testCase = CF.testCase;
+        $scope.testCase = null;
         $scope.tabs = new Array();
         $scope.error = null;
 
@@ -20,7 +20,9 @@ angular.module('cf')
             $scope.activeTab = value;
             $scope.tabs[$scope.activeTab] = true;
             if ($scope.activeTab == 0) {
-                $scope.$broadcast("cf:refreshEditor");
+                $timeout(function() {
+                    $scope.$broadcast("cf:refreshEditor");
+                });
             }
         };
 
@@ -29,12 +31,18 @@ angular.module('cf')
         };
 
         $scope.loadTestCase = function (tc) {
-            CF.testCase = tc;
-            $scope.testCase = CF.testCase;
-            $rootScope.$broadcast('cf:testCaseLoaded');
-            $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
-            $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
-        };
+                CF.testCase = tc;
+                $scope.testCase = CF.testCase;
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:testCaseLoaded');
+                });
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
+                });
+                $timeout(function () {
+                    $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
+                });
+         };
 
         $scope.init = function () {
             $scope.error = null;
@@ -46,16 +54,20 @@ angular.module('cf')
                     return parent && parent != null ? parent.children : $scope.testCases;
                 },
                 getTemplate: function (node) {
-                    return 'CFTestCase.html';
+                    if(!node.testContext || node.testContext === null){
+                        return 'CFTestCase.html';
+                    }else{
+                        return  'CFTestStep.html';
+                    }
                 }
             });
 
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
+                angular.forEach(testCases, function (testPlan) {
+                    $scope.sortByPosition(testPlan);
+                });
                 $scope.testCases = $filter('orderBy')(testCases, 'position');
-//                if( $scope.testCases.length > 0){
-//                    $scope.loadTestCase($scope.testCases[0]);
-//                }
                 $scope.loading = false;
                 $scope.error = null;
                 $scope.params.refresh();
@@ -63,6 +75,19 @@ angular.module('cf')
                 $scope.error = "Sorry,cannot load the profiles";
                 $scope.loading = false;
             });
+        };
+
+        $scope.sortByPosition = function (obj) {
+            if (obj.children) {
+                obj.children = $filter('orderBy')(obj.children, 'position');
+                angular.forEach(obj.children, function (child) {
+                    $scope.sortByPosition(child);
+                });
+            }
+        };
+
+        $scope.expandChildren = function (node) {
+//            $scope.params.expandChildren(node);
         };
 
         $scope.openProfileInfo = function () {
@@ -166,7 +191,7 @@ angular.module('cf')
             if ($scope.cf.testCase.testContext.message != null) {
                 $scope.nodelay = true;
                 $scope.selectedMessage = $scope.cf.testCase.testContext.message;
-                if ($scope.selectedMessage != null) {
+                if ($scope.selectedMessage != null  && $scope.selectedMessage.content != null) {
                     $scope.editor.doc.setValue($scope.selectedMessage.content);
                 } else {
                     $scope.editor.doc.setValue('');
@@ -190,7 +215,7 @@ angular.module('cf')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize(null, 350);
+            $scope.editor.setSize("100%", 345);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
@@ -238,40 +263,33 @@ angular.module('cf')
                     var id = $scope.cf.testCase.testContext.id;
                     var content = $scope.cf.message.content;
                     var label = $scope.cf.testCase.label;
-                    var validated = new MessageValidator().validate(id, content);
+                    var validated = new MessageValidator().validate(id, content,"","Free");
                     validated.then(function (mvResult) {
                         $scope.vLoading = false;
-                        $scope.setValidationResult(mvResult);
+                        $scope.loadValidationResult(mvResult);
                     }, function (error) {
                         $scope.vLoading = false;
                         $scope.vError = error;
-                        $scope.setValidationResult(null);
+                        $scope.loadValidationResult(null);
                     });
 
                 } catch (e) {
                     $scope.vLoading = false;
                     $scope.vError = e;
-                    $scope.setValidationResult(null);
+                    $scope.loadValidationResult(null);
                 }
             } else {
-                $scope.setValidationResult(null);
+                $scope.loadValidationResult(null);
                 $scope.vLoading = false;
                 $scope.vError = null;
             }
         };
 
 
-        $scope.setValidationResult = function (mvResult) {
-            var report = null;
-            var validationResult = null;
-            if (mvResult !== null) {
-                report = {};
-                validationResult = new NewValidationResult();
-                validationResult.init(mvResult);
-                report["result"] = validationResult;
-            }
-            $rootScope.$broadcast('cf:reportLoaded', report);
-            $rootScope.$broadcast('cf:validationResultLoaded', validationResult);
+        $scope.loadValidationResult = function (mvResult) {
+            $timeout(function() {
+                $rootScope.$broadcast('cf:validationResultLoaded', mvResult);
+            });
         };
 
 
@@ -356,7 +374,7 @@ angular.module('cf')
             $scope.mError = null;
             $scope.vError = null;
             $scope.initCodemirror();
-            $scope.setValidationResult(null);
+            $scope.loadValidationResult(null);
             $scope.$on('cf:refreshEditor', function (event) {
                 $scope.refreshEditor();
                 event.preventDefault();
