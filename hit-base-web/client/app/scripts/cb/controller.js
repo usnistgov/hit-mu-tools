@@ -287,7 +287,7 @@ angular.module('cb')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize("100%", 350);
+            $scope.editor.setSize("100%", 345);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
