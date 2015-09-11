@@ -8,7 +8,7 @@ angular.module('cf')
         $scope.loading = false;
         $scope.error = null;
         $scope.testCases = [];
-        $scope.testCase = CF.testCase;
+        $scope.testCase = null;
         $scope.tabs = new Array();
         $scope.error = null;
 
@@ -215,7 +215,7 @@ angular.module('cf')
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
-            $scope.editor.setSize("100%", 350);
+            $scope.editor.setSize("100%", 345);
 
             $scope.editor.on("keyup", function () {
                 $timeout(function () {
