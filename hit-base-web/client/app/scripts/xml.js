@@ -228,3 +228,79 @@ angular.module('xml').factory('XmlTreeUtils',
     }]);
 
 
+
+angular.module('xml').factory('XMLMessageValidator', function ($http, $q, HL7EditorUtils) {
+    var XMLMessageValidator = function () {
+    };
+
+    XMLMessageValidator.prototype.validate = function (testContextId, content, name, dqaCodes, facilityId, contextType) {
+        var delay = $q.defer();
+        if (!HL7EditorUtils.isHL7(content)) {
+            delay.reject("Message provided is not an HL7 v2 message");
+        } else {
+//
+//            $http.get('../../resources/cf/newValidationResult3.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+            $http.post('api/xml/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "dqaCodes": dqaCodes, "facilityId": "1223", "contextType": contextType})).then(
+                function (object) {
+                    try {
+                        delay.resolve(angular.fromJson(object.data));
+                    } catch (e) {
+                        delay.reject("Invalid character in the message");
+                    }
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
+        }
+        return delay.promise;
+    };
+
+    return XMLMessageValidator;
+});
+
+angular.module('xml').factory('XMLMessageParser', function ($http, $q, HL7EditorUtils) {
+    var XMLMessageParser = function () {
+    };
+
+    XMLMessageParser.prototype.parse = function (testContextId, content, name) {
+        var delay = $q.defer();
+        if (!HL7EditorUtils.isHL7(content)) {
+            delay.reject("Message provided is not an HL7 v2 message");
+        } else {
+            $http.post('api/xml/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
+                function (object) {
+                    delay.resolve(angular.fromJson(object.data));
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
+
+//            $http.get('../../resources/cf/messageObject.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+        }
+
+        return delay.promise;
+    };
+
+    return XMLMessageParser;
+});
+
+
+
+
+
