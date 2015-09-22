@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('xml', []);
-angular.module('hl7', []);
+angular.module('hl7v2', []);
+angular.module('edi', []);
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7']);
+angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7','edi']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
@@ -20,7 +21,8 @@ var app = angular.module('hit-tool', [
     'angularBootstrapNavTree',
      'QuickList',
     'xml',
-    'hl7',
+    'hl7v2',
+    'edi',
     'cf',
     'cb',
     'ngTreetable',

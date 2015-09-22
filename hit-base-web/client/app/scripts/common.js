@@ -390,72 +390,6 @@ angular.module('commonServices').factory('DataInstanceReport', function ($http, 
 });
 
 
-angular.module('commonServices').factory('MessageValidator', function ($http, $q, HL7EditorUtils) {
-    var MessageValidator = function () {
-    };
-    MessageValidator.prototype.validate = function (testContextId, content,label, contextType) {
-        var delay = $q.defer();
-             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType":contextType})).then(
-                function (object) {
-                    try {
-                        delay.resolve(angular.fromJson(object.data));
-                    } catch (e) {
-                        delay.reject("Invalid character in the message");
-                    }
-                },
-                function (response) {
-                    delay.reject(response.data);
-                }
-            );
-
-//        $http.get('../../resources/cb/messageValidationResult.json', angular.fromJson({"content": content})).then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-
-         return delay.promise;
-    };
-
-    return MessageValidator;
-});
-
-angular.module('commonServices').factory('MessageParser', function ($http, $q, HL7EditorUtils) {
-    var MessageParser = function () {
-    };
-    MessageParser.prototype.parse = function (testContextId, content) {
-        var delay = $q.defer();
-        $http.post('api/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
-
-//        $http.get('../../resources/cb/messageObject.json', angular.fromJson({"content": content})).then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-        return delay.promise;
-    };
-
-    return MessageParser;
-});
-
-
-
-
 
 angular.module('commonServices').factory('NewValidationReport', function ($http, $q) {
     var NewValidationReport = function () {
@@ -574,6 +508,30 @@ angular.module('commonServices').factory('Clock', function ($interval) {
         }
     };
     return Clock;
+});
+
+angular.module('commonServices').factory('FormatServiceAggregator', function (HL7V2MessageValidator,EDIMessageValidator,XMLMessageValidator,HL7V2MessageParser,EDIMessageParser,XMLMessageParser) {
+     return {
+         getMessageValidator:function(format){
+             if(format === 'hl7v2'){
+                    return  HL7V2MessageValidator;
+             }else if(format === 'xml'){
+                 return  XMLMessageValidator;
+             }else if(format === 'edi'){
+                 return  EDIMessageValidator;
+             }
+         },
+         getMessageParser:function(format){
+             if(format === 'hl7v2'){
+                 return  HL7V2MessageParser;
+             }else if(format === 'xml'){
+                 return  XMLMessageParser;
+             }else if(format === 'edi'){
+                 return  EDIMessageParser;
+             }
+         }
+
+     }
 });
 
 

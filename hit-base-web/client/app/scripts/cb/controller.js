@@ -183,7 +183,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'MessageValidator', 'MessageParser', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, MessageValidator, MessageParser) {
+    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'FormatServiceAggregator', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, FormatServiceAggregator) {
 
         $scope.cb = CB;
         $scope.testCase = CB.testCase;
@@ -195,6 +195,8 @@ angular.module('cb')
         $scope.vLoading = true;
         $scope.mError = null;
         $scope.mLoading = true;
+
+        $scope.validator = null;
 
         $scope.counter = 0;
         $scope.type = "cb";
@@ -330,7 +332,7 @@ angular.module('cb')
             $scope.vError = null;
             if ($scope.cb.testCase != null && $scope.cb.message.content !== "") {
                 try {
-                    var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
+                    var validator = $scope.validator.validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
                     validator.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.loadValidationResult(mvResult);
@@ -395,7 +397,7 @@ angular.module('cb')
         $scope.parseMessage = function () {
             $scope.tLoading = true;
             if ($scope.cb.testCase != null && $scope.cb.message.content != '') {
-                var parsed = new MessageParser().parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
+                var parsed = $scope.parser.parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
                 parsed.then(function (value) {
                     $scope.tLoading = false;
                     $scope.messageObject = value;
@@ -449,6 +451,8 @@ angular.module('cb')
                 if ($scope.testCase != null) {
                     $scope.clearMessage();
                 }
+                $scope.validator = FormatServiceAggregator.getMessageValidator($scope.testCase.format);
+                $scope.parser = FormatServiceAggregator.getMessageParser($scope.testCase.format);
             });
         };
 

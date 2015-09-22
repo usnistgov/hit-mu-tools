@@ -78,6 +78,7 @@ angular.module('cf')
         };
 
         $scope.sortByPosition = function (obj) {
+            obj.label = obj.name;
             if (obj.children) {
                 obj.children = $filter('orderBy')(obj.children, 'position');
                 angular.forEach(obj.children, function (child) {
@@ -114,8 +115,9 @@ angular.module('cf')
 
 
 angular.module('cf')
-    .controller('CFValidatorCtrl', ['$scope', '$http', 'CF', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', 'HL7Utils', '$rootScope', 'MessageValidator', 'MessageParser', function ($scope, $http, CF, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, HL7Utils, $rootScope, MessageValidator, MessageParser) {
-
+    .controller('CFValidatorCtrl', ['$scope', '$http', 'CF', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', 'HL7Utils', '$rootScope', 'FormatServiceAggregator', function ($scope, $http, CF, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, HL7Utils, $rootScope, FormatServiceAggregator) {
+        $scope.validator = null;
+        $scope.parser = null;
         $scope.cf = CF;
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
@@ -380,10 +382,15 @@ angular.module('cf')
                 event.preventDefault();
             });
             $rootScope.$on('cf:testCaseLoaded', function (event) {
+                if($scope.cf.testCase != null) {
+                    $scope.validator = FormatServiceAggregator.getMessageValidator($scope.testCase.format);
+                    $scope.parser = FormatServiceAggregator.getMessageParser($scope.testCase.format);
+                }
                 $scope.refreshEditor();
                 if ($scope.cf.testCase != null && $scope.cf.testCase.id != null) {
                     $scope.clearMessage();
                 }
+
             });
         };
     }]);
