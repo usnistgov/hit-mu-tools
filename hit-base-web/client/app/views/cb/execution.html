@@ -5,8 +5,8 @@
                 <li>{{testCase.parentName}}</li>
                 <li>{{testCase.name}}</li>
             </ol>
-            <span ng-show="testCase == null" style="font-size: 18px; font-weight: bold">No Test Case Loaded.</span>
-        </div>
+            <span ng-show="testCase == null">No Test Case Loaded.</span>
+         </div>
         <div class="">
             <div>
                 <div class="row" ng-show="error != null">
@@ -42,6 +42,9 @@
                         </tab>
                     </tabset>
                 </div>
+                <!--<div ng-show="testCase === null">-->
+                    <!--No Test Case Loaded.-->
+                <!--</div>-->
             </div>
         </div>
     </div>
