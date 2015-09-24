@@ -510,7 +510,7 @@ angular.module('commonServices').factory('Clock', function ($interval) {
     return Clock;
 });
 
-angular.module('commonServices').factory('FormatServiceAggregator', function (HL7V2MessageValidator,EDIMessageValidator,XMLMessageValidator,HL7V2MessageParser,EDIMessageParser,XMLMessageParser) {
+angular.module('commonServices').factory('ServiceDelegator', function (HL7V2MessageValidator,EDIMessageValidator,XMLMessageValidator,HL7V2MessageParser,EDIMessageParser,XMLMessageParser) {
      return {
          getMessageValidator:function(format){
              if(format === 'hl7v2'){
@@ -520,6 +520,7 @@ angular.module('commonServices').factory('FormatServiceAggregator', function (HL
              }else if(format === 'edi'){
                  return  EDIMessageValidator;
              }
+             throw new Error("Unsupported format "+ format);
          },
          getMessageParser:function(format){
              if(format === 'hl7v2'){
@@ -529,6 +530,7 @@ angular.module('commonServices').factory('FormatServiceAggregator', function (HL
              }else if(format === 'edi'){
                  return  EDIMessageParser;
              }
+             throw new Error("Unsupported format "+ format);
          }
 
      }
