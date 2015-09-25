@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('xml', []);
-angular.module('hl7', []);
+angular.module('hl7v2', []);
+angular.module('edi', []);
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7']);
+angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7v2','edi']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
@@ -13,6 +14,7 @@ var app = angular.module('hit-tool', [
     'ngRoute',
     'ui.bootstrap',
     'ngCookies',
+    'LocalStorageModule',
     'ngResource',
     'ngSanitize',
     'ngAnimate',
@@ -20,7 +22,8 @@ var app = angular.module('hit-tool', [
     'angularBootstrapNavTree',
      'QuickList',
     'xml',
-    'hl7',
+    'hl7v2',
+    'edi',
     'cf',
     'cb',
     'ngTreetable',
@@ -34,12 +37,20 @@ var app = angular.module('hit-tool', [
     'hit-vocab-search',
     'hit-report-viewer',
     'hit-testcase-viewer',
+    'hit-testcase-tree',
+    'hit-doc',
     'doc'
 //    ,
 //    'ngMockE2E'
 ]);
 
-app.config(function ($routeProvider, $httpProvider) {
+app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) {
+
+
+    localStorageServiceProvider
+        .setPrefix('hit-tool')
+        .setStorageType('sessionStorage');
+
     $routeProvider
         .when('/', {
             templateUrl: 'views/home.html'
@@ -71,50 +82,60 @@ app.config(function ($routeProvider, $httpProvider) {
         .otherwise({
             redirectTo: '/'
         });
-
-//    $httpProvider.responseInterceptors.push('503Interceptor');
-//    $httpProvider.responseInterceptors.push('sessionTimeoutInterceptor');
-//    $httpProvider.responseInterceptors.push('404Interceptor');
 });
 
-//app.factory('503Interceptor', function ($injector, $q, $rootScope) {
-//    return function (responsePromise) {
-//        return responsePromise.then(null, function (errResponse) {
-//            if (errResponse.status === 503) {
-//                $rootScope.showError(errResponse);
-//            } else {
-//                return $q.reject(errResponse);
-//            }
-//        });
-//    };
-//}).factory('sessionTimeoutInterceptor', function ($injector, $q, $rootScope) {
-//    return function (responsePromise) {
-//        return responsePromise.then(null, function (errResponse) {
-//            if (errResponse.reason === "The session has expired") {
-//                $rootScope.showError(errResponse);
-//            } else {
-//                return $q.reject(errResponse);
-//            }
-//        });
-//    };
-//}).factory('404Interceptor', function ($injector, $q, $rootScope) {
-//    return function (responsePromise) {
-//        return responsePromise.then(null, function (errResponse) {
-//            if (errResponse.status === 404) {
-//                errResponse.data = "Cannot reach the server. The server might be down";
-//            }
-//            return $q.reject(errResponse);
-//        });
-//    };
-//});
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,StorageService,$route,$window) {
     $rootScope.appInfo = {};
+    $rootScope.stackPosition =0;
+
+
+    new AppInfo().then(function (response) {
+        $rootScope.appInfo = response;
+    });
+
 
     $rootScope.$watch(function () {
         return $location.path();
     }, function (newLocation, oldLocation) {
-        $rootScope.setActive(newLocation);
+
+        //true only for onPopState
+        if($rootScope.activePath === newLocation) {
+
+            var back,
+                historyState = $window.history.state;
+
+            back = !!(historyState && historyState.position <= $rootScope.stackPosition);
+
+            if (back) {
+                //back button
+                $rootScope.stackPosition--;
+            } else {
+                //forward button
+                $rootScope.stackPosition++;
+            }
+
+        } else {
+            //normal-way change of page (via link click)
+
+            if ($route.current) {
+
+                $window.history.replaceState({
+                    position: $rootScope.stackPosition
+                },'');
+
+                $rootScope.stackPosition++;
+
+            }
+//
+//            if (newLocation != null) {
+//                $rootScope.setActive(newLocation);
+//            }
+
+        }
+
+
+
     });
 
     $rootScope.isActive = function (path) {
@@ -135,6 +156,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo) {
 
     $rootScope.setSubActive = function (path) {
         $rootScope.subActivePath = path;
+        StorageService.set(StorageService.ACTIVE_SUB_TAB_KEY, path);
     };
 
 
@@ -158,10 +180,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo) {
         if (str.length > 20) str = str.substring(0, 20) + "...";
         return str;
     };
-
-    new AppInfo().then(function (response) {
-        $rootScope.appInfo = response;
-    });
 
     $rootScope.tabs = new Array();
     $rootScope.selectTestingType = function (value) {
@@ -194,9 +212,39 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo) {
 
 
     $rootScope.toHTML = function (content) {
-//        return $sce.trustAsHtml(content);
-        return  content;
+      return $sce.trustAsHtml(content);
+//        return  content;
     };
+
+
+    $rootScope.compile = function (content) {
+//        scope.$watch(
+//            function(scope) {
+//                // watch the 'compile' expression for changes
+//                return scope.$eval(attrs.compile);
+//            },
+//            function(value) {
+//                // when the 'compile' expression changes
+//                // assign it into the current DOM
+//                element.html(value);
+//
+//                // compile the new DOM and link it to the current
+//                // scope.
+//                // NOTE: we only compile .childNodes so that
+//                // we don't get into infinite loop compiling ourselves
+//                return $compile(content);
+//            }
+//        );
+        return $compile(content);
+    };
+
+
+    $rootScope.$on('$locationChangeSuccess', function() {
+        //$rootScope.activePath = $location.path();
+        $rootScope.setActive($location.path());
+    });
+
+
 
 
 });

@@ -14,7 +14,7 @@
                         <div class="panel-body container-message-tree">
                             <div ng-show="!tLoading">
                                 <div ng-show="tError === null" class="message-tree">
-                                    <abn-tree tree-control="cf.tree.root" tree-data="messageObject" icon-leaf="" on-select="onNodeSelect(branch)"></abn-tree>
+                                    <abn-tree tree-control="cf.tree.root" icon-leaf="" on-select="onNodeSelect(branch)"></abn-tree>
                                 </div>
                                 <div ng-show="tError !== null">
                                     <div class="alert alert-danger" role="alert" ng-bind="tError"></div>
@@ -59,9 +59,6 @@
 
             </span>
                             <span class="row fileupload-buttonbar pull-right">
-                                <span ng-show="false">
-                                <input type="checkbox" ng-model="validationConfig.dqa.checked">DQA
-                                </span>
                                 <button title="Validate" type="button" class="btn btn-xs btn-success" ng-click="execute()">
                                     <i class="fa fa-check-circle"></i>
                                     Validate
@@ -127,7 +124,7 @@
                                         </div>
 
                                         <div ng-show="!vError || vError == null">
-                                            <div validation-result="" type="cf" message="cf.message" editor="cf.editor" tree="cf.tree" cursor="cf.cursor"></div>
+                                            <div validation-result="" type="cf" message="cf.message" editor="cf.editor" dqa="true" tree="cf.tree" cursor="cf.cursor"></div>
                                         </div>
 
                                     </div>
