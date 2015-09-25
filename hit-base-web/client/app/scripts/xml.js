@@ -65,8 +65,6 @@ angular.module('xml').factory('XmlFormatter', ['$http', '$q', function ($http, $
 }]);
 
 
-
-
 angular.module('xml').factory('XmlNodeFinder',
     ['$rootScope', function ($rootScope) {
         return  {
@@ -142,7 +140,7 @@ angular.module('xml').factory('XmlEditorUtils',
                     ch: cursorObject.end.index
                 });
             },
-            isXML: function(message){
+            isXML: function (message) {
                 return message.startsWith("<");
             }
         }
@@ -226,5 +224,65 @@ angular.module('xml').factory('XmlTreeUtils',
             }
         }
     }]);
+
+
+angular.module('xml').factory('XMLMessageValidator', function ($http, $q) {
+    return {
+        validate: function (testContextId, content, name, contextType) {
+            var delay = $q.defer();
+//            $http.get('../../resources/cf/newValidationResult3.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+            $http.post('api/xml/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType})).then(
+                function (object) {
+                    try {
+                        delay.resolve(angular.fromJson(object.data));
+                    } catch (e) {
+                        delay.reject("Invalid character in the message");
+                    }
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
+            return delay.promise;
+        }
+    };
+});
+
+angular.module('xml').factory('XMLMessageParser', function ($http, $q) {
+    return {
+        parse: function (testContextId, content, name) {
+            var delay = $q.defer();
+            $http.post('api/xml/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
+                function (object) {
+                    delay.resolve(angular.fromJson(object.data));
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
+
+//            $http.get('../../resources/cf/messageObject.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
+            return delay.promise;
+        }
+    }
+});
+
+
+
 
 

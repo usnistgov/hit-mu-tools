@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    angular.module('ngTreetable', [])
+    angular.module('ngTreetable', ['ngCookies'])
 
     /**
      * @ngdoc service
@@ -33,9 +33,12 @@
                 this.refresh = function() {}
 
 
+                this.onInitialized = function(){}
+
+
                 if (angular.isObject(baseConfiguration)) {
                     angular.forEach(baseConfiguration, function(val, key) {
-                        if (['getNodes', 'getTemplate', 'options'].indexOf(key) > -1) {
+                        if (['getNodes', 'getTemplate', 'options','onInitialized'].indexOf(key) > -1) {
                             self[key] = val;
                         } else {
                             $log.warn('ngTreetableParams - Ignoring unexpected property "' + key + '".');
@@ -69,7 +72,7 @@
                     return $compile(template)(template_scope).get(0);
                 })
 
-            }
+            };
 
             /**
              * Expands the given node.
@@ -77,7 +80,7 @@
              * @param shouldExpand whether all descendants of `parentElement` should also be expanded
              */
             $scope.addChildren = function(parentElement, shouldExpand) {
-                var parentNode = parentElement ? parentElement.scope().node : null;
+                var parentNode = parentElement && parentElement.scope() ? parentElement.scope().node : null;
                 var parentId = parentElement ? parentElement.data('ttId') : null;
 
                 if (parentElement) {
@@ -101,13 +104,13 @@
                             });
                         }
 
-                        if (parentElement) {
+                        if (parentElement && parentElement.scope()) {
                             parentElement.scope().loading = false;
                         }
                     });
 
                 });
-            }
+            };
 
             /**
              * Callback for onNodeExpand to add nodes.
@@ -116,7 +119,7 @@
                 if (this.row.scope().loading) return; // make sure we're not already loading
                 table.treetable('unloadBranch', this); // make sure we don't double-load
                 $scope.addChildren(this.row, $scope.shouldExpand());
-            }
+            };
 
             /**
              * Callback for onNodeCollapse to remove nodes.
@@ -124,7 +127,7 @@
             $scope.onNodeCollapse = function() {
                 if (this.row.scope().loading) return; // make sure we're not already loading
                 table.treetable('unloadBranch', this);
-            }
+            };
 
             /**
              * Rebuilds the entire table.
@@ -135,27 +138,47 @@
                     table.treetable('removeNode', rootNodes[0].id);
                 }
                 $scope.addChildren(null, $scope.shouldExpand());
-            }
+            };
 
             $scope.refreshWithState = function(state) {
                 $scope.options.initialState = state;
                 $scope.refresh();
-            }
+            };
+
+            $scope.getNode = function(id) {
+                return table.treetable("node", id);
+            };
+
+
+            $scope.toggleExpand = function(id, expand){
 //
-//            $scope.expandChildren = function(node){
-//                 $scope.addChildren(node, true);
-//            }
+//                var node = table.treetable('node', id);
+//                params.getNodes(node);
 //
-//            $scope.collapseChildren = function(node){
-//                $scope.addChildren(node,false);
-//            }
+//
+//
+//                if (this.row.scope().loading) return; // make sure we're not already loading
+//                table.treetable('unloadBranch', this); // make sure we don't double-load
+//                $scope.addChildren(this.row, $scope.shouldExpand());
+//
+//
+//                console.log(node);
+////                if(expand) {
+////                    table.treetable('node', id);
+////                }else{
+////                    table.treetable('collapseNode', id);
+////                }
+            };
 
             // attach to params for convenience
             params.refresh = $scope.refresh;
-//            params.expandChildren = $scope.expandChildren;
-//            params.collapseChildren = $scope.collapseChildren;
+            params.force = true;
+//          params.expand = $scope.expandChildren;
+//          params.collapse = $scope.collapseChildren;
 
             params.refreshWithState = $scope.refreshWithState;
+            params.toggleExpand = $scope.toggleExpand;
+            params.getNode = $scope.getNode;
 
             /**
              * Build options for the internal treetable library.
@@ -165,7 +188,7 @@
                     expandable: true,
                     onNodeExpand: $scope.onNodeExpand,
                     onNodeCollapse: $scope.onNodeCollapse
-                }, params.options);
+                 }, params.options);
 
                 if (params.options) {
                     // Inject required event handlers before custom ones
@@ -184,7 +207,7 @@
 
             $scope.shouldExpand = function() {
                 return $scope.options.initialState === 'expanded';
-            }
+            };
 
             $scope.options = $scope.getOptions();
             table.treetable($scope.options);
@@ -202,26 +225,31 @@
             }
         }])
 
-        .directive('ttNode', [function() {
+        .directive('ttNode', ['$cookies',function($cookies) {
             var ttNodeCounter = 0;
             return {
                 restrict: 'AC',
                 scope: {
                     isBranch: '=',
-                    parent: '='
+                    parent: '=',
+                    data: '='
                 },
                 link: function(scope, element, attrs) {
                     var branch = angular.isDefined(scope.isBranch) ? scope.isBranch : true;
+                    var data = angular.isDefined(scope.data) ? scope.data : undefined;
 
                     // Look for a parent set by the tt-tree directive if one isn't explicitly set
                     var parent = angular.isDefined(scope.parent) ? scope.parent : scope.$parent._ttParentId;
-
+                    var id = ttNodeCounter;
                     element.attr('data-tt-id', ttNodeCounter++);
                     element.attr('data-tt-branch', branch);
                     element.attr('data-tt-parent-id', parent);
+                    if(data) {
+                        element.attr('data-tt-node-id', data.id);
+                        element.attr('data-tt-node-type', data.type);
+                    }
                 }
             }
-
         }]);
 
 })();

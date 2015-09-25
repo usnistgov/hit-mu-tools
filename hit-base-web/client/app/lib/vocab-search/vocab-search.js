@@ -36,32 +36,56 @@
             $scope.vocabularyService = new VocabularyService();
             $scope.loading = false;
 
+//            $rootScope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
+//                $scope.vocabularyLibrary = vocabularyLibrary;
+//                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
+//            });
+
             $rootScope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
-                $scope.vocabularyLibrary = vocabularyLibrary;
-                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
+                if($scope.vocabularyLibrary === null || $scope.vocabularyLibrary.id != vocabularyLibrary.id) {
+                    $scope.vocabularyLibrary = vocabularyLibrary;
+                    $scope.init($scope.vocabularyLibrary);
+                }
             });
 
-            $rootScope.$on($scope.type + ':valueSetIdsCollected', function (event, valueSetIds) {
-                $scope.valueSetIds = valueSetIds;
-                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
-            });
+//            $rootScope.$on($scope.type + ':valueSetIdsCollected', function (event, valueSetIds) {
+//                $scope.valueSetIds = valueSetIds;
+//                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
+//            });
 
             $rootScope.$on($scope.type + ':showValueSetDefinition', function (event, tableId) {
                 $scope.vocabularyService.showValueSetDefinition(tableId);
             });
 
-            $scope.init = function (valueSetIds, vocabularyLibrary) {
-                $scope.loading = true;
-                if (valueSetIds != null && vocabularyLibrary != null) {
+//            $scope.init = function (valueSetIds, vocabularyLibrary) {
+//                $scope.loading = true;
+//                if (valueSetIds != null && vocabularyLibrary != null) {
+//                    $scope.vocabularyService.getJson(vocabularyLibrary.id).then(function (obj) {
+//                        vocabularyLibrary['json'] = angular.fromJson(obj);
+//                        var all = angular.fromJson(vocabularyLibrary.json).valueSetDefinitions.valueSetDefinitions;
+//                        $scope.valueSetDefinitionGroups = $scope.vocabularyService.initValueSetDefinitionGroups(all, valueSetIds);
+//                        $scope.loading = false;
+//                    }, function (error) {
+//                        $scope.error = "Sorry, Cannot load the vocabulary.";
+//                        $scope.loading = false;
+//                    });
+//                }
+//            };
+
+            $scope.init = function (vocabularyLibrary) {
+                if (vocabularyLibrary != null) {
+                    $scope.loading = true;
                     $scope.vocabularyService.getJson(vocabularyLibrary.id).then(function (obj) {
                         vocabularyLibrary['json'] = angular.fromJson(obj);
-                        var all = angular.fromJson(vocabularyLibrary.json).valueSetDefinitions.valueSetDefinitions;
-                        $scope.valueSetDefinitionGroups = $scope.vocabularyService.initValueSetDefinitionGroups(all, valueSetIds);
+                        var all = angular.fromJson(vocabularyLibrary.json).valueSetDefinitions;
+                        $scope.valueSetDefinitionGroups = $scope.vocabularyService.initValueSetDefinitionGroups(all);
                         $scope.loading = false;
                     }, function (error) {
                         $scope.error = "Sorry, Cannot load the vocabulary.";
                         $scope.loading = false;
                     });
+                }else{
+                    $scope.valueSetDefinitionGroups = null;
                 }
             };
 
@@ -129,7 +153,7 @@
             $scope.init = function (tableLibrary) {
                 if (tableLibrary) {
                     $scope.tableLibrary = tableLibrary;
-                    $scope.tableList = tableLibrary.children;
+                    $scope.tableList = tableLibrary.valueSetDefinitions;
                     $scope.tmpList = [].concat($scope.tableList);
                 }
             };
@@ -147,7 +171,7 @@
             if (searchString != null) {
                 if (selectionCriteria === 'TableId') {
                     angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                        angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                        angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                             if (valueSetDefinition.bindingIdentifier && valueSetDefinition.bindingIdentifier.indexOf(searchString) !== -1) {
                                 searchResults.push(valueSetDefinition);
                             }
@@ -155,7 +179,7 @@
                     });
                 } else if (selectionCriteria === 'Value') {
                     angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                        angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                        angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                             angular.forEach(valueSetDefinition.valueSetElements, function (valueSetElement) {
                                 if (valueSetElement.value && valueSetElement.value.indexOf(searchString) !== -1) {
                                     searchResults.push(valueSetElement);
@@ -165,7 +189,7 @@
                     });
                 } else if (selectionCriteria === 'Description') {
                     angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                        angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                        angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                             angular.forEach(valueSetDefinition.valueSetElements, function (valueSetElement) {
                                 if (valueSetElement.displayName && valueSetElement.displayName.indexOf(searchString) !== -1) {
                                     searchResults.push(valueSetElement);
@@ -175,7 +199,7 @@
                     });
                 } else if (selectionCriteria === 'ValueSetCode') {
                     angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                        angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                        angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                             if (valueSetDefinition.codeSystem && valueSetDefinition.codeSystem.indexOf(searchString) !== -1) {
                                 searchResults.push(valueSetDefinition);
                             }
@@ -183,23 +207,21 @@
                     });
                 } else if (selectionCriteria === 'ValueSetName') {
                     angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                        angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                        angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                             if (valueSetDefinition.name && valueSetDefinition.name.indexOf(searchString) !== -1) {
                                 searchResults.push(valueSetDefinition);
                             }
                         });
                     });
                 }
-
             }
             return searchResults;
-
         };
 
         VocabularyService.prototype.searchTablesById = function (bindingIdentifier) {
             var valueSetDefinitions = [];
             angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionsGroup) {
-                angular.forEach(valueSetDefinitionsGroup.children, function (valueSetDefinition) {
+                angular.forEach(valueSetDefinitionsGroup.valueSetDefinitions, function (valueSetDefinition) {
                     if (valueSetDefinition.bindingIdentifier && valueSetDefinition.bindingIdentifier.indexOf(bindingIdentifier) !== -1) {
                         valueSetDefinitions.push(valueSetDefinition);
                     }
@@ -210,42 +232,53 @@
             return valueSetDefinitions;
         };
 
-        VocabularyService.prototype.initValueSetDefinitionGroups = function (all, valueSetIds) {
-            this.valueSetDefinitionGroups = [];
+//        VocabularyService.prototype.initValueSetDefinitionGroups = function (all, valueSetIds) {
+//            this.valueSetDefinitionGroups = [];
+//            var that = this;
+//            angular.forEach(all, function (valueSetDefinition) {
+//                if (valueSetIds.indexOf(valueSetDefinition.bindingIdentifier) !== -1) {
+//                    var found = that.findValueSetDefinitions(valueSetDefinition.displayClassifier, that.valueSetDefinitionGroups);
+//                    if (found === null) {
+//                        found = angular.fromJson({"name": that.getCategoryName(valueSetDefinition.displayClassifier), "children": [], "position":  that.getCategoryPosition(valueSetDefinition.displayClassifier)});
+//                        that.valueSetDefinitionGroups.push(found);
+//                    }
+//                    valueSetDefinition.valueSetElements = $filter('orderBy')(valueSetDefinition.valueSetElements, 'value');
+//                    found.valueSetDefinitions.push(valueSetDefinition);
+//                }
+//            });
+//            return that.valueSetDefinitionGroups;
+//        };
+
+        VocabularyService.prototype.initValueSetDefinitionGroups = function (all) {
             var that = this;
-            angular.forEach(all, function (valueSetDefinition) {
-                if (valueSetIds.indexOf(valueSetDefinition.bindingIdentifier) !== -1) {
-                    var found = that.findValueSetDefinitions(valueSetDefinition.displayClassifier, that.valueSetDefinitionGroups);
-                    if (found === null) {
-                        found = angular.fromJson({"name": that.getCategoryName(valueSetDefinition.displayClassifier), "children": [], "position":  that.getCategoryPosition(valueSetDefinition.displayClassifier)});
-                        that.valueSetDefinitionGroups.push(found);
-                    }
+            this.valueSetDefinitionGroups = $filter('orderBy')(all, 'position');
+            angular.forEach(this.valueSetDefinitionGroups, function (valueSetDefinitionGroup) {
+                angular.forEach(valueSetDefinitionGroup.valueSetDefinitions, function (valueSetDefinition) {
                     valueSetDefinition.valueSetElements = $filter('orderBy')(valueSetDefinition.valueSetElements, 'value');
-                    found.children.push(valueSetDefinition);
-                }
+                });
             });
             return that.valueSetDefinitionGroups;
         };
 
-        VocabularyService.prototype.findValueSetDefinitions = function (classifier) {
-            var res = null;
-            var that = this;
-            angular.forEach(that.valueSetDefinitionGroups, function (child) {
-                if (res === null) {
-                    if (child.name === that.getCategoryName(classifier)) {
-                        res = child;
-                    }
-                }
-            });
-            return res;
-        };
+//        VocabularyService.prototype.findValueSetDefinitions = function (classifier) {
+//            var res = null;
+//            var that = this;
+//            angular.forEach(that.valueSetDefinitionGroups, function (child) {
+//                if (res === null) {
+//                    if (child.name === that.getCategoryName(classifier)) {
+//                        res = child;
+//                    }
+//                }
+//            });
+//            return res;
+//        };
 
-        VocabularyService.prototype.getCategoryName = function (classifier) {
-            return classifier.indexOf(":") != -1 ? classifier.split(":")[1] : classifier;
-        };
-        VocabularyService.prototype.getCategoryPosition = function (classifier) {
-            return classifier.indexOf(":") != -1 ? classifier.split(":")[0] : 1;
-        };
+//        VocabularyService.prototype.getCategoryName = function (classifier) {
+//            return classifier.indexOf(":") != -1 ? classifier.split(":")[1] : classifier;
+//        };
+//        VocabularyService.prototype.getCategoryPosition = function (classifier) {
+//            return classifier.indexOf(":") != -1 ? classifier.split(":")[0] : 1;
+//        };
 
         VocabularyService.prototype.showValueSetDefinition = function (tableId) {
             var tables = this.searchTablesById(tableId, this.valueSetDefinitionGroups);
@@ -255,11 +288,18 @@
                     templateUrl: 'TableFoundCtrl.html',
                     controller: 'ValueSetDetailsCtrl',
                     windowClass: 'app-modal-window',
+                    animation:false,
+                    keyboard:true,
+                    backdrop:true,
                     resolve: {
                         table: function () {
                             return t;
                         }
                     }
+                });
+
+                modalInstance.result.then(function (selectedItem) {
+                 }, function () {
                 });
             }
         };
@@ -303,6 +343,11 @@
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
+
+        $scope.close = function () {
+            $modalInstance.close($scope.table);
+        };
+
     });
 
 
