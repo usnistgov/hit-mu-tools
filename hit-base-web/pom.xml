@@ -12,7 +12,7 @@
 	</parent>
 
 	<build>
-		<finalName>ss-r2-tool</finalName>
+		<finalName>ss-r2</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -216,18 +216,20 @@
 			<version>3.4.4</version>
 		</dependency>
 
-<!-- 
-  <dependency>
-			<artifactId>hit-example-resource-bundle</artifactId>
-			<groupId>gov.nist.hit.example.resource</groupId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>  -->
-<!--   <dependency>
+
+   <dependency>
 			<groupId>gov.nist.hit.core.hl7v2</groupId>
 			<artifactId>hit-core-hl7v2-service</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-		</dependency> -->
- 
+		</dependency>
+
+
+
+   <dependency>
+   	<groupId>gov.nist.healthcare.mu.ss</groupId>
+   	<artifactId>ss-resource-bundle</artifactId>
+   	<version>0.0.1-SNAPSHOT</version>
+   </dependency>
 	</dependencies>
 
 	<repositories>
