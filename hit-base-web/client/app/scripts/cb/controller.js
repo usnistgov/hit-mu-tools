@@ -1,14 +1,16 @@
 'use strict';
 
 angular.module('cb')
-    .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', function ($scope, $window, $rootScope, CB) {
+    .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB','StorageService', function ($scope, $window, $rootScope, CB,StorageService) {
+
+        $scope.init = function () {
+            var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
+            if (tab == null || tab != '/cb_execution') tab = '/cb_testcase';
+            $rootScope.setSubActive(tab);
+        };
 
         $scope.getTestType = function () {
             return CB.testCase.type;
-        };
-
-        $scope.init = function () {
-            $rootScope.setSubActive('/cb_testcase');
         };
 
         $scope.disabled = function () {
@@ -41,15 +43,13 @@ angular.module('cb')
             $scope.error = null;
             $scope.loading = false;
             $scope.setActiveTab(0);
-            $rootScope.$on('cb:testCaseLoaded', function (event, testCase) {
-                $rootScope.setSubActive('/cb_execution');
+            $rootScope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
+                $rootScope.setSubActive(tab && tab != null ? tab : '/cb_execution');
                 $scope.testCase = testCase;
-
-                $timeout(function() {
+                $timeout(function () {
                     $rootScope.$broadcast('cb:profileLoaded', $scope.testCase.testContext.profile);
                 });
-
-                $timeout(function() {
+                $timeout(function () {
                     $rootScope.$broadcast('cb:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
                 });
             });
@@ -59,88 +59,61 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBTestCaseCtrl', ['$scope', '$window', '$rootScope', 'CB', 'ngTreetableParams', '$timeout', 'CBTestCaseListLoader','$filter', function ($scope, $window, $rootScope, CB, ngTreetableParams, $timeout, CBTestCaseListLoader,$filter) {
+    .controller('CBTestCaseCtrl', ['$scope', '$window', '$filter', '$rootScope', 'CB', '$timeout', 'CBTestCaseListLoader', '$sce', 'StorageService', 'TestCaseService', function ($scope, $window, $filter, $rootScope, CB, $timeout, CBTestCaseListLoader, $sce, StorageService, TestCaseService) {
         $scope.selectedTestCase = CB.selectedTestCase;
         $scope.testCase = CB.testCase;
         $scope.testCases = [];
+        $scope.tree = {};
         $scope.loading = true;
         $scope.error = null;
-
-        $scope.createTreeStruct = function (obj) {
-            if (obj.testCases) {
-                if (!obj["children"]) {
-                    obj["children"] = obj.testCases;
-                } else {
-                    angular.forEach(obj.testCases, function (testCase) {
-                        obj["children"].push(testCase);
-                        $scope.createTreeStruct(testCase);
-                    });
-                }
-                obj["children"] = $filter('orderBy')(obj["children"], 'position');
-                delete obj.testCases;
-            }
-
-            if (obj.testCaseGroups) {
-                if (!obj["children"]) {
-                    obj["children"] = obj.testCaseGroups;
-                } else {
-                    angular.forEach(obj.testCaseGroups, function (testCaseGroup) {
-                        obj["children"].push(testCaseGroup);
-                        $scope.createTreeStruct(testCaseGroup);
-                    });
-                }
-                obj["children"] = $filter('orderBy')(obj["children"], 'position');
-                delete obj.testCaseGroups;
-            }
-
-            if (obj.testSteps) {
-                if (!obj["children"]) {
-                    obj["children"] = obj.testSteps;
-                } else {
-                    angular.forEach(obj.testSteps, function (testStep) {
-                        obj["children"].push(testStep);
-                        $scope.createTreeStruct(testStep);
-                    });
-                }
-                obj["children"] = $filter('orderBy')(obj["children"], 'position');
-                delete obj.testSteps;
-            }
-
-            if (obj.children) {
-                angular.forEach(obj.children, function (child) {
-                    $scope.createTreeStruct(child);
-                });
-            }
-        };
-
+        var testCaseService = new TestCaseService();
         $scope.init = function () {
             $scope.error = null;
             $scope.loading = true;
 
 
-            $scope.params = new ngTreetableParams({
-                getNodes: function (parent) {
-                    return parent && parent != null ? parent.children : $scope.testCases;
-                },
-                getTemplate: function (node) {
-                    if(node.type  === 'TestCase'){
-                        return 'CBTestCase.html';
-                    }else if(node.type === 'TestStep'){
-                        return  'CBTestStep.html';
-                    }else if(node.type === 'TestPlan' || node.type === 'TestCaseGroup'){
-                        return  'CBTestPlanOrTestCaseGroup.html';
-                    }
-                }
-            });
-
             var tcLoader = new CBTestCaseListLoader();
             tcLoader.then(function (testCases) {
                 $scope.error = null;
                 angular.forEach(testCases, function (testPlan) {
-                    $scope.createTreeStruct(testPlan);
+                    testCaseService.buildTree(testPlan);
                 });
                 $scope.testCases = testCases;
-                $scope.params.refresh();
+                $scope.tree.build_all($scope.testCases);
+
+                var testCase = null;
+                var id = StorageService.get(StorageService.CB_SELECTED_TESTCASE_ID_KEY);
+                var type = StorageService.get(StorageService.CB_SELECTED_TESTCASE_TYPE_KEY);
+                if (id != null && type != null) {
+                    for (var i = 0; i < $scope.testCases.length; i++) {
+                        var found = testCaseService.findOneByIdAndType(id, type, $scope.testCases[i]);
+                        if (found != null) {
+                            testCase = found;
+                            break;
+                        }
+                    }
+                    if (testCase != null) {
+                        $scope.selectTestCase(testCase);
+                        $scope.selectNode(id, type);
+                    }
+                }
+
+                testCase = null;
+                id = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
+                type = StorageService.get(StorageService.CB_LOADED_TESTCASE_TYPE_KEY);
+                if (id != null && type != null) {
+                    for (var i = 0; i < $scope.testCases.length; i++) {
+                        var found = testCaseService.findOneByIdAndType(id, type, $scope.testCases[i]);
+                        if (found != null) {
+                            testCase = found;
+                            break;
+                        }
+                    }
+                    if (testCase != null) {
+                        var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
+                        $scope.loadTestCase(testCase, tab);
+                    }
+                }
                 $scope.loading = false;
             }, function (error) {
                 $scope.loading = false;
@@ -156,21 +129,57 @@ angular.module('cb')
             }, 1000);
         };
 
+
+        $scope.isSelectable = function (node) {
+            return node.type !== "TestCaseGroup";
+        };
+
         $scope.selectTestCase = function (node) {
-            if($scope.selectedTestCase == null || $scope.selectedTestCase.id != node.id) {
+            if ($scope.selectedTestCase == null || $scope.selectedTestCase.id != node.id) {
                 $scope.selectedTestCase = node;
+                StorageService.set(StorageService.CB_SELECTED_TESTCASE_ID_KEY, node.id);
+                StorageService.set(StorageService.CB_SELECTED_TESTCASE_TYPE_KEY, node.type);
                 $timeout(function () {
                     $rootScope.$broadcast('cb:testCaseSelected', $scope.selectedTestCase);
                 });
             }
         };
 
-        $scope.loadTestCase = function () {
-            CB.testCase = $scope.selectedTestCase;
-            $scope.testCase = CB.testCase;
-            $timeout(function() {
-                $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase);
+        $scope.selectNode = function (id, type) {
+            $timeout(function () {
+                testCaseService.selectNodeByIdAndType($scope.tree, id, type);
+            }, 0);
+        };
+
+
+        $scope.selectTestPlan = function (node) {
+            if ($scope.selectedTestCase == null || $scope.selectedTestCase.id != node.id) {
+                $scope.selectedTestCase = node;
+            }
+        };
+
+
+        $scope.loadTestCase = function (testCase, tab) {
+            $timeout(function () {
+                if (testCase.type === 'TestStep') {
+                    CB.testCase = testCase;
+                    $scope.testCase = CB.testCase;
+                    var id = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
+                    var type = StorageService.get(StorageService.CB_LOADED_TESTCASE_TYPE_KEY);
+                    if (id != $scope.testCase.id || type != $scope.testCase.type) {
+                        StorageService.set(StorageService.CB_LOADED_TESTCASE_ID_KEY, $scope.testCase.id);
+                        StorageService.set(StorageService.CB_LOADED_TESTCASE_TYPE_KEY, $scope.testCase.type);
+                        StorageService.remove(StorageService.CB_EDITOR_CONTENT_KEY);
+                    }
+                    $timeout(function () {
+                        $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase, tab);
+                    });
+                }
             });
+        };
+
+        $scope.expand = function (event) {
+
         };
 
 
@@ -183,7 +192,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'MessageValidator', 'MessageParser', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, MessageValidator, MessageParser) {
+    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, ServiceDelegator,StorageService) {
 
         $scope.cb = CB;
         $scope.testCase = CB.testCase;
@@ -195,6 +204,8 @@ angular.module('cb')
         $scope.vLoading = true;
         $scope.mError = null;
         $scope.mLoading = true;
+
+        $scope.validator = null;
 
         $scope.counter = 0;
         $scope.type = "cb";
@@ -326,41 +337,33 @@ angular.module('cb')
          * Validate the content of the editor
          */
         $scope.validateMessage = function () {
-            $scope.vLoading = true;
-            $scope.vError = null;
-            if ($scope.cb.testCase != null && $scope.cb.message.content !== "") {
-                try {
-                    var validator = new MessageValidator().validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
-                    validator.then(function (mvResult) {
-                        $scope.vLoading = false;
-                        $scope.loadValidationResult(mvResult);
-                    }, function (error) {
-                        $scope.vLoading = false;
-                        $scope.vError = error;
-                        $scope.loadValidationResult(null);
-                    });
-                } catch (e) {
-                    $scope.vLoading = false;
-                    $scope.vError = e;
-                    $scope.loadValidationResult(null);
-                }
-            } else {
-                $scope.loadValidationResult(null);
-                $scope.vLoading = false;
+            if($scope.validator != null) {
+                $scope.vLoading = true;
                 $scope.vError = null;
+                if ($scope.cb.testCase != null && $scope.cb.message.content !== "") {
+                    try {
+                        var validator = $scope.validator.validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
+                        validator.then(function (mvResult) {
+                            $scope.vLoading = false;
+                            $scope.loadValidationResult(mvResult);
+                        }, function (error) {
+                            $scope.vLoading = false;
+                            $scope.vError = error;
+                            $scope.loadValidationResult(null);
+                        });
+                    } catch (e) {
+                        $scope.vLoading = false;
+                        $scope.vError = e;
+                        $scope.loadValidationResult(null);
+                    }
+                } else {
+                    $scope.loadValidationResult(null);
+                    $scope.vLoading = false;
+                    $scope.vError = null;
+                }
+            }else{
+                $scope.vError = "No validator found for the specified format " + $scope.cb.testCase != null && $scope.cb.testCase.testContext != null ? $scope.cb.testCase.testContext.format : "";
             }
-        };
-
-        $scope.hideAllFailures = function () {
-            $scope.validResultHighlither.hideAllFailures();
-        };
-
-        $scope.showFailures = function (type, event) {
-            $scope.validResultHighlither.showFailures(type, event);
-        };
-
-        $scope.isVFailureChecked = function (type) {
-            return $scope.failuresConfig[type].checked;
         };
 
         $scope.loadValidationResult = function (mvResult) {
@@ -385,7 +388,6 @@ angular.module('cb')
                 $scope.editor.doc.setValue('');
                 $scope.execute();
             }
-
         };
 
         $scope.saveMessage = function () {
@@ -393,20 +395,24 @@ angular.module('cb')
         };
 
         $scope.parseMessage = function () {
-            $scope.tLoading = true;
-            if ($scope.cb.testCase != null && $scope.cb.message.content != '') {
-                var parsed = new MessageParser().parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
-                parsed.then(function (value) {
+            if($scope.parser!= null) {
+                $scope.tLoading = true;
+                if ($scope.cb.testCase != null && $scope.cb.message.content != '') {
+                    var parsed = $scope.parser.parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
+                    parsed.then(function (value) {
+                        $scope.tLoading = false;
+                        $scope.cb.tree.root.build_all(value);
+                    }, function (error) {
+                        $scope.tLoading = false;
+                        $scope.tError = error;
+                    });
+                } else {
+                    $scope.cb.tree.root.build_all([]);
+                    $scope.tError = null;
                     $scope.tLoading = false;
-                    $scope.messageObject = value;
-                }, function (error) {
-                    $scope.tLoading = false;
-                    $scope.tError = error;
-                });
-            } else {
-                $scope.messageObject = [];
-                $scope.tError = null;
-                $scope.tLoading = false;
+                }
+            }else{
+                $scope.tError = "No parser found for the specified format " + $scope.cb.testCase != null && $scope.cb.testCase.testContext != null ? $scope.cb.testCase.testContext.format : "";
             }
         };
 
@@ -422,6 +428,7 @@ angular.module('cb')
             $scope.mError = null;
             $scope.vError = null;
             $scope.cb.message.content = $scope.editor.doc.getValue();
+            StorageService.set(StorageService.CB_EDITOR_CONTENT_KEY, $scope.cb.message.content);
             $scope.validateMessage();
             $scope.parseMessage();
         };
@@ -440,15 +447,28 @@ angular.module('cb')
 
             $scope.$on('cb:refreshEditor', function (event) {
                 $scope.refreshEditor();
-                event.preventDefault();
-            });
+             });
 
-            $rootScope.$on('cb:testCaseLoaded', function (event) {
+            $rootScope.$on('cb:testCaseLoaded', function (event,testCase) {
                 $scope.refreshEditor();
-                $scope.testCase = $scope.cb.testCase;
+                $scope.testCase = testCase;
                 if ($scope.testCase != null) {
-                    $scope.clearMessage();
+                    var content = StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY) == null ? '' : StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY);
+                    $scope.nodelay = true;
+                    $scope.mError = null;
+                    try {
+                        $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
+                        $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                        if ($scope.editor) {
+                            $scope.editor.doc.setValue(content);
+                            $scope.execute();
+                        }
+                    }catch(error){
+                        $scope.mError = error;
+                        $scope.vError = error;
+                    }
                 }
+
             });
         };
 

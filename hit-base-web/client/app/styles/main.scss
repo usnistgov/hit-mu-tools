@@ -1538,3 +1538,21 @@ li.validation-result-subtab {
   border: 1px solid #eee;
   height: auto;
 }
+
+.nopointer{
+  cursor:text;
+}
+
+.dq-modal .modal-dialog {
+  width: 60%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.container-doc-testcase-tree {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: 800px !important;
+  overflow: auto;
+}
+

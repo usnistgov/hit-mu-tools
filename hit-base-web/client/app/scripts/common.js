@@ -390,72 +390,6 @@ angular.module('commonServices').factory('DataInstanceReport', function ($http, 
 });
 
 
-angular.module('commonServices').factory('MessageValidator', function ($http, $q, HL7EditorUtils) {
-    var MessageValidator = function () {
-    };
-    MessageValidator.prototype.validate = function (testContextId, content,label, contextType) {
-        var delay = $q.defer();
-             $http.post('api/testcontext/'+ testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType":contextType})).then(
-                function (object) {
-                    try {
-                        delay.resolve(angular.fromJson(object.data));
-                    } catch (e) {
-                        delay.reject("Invalid character in the message");
-                    }
-                },
-                function (response) {
-                    delay.reject(response.data);
-                }
-            );
-
-//        $http.get('../../resources/cb/messageValidationResult.json', angular.fromJson({"content": content})).then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-
-         return delay.promise;
-    };
-
-    return MessageValidator;
-});
-
-angular.module('commonServices').factory('MessageParser', function ($http, $q, HL7EditorUtils) {
-    var MessageParser = function () {
-    };
-    MessageParser.prototype.parse = function (testContextId, content) {
-        var delay = $q.defer();
-        $http.post('api/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
-
-//        $http.get('../../resources/cb/messageObject.json', angular.fromJson({"content": content})).then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-        return delay.promise;
-    };
-
-    return MessageParser;
-});
-
-
-
-
 
 angular.module('commonServices').factory('NewValidationReport', function ($http, $q) {
     var NewValidationReport = function () {
@@ -575,6 +509,230 @@ angular.module('commonServices').factory('Clock', function ($interval) {
     };
     return Clock;
 });
+
+angular.module('commonServices').factory('ServiceDelegator', function (HL7V2MessageValidator,EDIMessageValidator,XMLMessageValidator,HL7V2MessageParser,EDIMessageParser,XMLMessageParser) {
+     return {
+         getMessageValidator:function(format){
+             if(format === 'hl7v2'){
+                    return  HL7V2MessageValidator;
+             }else if(format === 'xml'){
+                 return  XMLMessageValidator;
+             }else if(format === 'edi'){
+                 return  EDIMessageValidator;
+             }
+             throw new Error("Unsupported format "+ format);
+         },
+         getMessageParser:function(format){
+             if(format === 'hl7v2'){
+                 return  HL7V2MessageParser;
+             }else if(format === 'xml'){
+                 return  XMLMessageParser;
+             }else if(format === 'edi'){
+                 return  EDIMessageParser;
+             }
+             throw new Error("Unsupported format "+ format);
+         }
+
+     }
+});
+
+
+angular.module('commonServices').factory('TestCaseService', function ($filter) {
+    var TestCaseService = function () {
+
+    };
+
+    TestCaseService.prototype.findOneById = function (id, testCase) {
+        if (testCase) {
+            if (id === testCase.id) {
+                return testCase;
+            }
+            if (testCase.children && testCase.children != null && testCase.children.length > 0) {
+                for (var i = 0; i < testCase.children.length; i++) {
+                    var found = this.findOneById(id, testCase.children[i]);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        }
+        return null;
+    };
+
+    TestCaseService.prototype.findOneByIdAndType = function (id, type, testCase) {
+        if (testCase) {
+            if (id === testCase.id && type === testCase.type) {
+                return testCase;
+            }
+            if (testCase.children && testCase.children != null && testCase.children.length > 0) {
+                for (var i = 0; i < testCase.children.length; i++) {
+                    var found = this.findOneByIdAndType(id, type, testCase.children[i]);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        }
+        return null;
+    };
+
+
+    TestCaseService.prototype.buildTree = function (node) {
+        if (node.type === 'TestStep') {
+            node.label = node.position + "." + node.name;
+        } else {
+            node.label = node.name;
+        }
+        var that = this;
+        if (node.testCases) {
+            if (!node["children"]) {
+                node["children"] = node.testCases;
+            } else {
+                angular.forEach(node.testCases, function (testCase) {
+                    node["children"].push(testCase);
+                    that.buildTree(testCase);
+                });
+            }
+            node["children"] = $filter('orderBy')(node["children"], 'position');
+            delete node.testCases;
+        }
+
+        if (node.testCaseGroups) {
+            if (!node["children"]) {
+                node["children"] = node.testCaseGroups;
+            } else {
+                angular.forEach(node.testCaseGroups, function (testCaseGroup) {
+                    node["children"].push(testCaseGroup);
+                    that.buildTree(testCaseGroup);
+                });
+            }
+            node["children"] = $filter('orderBy')(node["children"], 'position');
+            delete node.testCaseGroups;
+        }
+
+        if (node.testSteps) {
+            if (!node["children"]) {
+                node["children"] = node.testSteps;
+            } else {
+                angular.forEach(node.testSteps, function (testStep) {
+                    node["children"].push(testStep);
+                    that.buildTree(testStep);
+                });
+            }
+            node["children"] = $filter('orderBy')(node["children"], 'position');
+            delete node.testSteps;
+        }
+
+        if (node.children) {
+            angular.forEach(node.children, function (child) {
+                that.buildTree(child);
+            });
+        }
+    };
+
+
+    TestCaseService.prototype.findNode = function (tree, node, id, type) {
+        if (node.id === id && ((type != undefined && node.type === type) || (!type && !node.type))) {
+            return node;
+        }
+        var children = tree.get_children(node);
+        if (children && children.length > 0) {
+            for (var i = 0; i < children.length; i++) {
+                var found = this.findNode(tree, children[i],  id, type);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    };
+
+
+    TestCaseService.prototype.selectNodeByIdAndType = function (tree, id, type) {
+        if (id != null && tree != null) {
+            var foundNode = null;
+            var firstNode = tree.get_first_branch();
+            var children = tree.get_siblings(firstNode);
+            if (children && children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var found = this.findNode(tree, children[i], id, type);
+                    if (found != null) {
+                        foundNode = found;
+                        break;
+                    }
+                }
+            }
+            if (foundNode != null) {
+                tree.collapse_all();
+                tree.select_branch(foundNode);
+                tree.expand_branch(foundNode);
+            }
+        }
+    };
+
+
+
+
+    return TestCaseService;
+});
+
+
+
+angular.module('commonServices').factory('StorageService',
+    ['$rootScope', 'localStorageService', function ($rootScope, localStorageService) {
+        var service = {
+            CF_EDITOR_CONTENT_KEY: 'CF_EDITOR_CONTENT',
+            CF_LOADED_TESTCASE_ID_KEY: 'CF_LOADED_TESTCASE_ID',
+            CF_LOADED_TESTCASE_TYPE_KEY: 'CF_LOADED_TESTCASE_TYPE',
+
+            CB_EDITOR_CONTENT_KEY: 'CB_EDITOR_CONTENT',
+            CB_SELECTED_TESTCASE_ID_KEY: 'CB_SELECTED_TESTCASE_ID',
+            CB_SELECTED_TESTCASE_TYPE_KEY: 'CB_SELECTED_TESTCASE_TYPE',
+            CB_LOADED_TESTCASE_ID_KEY: 'CB_LOADED_TESTCASE_ID',
+            CB_LOADED_TESTCASE_TYPE_KEY: 'CB_LOADED_TESTCASE_TYPE',
+
+            ISOLATED_EDITOR_CONTENT_KEY: 'ISOLATED_EDITOR_CONTENT',
+            ISOLATED_SELECTED_TESTCASE_ID_KEY: 'ISOLATED_SELECTED_TESTCASE_ID',
+            ISOLATED_LOADED_TESTCASE_ID_KEY: 'ISOLATED_LOADED_TESTCASE_ID',
+            ISOLATED_LOADED_TESTSTEP_ID_KEY: 'ISOLATED_LOADED_TESTSTEP_ID',
+            ISOLATED_LOADED_TESTSTEP_TYPE_KEY: 'ISOLATED_LOADED_TESTSTEP_TYPE',
+            ISOLATED_SELECTED_TESTCASE_TYPE_KEY: 'ISOLATED_SELECTED_TESTCASE_TYPE',
+            ISOLATED_LOADED_TESTCASE_TYPE_KEY: 'ISOLATED_LOADED_TESTCASE_TYPE',
+
+            ACTIVE_SUB_TAB_KEY: 'ACTIVE_SUB_TAB',
+//            SOAP_COMM_SENDER_USERNAME_KEY: 'SOAP_COMM_SENDER_USERNAME',
+//            SOAP_COMM_SENDER_PWD_KEY: 'SOAP_COMM_SENDER_PWD',
+//            SOAP_COMM_SENDER_ENDPOINT_KEY: 'SOAP_COMM_SENDER_ENDPOINT',
+//            SOAP_COMM_SENDER_FACILITYID_KEY: 'SOAP_COMM_SENDER_FACILITYID',
+//
+//            SOAP_COMM_RECEIVER_USERNAME_KEY: 'SOAP_COMM_RECEIVER_USERNAME',
+//            SOAP_COMM_RECEIVER_PWD_KEY: 'SOAP_COMM_RECEIVER_PWD',
+//            SOAP_COMM_RECEIVER_ENDPOINT_KEY: 'SOAP_COMM_RECEIVER_ENDPOINT',
+//            SOAP_COMM_RECEIVER_FACILITYID_KEY: 'SOAP_COMM_RECEIVER_FACILITYID',
+
+            remove: function (key) {
+                return localStorageService.remove(key);
+            },
+
+            removeList: function removeItems(key1, key2, key3) {
+                return localStorageService.remove(key1, key2, key3);
+            },
+
+            clearAll: function () {
+                return localStorageService.clearAll();
+            },
+            set: function (key, val) {
+                return localStorageService.set(key, val);
+            },
+            get: function (key) {
+                return localStorageService.get(key);
+            }
+        };
+        return service;
+    }]
+);
+
+
 
 
 
