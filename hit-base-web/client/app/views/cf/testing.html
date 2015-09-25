@@ -91,45 +91,38 @@
                 <span class="pull-right">
                     <i class="point fa fa-times" ng-click="close()"></i>
                 </span>
-            </div>
-             <div class="modal-body">
-                <div style="font-size: 14px">
-                    <h4 class="page-header">Standard</h4>
-                    <ul>
-                        <li>CDC HL7 Version 2.5.1 Implementation Guide for Immunization Messaging</li>
-                        <li>Release 1.5 (10/01/2014)</li>
-                    </ul>
-                    <!--<p>CDC HL7 Version 2.5.1 Implementation Guide for Immunization Messaging</p>-->
-                    <!--<p>Release 1.5 (10/01/2014)</p>-->
-                </div>
-                <div style="font-size: 14px">
-                    <h4 class="page-header">Profiles</h4>
-                    <ul>
-                    <li>Z22(VXU)- Send Immunization </li>
-                     <li>Z23(ACK)- Acknowledgement </li>
-                     <li>Z34(QBP)- Query: Complete Immunization History </li>
-                     <li>Z44(QBP)- Query: Evaluated Immunization History And Forecast </li>
-                     <li>Z31(RSP)- Response: List Of Candidates Profile </li>
-                     <li>Z32(RSP)- Response: Complete Immunization History </li>
-                     <li>Z33(RSP)- Response: Acknowledgement With No Person Records </li>
-                     <li>Z42(RSP)- Response: Evaluated History AND Forecast </li>
-                    </ul>
-                </div>
-                <div style="font-size: 14px">
-                    <h4 class="page-header">Pairs</h4>
-                    <ul><li>Z22:Z23 - Send Immunization/ACK </li>
-                     <li>Z34:Z31 - Query History/Respond Candidates </li>
-                     <li>Z34:Z32 - Query History/Respond History </li>
-                     <li>Z34:Z33 - Query History/Respond Person Not Found </li>
-                     <li>Z44:Z42 - Query History & Forecast/Respond History & Forecast </li>
-                     <li>Z44:Z33 - Query History & Forecast/Respond Person Not Found </li>
-                    </ul>
-                </div>
-            </div>
-             <div class="modal-footer">
+    </div>
+    <div class="modal-body">
+        <div style="font-size: 14px">
+            <h4 class="page-header">Standard</h4>
+            <ul>
+                <li>PHIN MESSAGING GUIDE FOR SYNDROMIC SURVEILLANCE: EMERGENCY DEPARTMENT, URGENT CARE, INPATIENT AND AMBULATORY CARE SETTINGS</li>
+                <li>Release 2.0 (04/21/2015)</li>
+                <li>Erratum to the CDC PHIN 2.0 Implementation Guide August 2015</li>
+                <li>August 2015</li>
+            </ul>
+        </div>
+        <div style="font-size: 14px">
+            <h4 class="page-header">Profiles</h4>
+            <ul>
+                <li>A01(ADT) - Patient admit</li>
+                <li>A03(ADT) - Patient discharge</li>
+                <li>A04(ADT) - Patient registration</li>
+                <li>A08(ADT) - Patient information update</li>
+            </ul>
+        </div>
+        <div style="font-size: 14px">
+            <h4 class="page-header">Pairs</h4>
+            <ul>
+                <li>:</li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal-footer">
                   <span class="pull-right">
                         <button class="btn btn-primary btn-sm" ng-click="close()"> <i class="fa fa-times"></i> Close</button>
                   </span>
-            </div>
+    </div>
+
      </script>
 
