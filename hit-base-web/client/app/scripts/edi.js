@@ -455,14 +455,12 @@ angular.module('edi').factory('EDITreeUtils',
 
 
 angular.module('edi').factory('EDIMessageValidator', function ($http, $q, EDIEditorUtils) {
-    var EDIMessageValidator = function () {
-    };
-
-    EDIMessageValidator.prototype.validate = function (testContextId, content, name, dqaCodes, facilityId, contextType) {
-        var delay = $q.defer();
-        if (!EDIEditorUtils.isEDI(content)) {
-            delay.reject("Message provided is not an EDI message");
-        } else {
+    return {
+        validate: function (testContextId, content, name, contextType) {
+            if (!EDIEditorUtils.isEDI(content)) {
+                delay.reject("Message provided is not an EDI message");
+            } else {
+                var delay = $q.defer();
 //
 //            $http.get('../../resources/cf/newValidationResult3.json').then(
 //                function (object) {
@@ -472,42 +470,39 @@ angular.module('edi').factory('EDIMessageValidator', function ($http, $q, EDIEdi
 //                    delay.reject(response.data);
 //                }
 //            );
-            $http.post('api/edi/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "dqaCodes": dqaCodes, "facilityId": "1223", "contextType": contextType})).then(
-                function (object) {
-                    try {
-                        delay.resolve(angular.fromJson(object.data));
-                    } catch (e) {
-                        delay.reject("Invalid character in the message");
+                $http.post('api/edi/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType})).then(
+                    function (object) {
+                        try {
+                            delay.resolve(angular.fromJson(object.data));
+                        } catch (e) {
+                            delay.reject("Invalid character in the message");
+                        }
+                    },
+                    function (response) {
+                        delay.reject(response.data);
                     }
-                },
-                function (response) {
-                    delay.reject(response.data);
-                }
-            );
+                );
+            }
+            return delay.promise;
         }
-        return delay.promise;
-    };
-
-    return EDIMessageValidator;
-});
+    }
+ });
 
 angular.module('edi').factory('EDIMessageParser', function ($http, $q, EDIEditorUtils) {
-    var EDIMessageParser = function () {
-    };
-
-    EDIMessageParser.prototype.parse = function (testContextId, content, name) {
-        var delay = $q.defer();
-        if (!EDIEditorUtils.isEDI(content)) {
-            delay.reject("Message provided is not an EDI message");
-        } else {
-            $http.post('api/edi/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
-                function (object) {
-                    delay.resolve(angular.fromJson(object.data));
-                },
-                function (response) {
-                    delay.reject(response.data);
-                }
-            );
+    return {
+        parse: function (testContextId, content, name) {
+            var delay = $q.defer();
+            if (!EDIEditorUtils.isEDI(content)) {
+                delay.reject("Message provided is not an EDI message");
+            } else {
+                $http.post('api/edi/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
+                    function (object) {
+                        delay.resolve(angular.fromJson(object.data));
+                    },
+                    function (response) {
+                        delay.reject(response.data);
+                    }
+                );
 
 //            $http.get('../../resources/cf/messageObject.json').then(
 //                function (object) {
@@ -517,13 +512,12 @@ angular.module('edi').factory('EDIMessageParser', function ($http, $q, EDIEditor
 //                    delay.reject(response.data);
 //                }
 //            );
+            }
+
+            return delay.promise;
         }
-
-        return delay.promise;
-    };
-
-    return EDIMessageParser;
-});
+    }
+ });
 
 
 

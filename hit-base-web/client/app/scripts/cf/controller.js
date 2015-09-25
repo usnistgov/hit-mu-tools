@@ -135,7 +135,7 @@ angular.module('cf')
 
 
 angular.module('cf')
-    .controller('CFValidatorCtrl', ['$scope', '$http', 'CF', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', 'HL7Utils', '$rootScope', 'FormatServiceAggregator', 'StorageService', function ($scope, $http, CF, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, HL7Utils, $rootScope, FormatServiceAggregator, StorageService) {
+    .controller('CFValidatorCtrl', ['$scope', '$http', 'CF', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', 'HL7Utils', '$rootScope', 'ServiceDelegator', 'StorageService', function ($scope, $http, CF, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, HL7Utils, $rootScope, ServiceDelegator, StorageService) {
         $scope.validator = null;
         $scope.parser = null;
         $scope.cf = CF;
@@ -160,7 +160,7 @@ angular.module('cf')
         $scope.selectedItem = null;
         $scope.activeTab = 0;
 
-         $scope.tError = null;
+        $scope.tError = null;
         $scope.tLoading = false;
 
         $scope.hasContent = function () {
@@ -275,7 +275,7 @@ angular.module('cf')
          * Validate the content of the editor
          */
         $scope.validateMessage = function () {
-            if($scope.validator != null) {
+            if ($scope.validator != null) {
                 $scope.vLoading = true;
                 $scope.vError = null;
                 if ($scope.cf.testCase != null && $scope.cf.message.content !== "") {
@@ -303,6 +303,8 @@ angular.module('cf')
                     $scope.vLoading = false;
                     $scope.vError = null;
                 }
+            } else {
+                $scope.vError = "No validator found for the specified format " + $scope.cf.testCase != null && $scope.cf.testCase.testContext != null ? $scope.cf.testCase.testContext.format : "";
             }
         };
 
@@ -337,7 +339,7 @@ angular.module('cf')
         };
 
         $scope.parseMessage = function () {
-            if($scope.parser != null) {
+            if ($scope.parser != null) {
                 $scope.tLoading = true;
                 if ($scope.cf.testCase.testContext.profile != null && $scope.cf.message.content != '') {
                     var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
@@ -353,6 +355,8 @@ angular.module('cf')
                     $scope.tError = null;
                     $scope.tLoading = false;
                 }
+            } else {
+                $scope.vError = "No parser found for the specified format " + $scope.cf.testCase != null && $scope.cf.testCase.testContext != null ? $scope.cf.testCase.testContext.format : "";
             }
         };
 
@@ -394,11 +398,16 @@ angular.module('cf')
                     var content = StorageService.get(StorageService.CF_EDITOR_CONTENT_KEY) == null ? '' : StorageService.get(StorageService.CF_EDITOR_CONTENT_KEY);
                     $scope.nodelay = true;
                     $scope.mError = null;
-                    $scope.validator = FormatServiceAggregator.getMessageValidator($scope.testCase.format);
-                    $scope.parser = FormatServiceAggregator.getMessageParser($scope.testCase.format);
-                    if ($scope.editor) {
-                        $scope.editor.doc.setValue(content);
-                        $scope.execute();
+                    try {
+                        $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
+                        $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                        if ($scope.editor) {
+                            $scope.editor.doc.setValue(content);
+                            $scope.execute();
+                        }
+                    } catch (error) {
+                        $scope.mError = error;
+                        $scope.vError = error;
                     }
                 }
             });

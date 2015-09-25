@@ -192,7 +192,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'FormatServiceAggregator', 'StorageService', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, FormatServiceAggregator,StorageService) {
+    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, ServiceDelegator,StorageService) {
 
         $scope.cb = CB;
         $scope.testCase = CB.testCase;
@@ -362,7 +362,7 @@ angular.module('cb')
                     $scope.vError = null;
                 }
             }else{
-                $scope.vError = "No validator available ";
+                $scope.vError = "No validator found for the specified format " + $scope.cb.testCase != null && $scope.cb.testCase.testContext != null ? $scope.cb.testCase.testContext.format : "";
             }
         };
 
@@ -412,7 +412,7 @@ angular.module('cb')
                     $scope.tLoading = false;
                 }
             }else{
-                $scope.tError = "No validator available.";
+                $scope.tError = "No parser found for the specified format " + $scope.cb.testCase != null && $scope.cb.testCase.testContext != null ? $scope.cb.testCase.testContext.format : "";
             }
         };
 
@@ -456,11 +456,16 @@ angular.module('cb')
                     var content = StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY) == null ? '' : StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY);
                     $scope.nodelay = true;
                     $scope.mError = null;
-                    $scope.validator = FormatServiceAggregator.getMessageValidator($scope.testCase.format);
-                    $scope.parser = FormatServiceAggregator.getMessageParser($scope.testCase.format);
-                    if ($scope.editor) {
-                        $scope.editor.doc.setValue(content);
-                        $scope.execute();
+                    try {
+                        $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
+                        $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                        if ($scope.editor) {
+                            $scope.editor.doc.setValue(content);
+                            $scope.execute();
+                        }
+                    }catch(error){
+                        $scope.mError = error;
+                        $scope.vError = error;
                     }
                 }
 
