@@ -1,2 +1,2 @@
-# hit-base-tool
-This is the base tool from which to create all the other tools. The base tool is domain independant.
+# hit-mu-tool
+Web tools instances from the base tool. Branches for LRI, eDOS, LOI and SS 
