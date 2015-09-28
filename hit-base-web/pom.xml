@@ -78,4 +78,11 @@
 			<url>http://repo.springsource.org/libs-milestone/</url>
 		</repository>
 	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>ss-r2-config</groupId>
+			<artifactId>ss-r2-config</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>
