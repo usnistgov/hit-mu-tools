@@ -16,7 +16,8 @@
                     dqa: '=',
                     tree: '=',
                     editor: '=',
-                    cursor: '='
+                    cursor: '=',
+                    format: '='
                 },
                 templateUrl: 'lib/validation-result/validation-result.html',
                 replace: false,
@@ -37,58 +38,74 @@
     ]);
 
     mod
-        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'HL7TreeUtils', 'HL7EditorUtils', 'NewValidationResult', '$timeout', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, HL7TreeUtils, HL7EditorUtils,NewValidationResult,$timeout) {
+        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'NewValidationResult', '$timeout', 'ServiceDelegator',function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, NewValidationResult, $timeout,ServiceDelegator) {
             $scope.validationTabs = new Array();
+
+
             $scope.activeTab = 0;
             $scope.validationResult = null;
             $scope.loadingCategory = false;
             $scope.validResultHighlither = null;
             $scope.active = {
-                errors:true,
-                alerts:false,
+                errors: true,
+                alerts: false,
                 warnings: false,
-                informationals:false,
+                informationals: false,
                 affirmatives: false
             };
 
             $scope.subActive = {
                 errors: {
-                 },
+                },
                 alerts: {
-                 },
+                },
                 warnings: {
-                 },
+                },
                 informationals: {
-                 },
+                },
                 affirmatives: {
-                 }
+                }
             };
+
+            $scope.highlighterChecks = {
+                errors: {
+                },
+                alerts: {
+                },
+                warnings: {
+                },
+                informationals: {
+                },
+                affirmatives: {
+                }
+            };
+
 
             $scope.failuresConfig = {
                 errors: {
                     className: "failure failure-errors",
                     checked: false,
-                    active:false
+                    active: false
                 },
                 alerts: {
                     className: "failure failure-alerts",
                     checked: false,
-                    active:false
+                    active: false
                 },
                 warnings: {
                     className: "failure failure-warnings",
                     checked: false,
-                    active:false
+                    active: false
                 },
                 informationals: {
                     className: "failure failure-infos",
                     checked: false,
-                    active:false
+                    active: false
                 },
                 affirmatives: {
                     className: "failure failure-affirmatives",
                     checked: false,
-                    active:false
+                    active: false
                 }
 //                ,
 //                dqa: {
@@ -148,7 +165,7 @@
 //                $scope.loadingCategory = false;
 //            };
 
-            $scope.showValidationTable = function (category,type) {
+            $scope.showValidationTable = function (category, type) {
                 $scope.loadingCategory = true;
                 $scope.data = category.data;
                 $scope.tmpData = [].concat($scope.data);
@@ -158,37 +175,43 @@
                 $scope.loadingCategory = false;
             };
 
-
             $scope.select = function (element) {
                 if (element != undefined && element.path != null && element.line != -1) {
-                    var node = HL7TreeUtils.selectNodeByPath($scope.tree.root, element.line, element.path);
+                    var node = $scope.treeService.selectNodeByPath($scope.tree.root, element.line, element.path);
                     var data = node != null ? node.data : null;
-                    var endIndex =  HL7TreeUtils.getEndIndex(node, $scope.editor.instance.getValue());
+                    var endIndex = $scope.treeService.getEndIndex(node, $scope.editor.instance.getValue());
                     data.endIndex = endIndex;
                     $scope.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
-                    HL7EditorUtils.select($scope.editor.instance, $scope.cursor);
+                    if($scope.editorService != null) {
+                        $scope.editorService.select($scope.editor.instance, $scope.cursor);
+                    }
                 }
             };
 
             $rootScope.$on($scope.type + ':validationResultLoaded', function (event, mvResult) {
+                if($scope.format != null) {
+                    $scope.editorService = ServiceDelegator.getEditorService($scope.format);
+                    $scope.treeService = ServiceDelegator.getTreeService($scope.format);
+                    $scope.cursorService = ServiceDelegator.getCursorService($scope.format);
+                }
                 var report = null;
                 var validationResult = null;
                 if (mvResult !== null) {
-                    if(!mvResult.result) {
+                    if (!mvResult.result) {
                         validationResult = new NewValidationResult();
                         validationResult.init(mvResult.json);
                         mvResult['result'] = validationResult;
-                    }else{
+                    } else {
                         validationResult = mvResult.result;
                     }
                 }
-                $timeout(function() {
+                $timeout(function () {
                     $rootScope.$broadcast($scope.type + ':reportLoaded', mvResult);
                 });
 
                 $scope.validationResult = validationResult;
                 if ($scope.validationResult && $scope.validationResult != null) {
-                    $scope.validResultHighlither = new ValidationResultHighlighter($scope.failuresConfig, $scope.message, $scope.validationResult, $scope.tree, $scope.editor);
+                    $scope.validResultHighlither = new ValidationResultHighlighter($scope.failuresConfig, $scope.message, $scope.validationResult, $scope.tree, $scope.editor, $scope.highlighterChecks, $scope.treeService);
                     $scope.failuresConfig.errors.checked = false;
                     $scope.failuresConfig.warnings.checked = false;
                     $scope.failuresConfig.alerts.checked = false;
@@ -198,7 +221,7 @@
                     $scope.hideAllFailures();
                     $scope.active = {};
                     $scope.active["errors"] = true;
-                   $scope.showValidationTable($scope.validationResult['errors'].categories[0],'errors');
+                    $scope.showValidationTable($scope.validationResult['errors'].categories[0], 'errors');
 
                 }
             });
@@ -211,8 +234,14 @@
             };
 
             $scope.showFailures = function (type, category, event) {
+//                if (event.isPropagationStopped()) {
+//                    event.stopPropagation();
+//                }
+                if (angular.element(event.currentTarget).prop('tagName') === 'INPUT') {
+                    event.stopPropagation();
+                }
                 if ($scope.validResultHighlither != null)
-                    $scope.validResultHighlither.showFailures(type, category, event);
+                    $scope.validResultHighlither.showFailures(type, category);
             };
 
             $scope.isVFailureChecked = function (type) {
@@ -222,17 +251,22 @@
             $scope.toHTML = function (content) {
                 return $sce.trustAsHtml(content);
             };
+
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
         }]);
 
 
-    mod.factory('ValidationResultHighlighter', function ($http, $q, HL7TreeUtils) {
-        var ValidationResultHighlighter = function (failuresConfig, message, result, tree, editor) {
+    mod.factory('ValidationResultHighlighter', function ($http, $q) {
+        var ValidationResultHighlighter = function (failuresConfig, message, result, tree, editor, checkboxConfig,treeService) {
             this.failuresConfig = failuresConfig;
             this.histMarksMap = {};
             this.message = message;
             this.result = result;
             this.tree = tree;
             this.editor = editor;
+            this.checkboxConfig = checkboxConfig;
+            this.treeService = treeService;
         };
 
         ValidationResultHighlighter.prototype.getHistMarksMap = function () {
@@ -256,43 +290,42 @@
             this.hideFailures(this.histMarksMap['alerts']);
         };
 
-        ValidationResultHighlighter.prototype.showFailures = function (type, category, event) {
-            if (angular.element(event.currentTarget).prop('tagName') === 'INPUT') {
-                event.stopPropagation();
-            }
+        ValidationResultHighlighter.prototype.showFailures = function (type, category) {
             if (this.result && this.result != null && this.tree.root) {
                 //if(category.checked) {
-                    var failures = category.data;
-                    var colorClass = this.failuresConfig[type].className;
-                    var hitMarks = this.histMarksMap[type];
-                    var root = this.tree.root;
-                    var editor = this.editor;
-                    var content = this.message.content;
-                    var histMarksMap = this.histMarksMap;
-                    if (!hitMarks || hitMarks.length === 0) {
-                        angular.forEach(failures, function (failure) {
-                            var node = HL7TreeUtils.findByPath(root, failure.line, failure.path);
-                            if (node != null && node.data && node.data != null) {
-                                var endIndex = HL7TreeUtils.getEndIndex(node, content) - 1;
-                                var startIndex = node.data.startIndex - 1;
-                                var line = parseInt(failure.line) - 1;
-                                var markText = editor.instance.doc.markText({
-                                    line: line,
-                                    ch: startIndex
-                                }, {
-                                    line: line,
-                                    ch: endIndex
-                                }, {atomic: true, className: colorClass, clearWhenEmpty: true, clearOnEnter: true, title: failure.description
-                                });
+                var failures = category.data;
+                var colorClass = this.failuresConfig[type].className;
+                var hitMarks = this.histMarksMap[type];
+                var root = this.tree.root;
+                var editor = this.editor;
+                var content = this.message.content;
+                var histMarksMap = this.histMarksMap;
+                var that = this;
+                if (!hitMarks || hitMarks.length === 0) {
+                    this.checkboxConfig[type][category.title] = true;
+                    angular.forEach(failures, function (failure) {
+                        var node = that.treeService.findByPath(root, failure.line, failure.path);
+                        if (node != null && node.data && node.data != null) {
+                            var endIndex =  that.treeService.getEndIndex(node, content) - 1;
+                            var startIndex = node.data.startIndex - 1;
+                            var line = parseInt(failure.line) - 1;
+                            var markText = editor.instance.doc.markText({
+                                line: line,
+                                ch: startIndex
+                            }, {
+                                line: line,
+                                ch: endIndex
+                            }, {atomic: true, className: colorClass, clearWhenEmpty: true, clearOnEnter: true, title: failure.description
+                            });
 
-                                if (!histMarksMap[type]) {
-                                    histMarksMap[type] = [];
-                                }
-                                histMarksMap[type].push(markText);
+                            if (!histMarksMap[type]) {
+                                histMarksMap[type] = [];
                             }
-                        });
-                    }
-                 else {
+                            histMarksMap[type].push(markText);
+                        }
+                    });
+                } else {
+                    this.checkboxConfig[type][category.title] = false;
                     this.hideFailures(this.histMarksMap[type]);
                 }
             }
@@ -303,7 +336,7 @@
     });
 
 
-    mod.factory('NewValidationResult', function (ValidationResult, HL7Utils,ValidationResultItem) {
+    mod.factory('NewValidationResult', function (ValidationResult, ValidationResultItem) {
         var NewValidationResult = function (key) {
             ValidationResult.apply(this, arguments);
             this.json = null;
@@ -372,7 +405,6 @@
         };
 
 
-
         NewValidationResult.prototype.addItem = function (entry) {
             try {
                 entry['id'] = guid();
@@ -392,7 +424,7 @@
 
 
         NewValidationResult.prototype.loadDetection = function (detection) {
-            if(detection) {
+            if (detection) {
                 var that = this;
                 angular.forEach(detection, function (det) {
                     angular.forEach(det, function (item) {
@@ -404,7 +436,7 @@
 
         NewValidationResult.prototype.init = function (result) {
             ValidationResult.prototype.clear.call(this);
-            if(result) {
+            if (result) {
                 this.json = angular.fromJson(result);
                 this.loadDetection(this.json.detections['Error']);
                 this.loadDetection(this.json.detections['Alert']);

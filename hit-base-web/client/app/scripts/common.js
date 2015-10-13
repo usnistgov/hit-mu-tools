@@ -390,7 +390,6 @@ angular.module('commonServices').factory('DataInstanceReport', function ($http, 
 });
 
 
-
 angular.module('commonServices').factory('NewValidationReport', function ($http, $q) {
     var NewValidationReport = function () {
         this.content = {
@@ -432,7 +431,6 @@ angular.module('commonServices').factory('NewValidationReport', function ($http,
 
     return NewValidationReport;
 });
-
 
 
 angular.module('commonServices').factory('Logger', function () {
@@ -510,31 +508,6 @@ angular.module('commonServices').factory('Clock', function ($interval) {
     return Clock;
 });
 
-angular.module('commonServices').factory('ServiceDelegator', function (HL7V2MessageValidator,EDIMessageValidator,XMLMessageValidator,HL7V2MessageParser,EDIMessageParser,XMLMessageParser) {
-     return {
-         getMessageValidator:function(format){
-             if(format === 'hl7v2'){
-                    return  HL7V2MessageValidator;
-             }else if(format === 'xml'){
-                 return  XMLMessageValidator;
-             }else if(format === 'edi'){
-                 return  EDIMessageValidator;
-             }
-             throw new Error("Unsupported format "+ format);
-         },
-         getMessageParser:function(format){
-             if(format === 'hl7v2'){
-                 return  HL7V2MessageParser;
-             }else if(format === 'xml'){
-                 return  XMLMessageParser;
-             }else if(format === 'edi'){
-                 return  EDIMessageParser;
-             }
-             throw new Error("Unsupported format "+ format);
-         }
-
-     }
-});
 
 
 angular.module('commonServices').factory('TestCaseService', function ($filter) {
@@ -638,7 +611,7 @@ angular.module('commonServices').factory('TestCaseService', function ($filter) {
         var children = tree.get_children(node);
         if (children && children.length > 0) {
             for (var i = 0; i < children.length; i++) {
-                var found = this.findNode(tree, children[i],  id, type);
+                var found = this.findNode(tree, children[i], id, type);
                 if (found != null) {
                     return found;
                 }
@@ -671,11 +644,8 @@ angular.module('commonServices').factory('TestCaseService', function ($filter) {
     };
 
 
-
-
     return TestCaseService;
 });
-
 
 
 angular.module('commonServices').factory('StorageService',
@@ -731,6 +701,8 @@ angular.module('commonServices').factory('StorageService',
         return service;
     }]
 );
+
+
 
 
 

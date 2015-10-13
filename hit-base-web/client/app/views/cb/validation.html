@@ -129,7 +129,7 @@
      <span class="pull-right">
                                 <button title="View Report" type="button" class="btn btn-xs btn-primary"
                                         ng-click="setActiveTab(1)">
-                                    <i class="fa fa-search"></i>
+                                    <i class="fa fa-eye"></i>
                                     Report
                                 </button>
        </span>
@@ -140,7 +140,7 @@
                                                 </div>
                                                 <div ng-show="!vLoading">
                                                     <div ng-show="!vError || vError == null">
-                                                        <div validation-result type="cb" message="cb.message"
+                                                        <div validation-result type="cb" message="cb.message" format="cb.testCase.testContext.format"
                                                              editor="cb.editor" tree="cb.tree" cursor="cb.cursor"></div>
                                                     </div>
                                                     <div ng-show="vError != null">
