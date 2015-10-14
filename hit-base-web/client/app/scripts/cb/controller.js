@@ -192,7 +192,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', 'HL7EditorUtils', 'HL7CursorUtils', '$timeout', 'HL7TreeUtils', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', function ($scope, $http, CB, $window, HL7EditorUtils, HL7CursorUtils, $timeout, HL7TreeUtils, $modal, NewValidationResult, $rootScope, ServiceDelegator,StorageService) {
+    .controller('CBValidatorCtrl', ['$scope', '$http', 'CB', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', function ($scope, $http, CB, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator,StorageService) {
 
         $scope.cb = CB;
         $scope.testCase = CB.testCase;
@@ -204,8 +204,10 @@ angular.module('cb')
         $scope.vLoading = true;
         $scope.mError = null;
         $scope.mLoading = true;
-
         $scope.validator = null;
+        $scope.editorService = null;
+        $scope.treeService = null;
+        $scope.cursorService = null;
 
         $scope.counter = 0;
         $scope.type = "cb";
@@ -321,9 +323,9 @@ angular.module('cb')
 
             $scope.editor.on("dblclick", function (editor) {
                 $timeout(function () {
-                    var coordinate = HL7CursorUtils.getCoordinate($scope.editor);
+                    var coordinate = $scope.cursorService.getCoordinate($scope.editor);
                     $scope.cb.cursor.init(coordinate.line, coordinate.startIndex, coordinate.endIndex, coordinate.index, true);
-                    HL7TreeUtils.selectNodeByIndex($scope.cb.tree.root, CB.cursor, CB.message.content);
+                    $scope.treeService.selectNodeByIndex($scope.cb.tree.root, CB.cursor, CB.message.content);
                 });
             });
 
@@ -374,10 +376,10 @@ angular.module('cb')
 
         $scope.select = function (element) {
             if (element != undefined && element.path != null && element.line != -1) {
-                var node = HL7TreeUtils.selectNodeByPath($scope.cb.tree.root, element.line, element.path);
+                var node = $scope.treeService.selectNodeByPath($scope.cb.tree.root, element.line, element.path);
                 var data = node != null ? node.data : null;
                 $scope.cb.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false)
-                HL7EditorUtils.select($scope.editor, $scope.cb.cursor);
+                $scope.editorService.select($scope.editor, $scope.cb.cursor);
             }
         };
 
@@ -394,6 +396,7 @@ angular.module('cb')
             $scope.cb.message.download();
         };
 
+
         $scope.parseMessage = function () {
             if($scope.parser!= null) {
                 $scope.tLoading = true;
@@ -401,7 +404,10 @@ angular.module('cb')
                     var parsed = $scope.parser.parse($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label);
                     parsed.then(function (value) {
                         $scope.tLoading = false;
-                        $scope.cb.tree.root.build_all(value);
+                        $scope.cb.tree.root.build_all(value.elements);
+                        ServiceDelegator.updateEditorMode($scope.editor,value.delimeters,$scope.testCase.testContext.format);
+                        $scope.editorService.setEditor($scope.editor);
+                        $scope.treeService.setEditor($scope.editor);
                     }, function (error) {
                         $scope.tLoading = false;
                         $scope.tError = error;
@@ -417,9 +423,9 @@ angular.module('cb')
         };
 
         $scope.onNodeSelect = function (node) {
-            var index = HL7TreeUtils.getEndIndex(node, $scope.cb.message.content);
+            var index = $scope.treeService.getEndIndex(node, $scope.cb.message.content);
             $scope.cb.cursor.init(node.data.lineNumber, node.data.startIndex - 1, index - 1, node.data.startIndex - 1, false);
-            HL7EditorUtils.select($scope.editor, $scope.cb.cursor);
+            $scope.editorService.select($scope.editor, $scope.cb.cursor);
         };
 
         $scope.execute = function () {
@@ -459,6 +465,9 @@ angular.module('cb')
                     try {
                         $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
                         $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                        $scope.editorService = ServiceDelegator.getEditorService($scope.testCase.testContext.format);
+                        $scope.treeService = ServiceDelegator.getTreeService($scope.testCase.testContext.format);
+                        $scope.cursorService = ServiceDelegator.getCursorService($scope.testCase.testContext.format);
                         if ($scope.editor) {
                             $scope.editor.doc.setValue(content);
                             $scope.execute();

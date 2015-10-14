@@ -21,7 +21,7 @@
                 </div>
 
                 <div ng-show="!loading">
-                <div ng-show="cf.testCase !== null">
+                <div ng-show="cf.testCase !== null" id="executionPanel">
                     <div class="panel panel-info">
                         <!-- Default panel contents -->
                         <div class="panel-heading"><i class="glyphicon glyphicon-list"></i>Profile: {{cf.testCase.name}}
@@ -42,14 +42,14 @@
                             </tab-heading>
                             <div ng-include="'views/cf/report.html'"></div>
                         </tab>
-                        <tab select="setActiveTab(2)" active="tabs[2]">
+                        <tab select="setActiveTab(2)" active="tabs[2]" ng-show="cf.testCase.testContext.profile && cf.testCase.testContext.profile!= null">
                             <tab-heading>
                                 <i class="fa fa-th-list"></i>
                                 Profile Viewer
                             </tab-heading>
                             <div ng-include="'views/cf/profileViewer.html'"></div>
                         </tab>
-                        <tab select="setActiveTab(3)" active="tabs[3]">
+                        <tab select="setActiveTab(3)" active="tabs[3]" ng-show="cf.testCase.testContext.vocabularyLibrary && cf.testCase.testContext.vocabularyLibrary!= null">
                             <tab-heading>
                                 <i class="fa fa-book"></i>
                                 ValueSets
@@ -83,46 +83,22 @@
 
 </div>
 
-    <script type="text/ng-template" id="CFProfileInfoCtrl.html">
-             <div class="modal-header">
-                <span style="font-weight: bold; font-size: 23px">
+<script type="text/ng-template" id="CFProfileInfoCtrl.html">
+    <div class="modal-header">
+                <span style="font-weight: bold; font-size: 20px">
                     Profile Information
                 </span>
                 <span class="pull-right">
-                    <i class="point fa fa-times" ng-click="close()"></i>
+                    <button class="btn btn-primary btn-sm" ng-click="close()"> <i class="fa fa-times"></i> Close</button>
                 </span>
     </div>
     <div class="modal-body">
-        <div style="font-size: 14px">
-            <h4 class="page-header">Standard</h4>
-            <ul>
-                <li>PHIN MESSAGING GUIDE FOR SYNDROMIC SURVEILLANCE: EMERGENCY DEPARTMENT, URGENT CARE, INPATIENT AND AMBULATORY CARE SETTINGS</li>
-                <li>Release 2.0 (04/21/2015)</li>
-                <li>Erratum to the CDC PHIN 2.0 Implementation Guide August 2015</li>
-                <li>August 2015</li>
-            </ul>
-        </div>
-        <div style="font-size: 14px">
-            <h4 class="page-header">Profiles</h4>
-            <ul>
-                <li>A01(ADT) - Patient admit</li>
-                <li>A03(ADT) - Patient discharge</li>
-                <li>A04(ADT) - Patient registration</li>
-                <li>A08(ADT) - Patient information update</li>
-            </ul>
-        </div>
-        <div style="font-size: 14px">
-            <h4 class="page-header">Pairs</h4>
-            <ul>
-                <li>:</li>
-            </ul>
-        </div>
+        <div ng-bind-html="appInfo.profileInfo" />
     </div>
     <div class="modal-footer">
                   <span class="pull-right">
                         <button class="btn btn-primary btn-sm" ng-click="close()"> <i class="fa fa-times"></i> Close</button>
                   </span>
     </div>
-
-     </script>
+</script>
 

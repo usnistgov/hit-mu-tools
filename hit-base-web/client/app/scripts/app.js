@@ -1,10 +1,7 @@
 'use strict';
 
-angular.module('xml', []);
-angular.module('hl7v2', []);
-angular.module('edi', []);
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7v2','edi']);
+angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7v2-edi','hl7v2','edi']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
@@ -21,6 +18,9 @@ var app = angular.module('hit-tool', [
     'ui.bootstrap',
     'angularBootstrapNavTree',
      'QuickList',
+    'format',
+    'default',
+    'hl7v2-edi',
     'xml',
     'hl7v2',
     'edi',
@@ -88,6 +88,7 @@ app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) 
 app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,StorageService,$route,$window) {
     $rootScope.appInfo = {};
     $rootScope.stackPosition =0;
+    $rootScope.scrollbarWidth = null;
 
 
     new AppInfo().then(function (response) {
@@ -243,6 +244,37 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
         //$rootScope.activePath = $location.path();
         $rootScope.setActive($location.path());
     });
+
+
+    $rootScope.getScrollbarWidth = function() {
+
+        if($rootScope.scrollbarWidth == null) {
+            var outer = document.createElement("div");
+            outer.style.visibility = "hidden";
+            outer.style.width = "100px";
+            outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+            document.body.appendChild(outer);
+
+            var widthNoScroll = outer.offsetWidth;
+            // force scrollbars
+            outer.style.overflow = "scroll";
+
+            // add innerdiv
+            var inner = document.createElement("div");
+            inner.style.width = "100%";
+            outer.appendChild(inner);
+
+            var widthWithScroll = inner.offsetWidth;
+
+            // remove divs
+            outer.parentNode.removeChild(outer);
+
+            $rootScope.scrollbarWidth = widthNoScroll - widthWithScroll;
+        }
+
+        return $rootScope.scrollbarWidth;
+    };
 
 
 
