@@ -353,8 +353,7 @@ angular.module('xml').factory('XMLEditorService',
 angular.module('xml').factory('XMLMessageValidator', function ($http, $q, MessageValidatorClass) {
 
     var XMLMessageValidatorClass = function () {
-        this.format = 'xml';
-        MessageValidatorClass.call(this, arguments);
+        MessageValidatorClass.call(this, 'xml');
     };
 
     XMLMessageValidatorClass.prototype = Object.create(MessageValidatorClass.prototype);
@@ -365,13 +364,21 @@ angular.module('xml').factory('XMLMessageValidator', function ($http, $q, Messag
 
 angular.module('xml').factory('XMLMessageParser', function ($http, $q, MessageParserClass) {
     var XMLMessageParserClass = function () {
-        this.format = 'xml';
-        MessageParserClass.call(this, arguments);
-    };
+        MessageParserClass.call(this, 'xml');
+     };
 
     XMLMessageParserClass.prototype = Object.create(MessageParserClass.prototype);
     XMLMessageParserClass.prototype.constructor = XMLMessageParserClass;
     return new XMLMessageParserClass();
+});
+
+angular.module('xml').factory('XMLReportService', function ($http, $q, ReportServiceClass) {
+    var XMLReportServiceClass = function () {
+        ReportServiceClass.call(this, 'xml');
+     };
+    XMLReportServiceClass.prototype = Object.create(ReportServiceClass.prototype);
+    XMLReportServiceClass.prototype.constructor = XMLReportServiceClass;
+    return new XMLReportServiceClass();
 });
 
 

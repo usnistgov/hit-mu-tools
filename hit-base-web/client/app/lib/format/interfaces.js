@@ -70,7 +70,7 @@ angular.module('format').factory('EditorService',
          * @returns {Array}
          */
         EditorService.prototype.getSeparators = function () {
-            return this.editor != null ? this.editor.delimeters:[];
+            return this.editor != null ? this.editor.delimeters : [];
         };
 
         /**
@@ -86,10 +86,6 @@ angular.module('format').factory('EditorService',
         EditorService.prototype.setEditor = function (editor) {
             this.editor = editor;
         };
-
-
-
-
 
 
         return EditorService;
@@ -178,9 +174,6 @@ angular.module('format').factory('TreeService',
         TreeService.prototype.setEditor = function (editor) {
             this.editor = editor;
         };
-
-
-
 
 
         /**
@@ -298,18 +291,18 @@ angular.module('format').factory('MessageValidatorClass', function ($http, $q, $
         var delay = $q.defer();
 
         if (this.format && this.format != null) {
-                $http.post('api/' + this.format + '/hl7v2/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType})).then(
-                    function (object) {
-                        try {
-                            delay.resolve(angular.fromJson(object.data));
-                        } catch (e) {
-                            delay.reject("Invalid character in the message");
-                        }
-                    },
-                    function (response) {
-                        delay.reject(response.data);
+            $http.post('api/' + this.format + '/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType})).then(
+                function (object) {
+                    try {
+                        delay.resolve(angular.fromJson(object.data));
+                    } catch (e) {
+                        delay.reject("Invalid character in the message");
                     }
-                );
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
 
 //
 //            $http.get('../../resources/cf/newValidationResult3.json').then(
@@ -331,12 +324,11 @@ angular.module('format').factory('MessageValidatorClass', function ($http, $q, $
     };
 
 
-
-        return MessageValidatorClass;
+    return MessageValidatorClass;
 });
 
 
-angular.module('format').factory('MessageParserClass', function ($http, $q,$timeout) {
+angular.module('format').factory('MessageParserClass', function ($http, $q, $timeout) {
     this.format = null;
     var MessageParserClass = function (format) {
         this.format = format;
@@ -351,14 +343,14 @@ angular.module('format').factory('MessageParserClass', function ($http, $q,$time
     MessageParserClass.prototype.parse = function (testContextId, content, name) {
         var delay = $q.defer();
         if (this.format && this.format != null) {
-                 $http.post('api/'+ this.format + '/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
-                    function (object) {
-                        delay.resolve(angular.fromJson(object.data));
-                    },
-                    function (response) {
-                        delay.reject(response.data);
-                    }
-                );
+            $http.post('api/' + this.format + '/testcontext/' + testContextId + '/parseMessage', angular.fromJson({"content": content})).then(
+                function (object) {
+                    delay.resolve(angular.fromJson(object.data));
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
 
 //            $http.get('../../resources/cf/messageObject.json').then(
 //                function (object) {
@@ -368,7 +360,7 @@ angular.module('format').factory('MessageParserClass', function ($http, $q,$time
 //                    delay.reject(response.data);
 //                }
 //            );
-          } else {
+        } else {
             $timeout(function () {
                 delay.reject("Unsupported format specified");
             }, 100);
@@ -380,8 +372,72 @@ angular.module('format').factory('MessageParserClass', function ($http, $q,$time
     return MessageParserClass;
 });
 
+angular.module('format').factory('ReportServiceClass', function ($http, $q, $filter) {
+    this.format = null;
+    var ReportServiceClass = function (format) {
+        this.content = {
+            metaData: {},
+            result: {}
+        };
+        this.format = format;
+    };
 
-angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValidator, EDIMessageValidator, XMLMessageValidator, HL7V2MessageParser, EDIMessageParser, XMLMessageParser,HL7V2CursorService,HL7V2EditorService,HL7V2TreeService,EDICursorService,EDIEditorService,EDITreeService,XMLCursorService,XMLEditorService,XMLTreeService,DefaultMessageValidator,DefaultMessageParser,DefaultCursorService,DefaultEditorService,DefaultTreeService) {
+    ReportServiceClass.prototype.download = function (url, json) {
+        var form = document.createElement("form");
+        form.action = url;
+        form.method = "POST";
+        form.target = "_target";
+        var input = document.createElement("textarea");
+        input.name = "json";
+        input.value = json;
+        form.appendChild(input);
+        form.style.display = 'none';
+        document.body.appendChild(form);
+        form.submit();
+    };
+
+
+    ReportServiceClass.prototype.generate = function (url, json) {
+        var delay = $q.defer();
+        $http({
+            url: url,
+            data: $.param({'json': json}),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            method: 'POST',
+            timeout: 60000
+        }).success(function (data) {
+            delay.resolve(angular.fromJson(data));
+        }).error(function (err) {
+            delay.reject(err);
+        });
+
+        return delay.promise;
+    };
+
+    ReportServiceClass.prototype.generateByFormat = function (json, format) {
+        if (this.format && this.format != null) {
+            return this.generate("api/" + this.format + "/report/generateAs/" + format, json);
+        } else {
+            var delay = $q.defer();
+            $timeout(function () {
+                delay.reject("Unsupported format specified");
+            }, 100);
+            return delay.promise;
+        }
+    };
+
+    ReportServiceClass.prototype.downloadAs = function (json, format) {
+        if (this.format && this.format != null) {
+            return this.download("api/" + this.format + "/report/downloadAs/" + format, json);
+        }
+        return;
+    };
+
+    return ReportServiceClass;
+});
+
+
+angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValidator, EDIMessageValidator, XMLMessageValidator, HL7V2MessageParser, EDIMessageParser, XMLMessageParser, HL7V2CursorService, HL7V2EditorService, HL7V2TreeService, EDICursorService, EDIEditorService, EDITreeService, XMLCursorService, XMLEditorService, XMLTreeService, DefaultMessageValidator, DefaultMessageParser, DefaultCursorService, DefaultEditorService, DefaultTreeService, HL7V2ReportService, EDIReportService, XMLReportService, DefaultReportService) {
     return {
         getMessageValidator: function (format) {
             if (format === 'hl7v2') {
@@ -392,7 +448,7 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
                 return  EDIMessageValidator;
             }
             return  DefaultMessageValidator;
-         },
+        },
         getMessageParser: function (format) {
             if (format === 'hl7v2') {
                 return  HL7V2MessageParser;
@@ -414,7 +470,7 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
             return "default";
         },
         updateEditorMode: function (editor, delimeters, format) {
-            if(editor && editor != null) {
+            if (editor && editor != null) {
                 var mode = this.getMode(format);
                 editor.setOption("mode", {
                     name: mode,
@@ -451,6 +507,16 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
                 return  EDITreeService;
             }
             return DefaultTreeService;
+        },
+        getReportService: function (format) {
+            if (format === 'hl7v2') {
+                return  HL7V2ReportService;
+            } else if (format === 'xml') {
+                return  XMLReportService;
+            } else if (format === 'edi') {
+                return  EDIReportService;
+            }
+            return DefaultReportService;
         }
     }
 });
