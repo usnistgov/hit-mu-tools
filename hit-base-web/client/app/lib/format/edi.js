@@ -45,8 +45,7 @@ angular.module('edi').factory('EDITreeService',
 angular.module('edi').factory('EDIMessageValidator', function ($http, $q, MessageValidatorClass) {
 
     var EDIMessageValidatorClass = function () {
-        this.format = 'edi';
-        MessageValidatorClass.call(this, arguments);
+        MessageValidatorClass.call(this, 'edi');
     };
 
     EDIMessageValidatorClass.prototype = Object.create(MessageValidatorClass.prototype);
@@ -57,13 +56,24 @@ angular.module('edi').factory('EDIMessageValidator', function ($http, $q, Messag
 
 angular.module('edi').factory('EDIMessageParser', function ($http, $q, MessageParserClass) {
     var EDIMessageParserClass = function () {
-        this.format = 'edi';
-        MessageParserClass.call(this, arguments);
+        MessageParserClass.call(this, 'edi');
     };
     EDIMessageParserClass.prototype = Object.create(MessageParserClass.prototype);
     EDIMessageParserClass.prototype.constructor = EDIMessageParserClass;
     return new EDIMessageParserClass();
 });
+
+angular.module('edi').factory('EDIReportService', function ($http, $q, ReportServiceClass) {
+    var EDIReportServiceClass = function () {
+        ReportServiceClass.call(this, 'edi');
+    };
+    EDIReportServiceClass.prototype = Object.create(ReportServiceClass.prototype);
+    EDIReportServiceClass.prototype.constructor = EDIReportServiceClass;
+
+    return new EDIReportServiceClass();
+});
+
+
 
 
 

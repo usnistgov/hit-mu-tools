@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7v2-edi','hl7v2','edi']);
+angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
@@ -17,7 +17,7 @@ var app = angular.module('hit-tool', [
     'ngAnimate',
     'ui.bootstrap',
     'angularBootstrapNavTree',
-     'QuickList',
+    'QuickList',
     'format',
     'default',
     'hl7v2-edi',
@@ -44,7 +44,7 @@ var app = angular.module('hit-tool', [
 //    'ngMockE2E'
 ]);
 
-app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider) {
 
 
     localStorageServiceProvider
@@ -85,9 +85,9 @@ app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) 
 });
 
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,StorageService,$route,$window) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window) {
     $rootScope.appInfo = {};
-    $rootScope.stackPosition =0;
+    $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
 
 
@@ -101,7 +101,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     }, function (newLocation, oldLocation) {
 
         //true only for onPopState
-        if($rootScope.activePath === newLocation) {
+        if ($rootScope.activePath === newLocation) {
 
             var back,
                 historyState = $window.history.state;
@@ -123,7 +123,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
 
                 $window.history.replaceState({
                     position: $rootScope.stackPosition
-                },'');
+                }, '');
 
                 $rootScope.stackPosition++;
 
@@ -134,7 +134,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
 //            }
 
         }
-
 
 
     });
@@ -210,10 +209,8 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     };
 
 
-
-
     $rootScope.toHTML = function (content) {
-      return $sce.trustAsHtml(content);
+        return $sce.trustAsHtml(content);
 //        return  content;
     };
 
@@ -240,15 +237,15 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     };
 
 
-    $rootScope.$on('$locationChangeSuccess', function() {
+    $rootScope.$on('$locationChangeSuccess', function () {
         //$rootScope.activePath = $location.path();
         $rootScope.setActive($location.path());
     });
 
 
-    $rootScope.getScrollbarWidth = function() {
+    $rootScope.getScrollbarWidth = function () {
 
-        if($rootScope.scrollbarWidth == null) {
+        if ($rootScope.scrollbarWidth == null) {
             var outer = document.createElement("div");
             outer.style.visibility = "hidden";
             outer.style.width = "100px";
@@ -275,8 +272,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
 
         return $rootScope.scrollbarWidth;
     };
-
-
 
 
 });

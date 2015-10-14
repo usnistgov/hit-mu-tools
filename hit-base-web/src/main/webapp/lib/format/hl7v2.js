@@ -48,10 +48,9 @@ angular.module('hl7v2').factory('HL7V2TreeService',
     }]);
 
 
-angular.module('hl7v2').factory('HL7V2MessageValidator', function ($http, $q, MessageValidatorClass) {
+angular.module('hl7v2').factory('HL7V2MessageValidator', function (MessageValidatorClass) {
     var HL7V2MessageValidatorClass = function () {
-        this.format = 'hl7v2';
-        MessageValidatorClass.call(this, arguments);
+         MessageValidatorClass.call(this, 'hl7v2');
     };
 
     HL7V2MessageValidatorClass.prototype = Object.create(MessageValidatorClass.prototype);
@@ -60,15 +59,22 @@ angular.module('hl7v2').factory('HL7V2MessageValidator', function ($http, $q, Me
     return new HL7V2MessageValidatorClass();
 });
 
-angular.module('hl7v2').factory('HL7V2MessageParser', function ($http, $q, MessageParserClass) {
+angular.module('hl7v2').factory('HL7V2MessageParser', function (MessageParserClass) {
     var HL7V2MessageParserClass = function () {
-        this.format = 'hl7v2';
-        MessageParserClass.call(this, arguments);
-    };
+        MessageParserClass.call(this, 'hl7v2');
+     };
     HL7V2MessageParserClass.prototype = Object.create(MessageParserClass.prototype);
     HL7V2MessageParserClass.prototype.constructor = HL7V2MessageParserClass;
     return new HL7V2MessageParserClass();
 });
 
+angular.module('hl7v2').factory('HL7V2ReportService', function (ReportServiceClass) {
+    var HL7V2ReportServiceClass = function () {
+        ReportServiceClass.call(this, 'hl7v2');
+     };
+    HL7V2ReportServiceClass.prototype = Object.create(ReportServiceClass.prototype);
+    HL7V2ReportServiceClass.prototype.constructor = HL7V2ReportServiceClass;
+    return new HL7V2ReportServiceClass();
+});
 
 

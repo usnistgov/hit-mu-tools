@@ -23,3 +23,6 @@ angular.module('default').factory('DefaultMessageParser', function (MessageParse
 
 });
 
+angular.module('default').factory('DefaultReportService', function ($http, $q, ReportServiceClass) {
+    return new ReportServiceClass();
+});
