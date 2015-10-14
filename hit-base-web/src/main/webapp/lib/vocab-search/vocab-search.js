@@ -36,6 +36,9 @@
             $scope.vocabularyService = new VocabularyService();
             $scope.loading = false;
 
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
+
 //            $rootScope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
 //                $scope.vocabularyLibrary = vocabularyLibrary;
 //                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
@@ -144,17 +147,19 @@
 
 
     angular.module('hit-vocab-search')
-        .controller('VocabGroupCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
+        .controller('VocabGroupCtrl', ['$scope', '$timeout', '$rootScope', '$filter',function ($scope, $timeout,$rootScope,$filter) {
             $scope.tableList = [];
             $scope.tmpList = [].concat($scope.tableList);
             $scope.error = null;
             $scope.tableLibrary = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
 
             $scope.init = function (tableLibrary) {
                 if (tableLibrary) {
                     $scope.tableLibrary = tableLibrary;
-                    $scope.tableList = tableLibrary.valueSetDefinitions;
+                    $scope.tableList =  $filter('orderBy')(tableLibrary.valueSetDefinitions, 'bindingIdentifier');
                     $scope.tmpList = [].concat($scope.tableList);
+
                 }
             };
         }]);
@@ -297,10 +302,6 @@
                         }
                     }
                 });
-
-                modalInstance.result.then(function (selectedItem) {
-                 }, function () {
-                });
             }
         };
 
@@ -331,21 +332,21 @@
             return delay.promise;
         };
 
-
         return VocabularyService;
 
     });
 
 
-    mod.controller('ValueSetDetailsCtrl', function ($scope, $modalInstance, table) {
-        $scope.table = table;
-        $scope.tmpValueSetElements = [].concat(table != null ? table.valueSetElements : []);
+    mod.controller('ValueSetDetailsCtrl', function ($scope, $modalInstance, table,$rootScope,$filter) {
+        $scope.valueSet = table;
+        $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+        //table.valueSetElements=  $filter('orderBy')(table != null ? table.valueSetElements: [], 'bindingIdentifier');
+        $scope.tmpValueSetElements = [].concat(table != null ? table.valueSetElements: []);
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-
         $scope.close = function () {
-            $modalInstance.close($scope.table);
+            $modalInstance.close();
         };
 
     });

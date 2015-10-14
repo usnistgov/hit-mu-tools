@@ -59,7 +59,7 @@
                                     <i class="fa fa-download"></i>
                                     Download Test Package
                                 </button>
-                                <button title="Start Test" ng-show="selectedTestCase.type === 'TestStep'" type="button"
+                                <button title="Start Test" ng-show="selectedTestCase.type === 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null" type="button"
                                         class="btn btn-xs btn-success"
                                         ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
                                     <i class="fa fa-play"></i>Start

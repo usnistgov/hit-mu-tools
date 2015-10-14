@@ -759,15 +759,6 @@ select.form-control:checked {
 //  margin-top: 20px;
 }
 
-.iz-vocab-table{
-  height: 400px !important;
-  overflow: scroll;
-}
-.iz-vocab-table-result{
-//  min-height: 100px;
-  max-height: 500px !important;
-  overflow: scroll;
-}
 
 .row4 a, .row3 a {color: #003399; text-decoration: underline;}
 .row4 a:hover, .row3 a:hover { color: #000000; text-decoration: underline;}
@@ -992,21 +983,6 @@ margin-top:2px;
   overflow: auto;
 }
 
-.container-testcase{
-  max-width: 99% !important;
-  overflow: auto;
-}
-
-//
-//.container-testcase{
-////  max-width:100% !important;
-////  overflow: auto;
-//
-//    max-width: 95% !important;
-//    overflow: auto;
-//
-//}
-
 .tc-tree-node{
   padding-top:0px;  padding-bottom:0px;
 }
@@ -1056,13 +1032,12 @@ table.cf-profiles{
 
 .message-tree{
   max-height: 850px !important;
-  max-width: 99% !important;
   overflow: auto;
   margin-bottom: 10px;
 }
 
 .container-validation-result{
-  height:450px;
+  height:470px;
 }
 
 .container-message-tree{
@@ -1072,15 +1047,17 @@ table.cf-profiles{
 }
 
 .container-validation-table{
-  height: 300px !important;
-  max-height:350px !important;
-  overflow: auto;
+//  height: 300px !important;
+//  max-height:350px !important;
+//  overflow: auto;
   //  margin-top: 20px;
 }
 
-.container-message-editor {
-  height: 400px;
+.container-testcase {
+  max-width: 99% !important;
+  overflow: auto;
 }
+
 
 .panel {
   border-radius: 0px;
@@ -1150,7 +1127,7 @@ table.cf-profiles{
 .nav-tabs > li.active > a, .nav-tabs > li > a:hover, .nav-tabs > li.active > a:hover {
   background-color: #428bca;
   border-color: #bce8f1;
-  border: 0px;
+  //border: 0px;
   color: white;
   cursor: pointer;
 }
@@ -1381,26 +1358,26 @@ li.validation-result-subtab {
 
 .container-validation-table {
   //  height: 350px !important;
-  max-height: 380px !important;
-  overflow: auto;
+//  max-height: 380px !important;
+//  overflow: auto;
   //  margin-top: 20px;
 }
 
 
-.container-confstatement-table {
-  height: 500px !important;
-  max-height: 600px !important;
-  overflow: auto;
-  //  margin-top: 20px;
-}
+//.container-confstatement-table {
+//  height: 500px !important;
+//  max-height: 600px !important;
+//  overflow: auto;
+//  //  margin-top: 20px;
+//}
 
-.container-profile-table {
-  width: 100% !important;
-  max-width: 100% !important;
-  max-height: 800px !important;
-  overflow: auto;
-}
-
+//.container-profile-table {
+//  width: 100% !important;
+//  max-width: 100% !important;
+//  max-height: 800px !important;
+//  overflow: auto;
+//}
+//
 
 
 .testcase-content {
@@ -1481,9 +1458,6 @@ li.validation-result-subtab {
   display: block;
 }
 
-.predicate-concise-view {
-  max-width: 250px;
-}
 //
 .cs-concise-view {
   max-width: 100%;
@@ -1555,4 +1529,284 @@ li.validation-result-subtab {
   max-height: 800px !important;
   overflow: auto;
 }
+
+
+
+
+.container-doc-testcase-tree {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: 800px !important;
+  overflow: auto;
+}
+
+.profile-modal .modal-dialog {
+  width: 60%;
+  height: 80%;
+  overflow-y: auto;
+}
+
+.st-sort-ascent:before {
+  content: '\25B2';
+}
+
+.st-sort-descent:before {
+  content: '\25BC';
+}
+//
+//table.table-fix-header {
+//  max-height: 366px !important;
+//  box-sizing: border-box;
+//  -moz-box-sizing: border-box;
+//  display: -webkit-box;
+//  display: -moz-box;
+//  display: -ms-flexbox;
+//  display: -webkit-flex;
+//  display: flex;
+//  -moz-flex-direction: column;
+//  -webkit-flex-direction: column;
+//  flex-direction: column;
+//  align-items: stretch;
+//}
+//
+//table.table-fix-header * {
+//  box-sizing: inherit;
+//  -moz-box-sizing: inherit;
+//}
+//
+//
+//table.table-fix-header > thead {
+//  display: -webkit-box;
+//  display: -moz-box;
+//  display: -ms-flexbox;
+//  display: -webkit-flex;
+//  display: flex;
+//  -moz-flex-direction: column;
+//  -webkit-flex-direction: column;
+//  flex-direction: column;
+//
+//  align-items: stretch;
+//}
+//
+//
+//table.table-fix-header  > tbody {
+//  overflow-y: scroll;
+//  display: inline-block;
+//}
+//
+//
+//table.table-fix-header > thead > tr, table.table-fix-header > tbody > tr, table.table-fix-header > tfoot > tr {
+//  display: -webkit-box;
+//  display: -moz-box;
+//  display: -ms-flexbox;
+//  display: -webkit-flex;
+//  display: flex;
+//  -moz-flex-direction: row;
+//  -webkit-flex-direction: row;
+//  flex-direction: row;
+//  -moz-flex-wrap: nowrap;
+//  -webkit-flex-wrap: nowrap;
+//  flex-wrap: nowrap;
+//}
+//
+//
+//table.table-fix-header > thead, table.table-fix-header  > tfoot {
+//  -moz-flex-shrink: 0;
+//  -webkit-flex-shrink: 0;
+//  flex-shrink: 0;
+//}
+//
+//table.table-fix-header > th, table.table-fix-header > tbody {
+//  overflow-x: hidden;
+//  text-overflow: ellipsis;
+//  display: inline-block;
+//}
+//
+//
+//table.table-fix-header  > tfoot {
+//  display: inline-block;
+//}
+//
+//
+//table.table-fix-header > tfoot td {
+//  width: 100%;
+//  display: inline-block;
+//}
+
+table.table-fix-header {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+
+  align-items: stretch;
+}
+
+table.table-fix-header * {
+  box-sizing: inherit;
+  -moz-box-sizing: inherit;
+}
+
+table.table-fix-header thead {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+table.table-fix-header tbody {
+  overflow-y: scroll;
+  display: inline-block;
+}
+
+table.table-fix-header thead > tr, table.table-fix-header tbody > tr, tfoot > tr {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -moz-flex-wrap: nowrap;
+  -webkit-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+}
+
+table.table-fix-header thead, table.table-fix-header tfoot {
+  -moz-flex-shrink: 0;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+table.table-fix-header th, table.table-fix-header tbody td {
+  width: 20%; /* this can vary */
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+table.table-fix-header tfoot {
+  display: inline-block;
+}
+
+table.table-fix-header tfoot td {
+  width: 100%;
+  display: inline-block;
+}
+
+.col-predicate {
+  float: left;
+  //  white-space: nowrap;
+  //  width: 300px;
+  //  min-width: 300px;
+  //  max-width: 300px;
+}
+
+.col-cs {
+  float: left;
+  //  white-space: nowrap;
+  //  width: 300px;
+  //  min-width: 300px;
+  //  max-width: 300px;
+}
+
+table.profile-table{
+  max-height: 800px !important;
+}
+
+
+table.validation-result-table {
+  max-height: 366px !important;
+}
+
+
+.container-confstatement-table {
+  //  height: 500px !important;
+  //  max-height: 600px !important;
+  //  overflow: auto;
+  //  margin-top: 20px;
+}
+
+.confstatement-table {
+  //  height: 500px !important;
+  max-height: 600px !important;
+  //  overflow: auto;
+  //  margin-top: 20px;
+}
+
+
+.container-profile-table {
+  //  width: 100% !important;
+  //  max-width: 100% !important;
+  ////  max-height: 800px !important;
+  //  overflow: auto;
+}
+
+.message-col-cs{
+}
+
+.message-col-predicate{
+
+}
+
+table.vocab-tab-table {
+  max-height: 500px !important;
+
+}
+
+
+
+table.vocab-result-table {
+  max-height: 600px !important;
+}
+
+
+.iz-vocab-table {
+  //  max-height: 400px !important;
+  //  overflow: auto;
+}
+
+.iz-vocab-table-result {
+  //  min-height: 100px;
+  //  max-height: 500px !important;
+  //  overflow: auto;
+}
+
+
+.nowrap {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 15px;
+  position: relative;
+}
+
+.predicate-concise-view {
+  //  max-width: 250px;
+  max-width: 100%;
+}
+
+.container-message-editor {
+  height: 360px;
+}
+
+.container-testcase {
+  max-width: 99% !important;
+  overflow: auto;
+}
+
+
 
