@@ -39,16 +39,15 @@
                     $scope.testCase['jurorDocument'] = result['jurorDocument'];
                     $scope.testCase['testDataSpecification'] = result['testDataSpecification'];
                     $scope.testCase['messageContent'] = result['messageContent'];
-                    $scope.testCase['testPackage'] = result['testPackage'];
 
                     $scope.uncompileArtifact('testStory');
                     $scope.uncompileArtifact('jurorDocument');
                     $scope.uncompileArtifact('testDataSpecification');
                     $scope.uncompileArtifact('messageContent');
-                    $scope.uncompileArtifact('testPackage');
+                    $scope.uncompileArtifact('testDescription');
 
-                    if(testCase.type === 'TestPlan'){
-                        $scope.compileArtifact('testPackage');
+                    if(testCase.type === 'TestPlan' || testCase.type === 'TestCaseGroup'){
+                        $scope.compileArtifact('testDescription');
                     }else{
                         $scope.compileArtifact('testStory');
                     }
@@ -59,17 +58,25 @@
                     $scope.testCase['jurorDocument'] = null;
                     $scope.testCase['testDataSpecification'] = null;
                     $scope.testCase['messageContent'] = null;
-                    $scope.testCase['testPackage'] = null;
                     $scope.loading = false;
                 });
             });
 
             $scope.compileArtifact = function (artifactType) {
-                if ($scope.testCase && $scope.testCase !== null && $scope.testCase[artifactType] && $scope.testCase[artifactType] !== null) {
-                    var element = $('#' + artifactType);
-                    if(element.html() == '') {
-                        element.html($scope.testCase[artifactType].html);
-                        $compile(element.contents())($scope);
+                if ($scope.testCase && $scope.testCase !== null){
+                    if(artifactType === 'testDescription') {
+                        var element = $('#testDescription');
+                        if (element.html() == '') {
+                            var cont = $scope.testCase['description'] != null && $scope.testCase['description'] != '' ? $scope.testCase['description']: 'No description available';
+                            element.html(cont);
+                            $compile(element.contents())($scope);
+                        }
+                    }else  if ($scope.testCase[artifactType] && $scope.testCase[artifactType] !== null) {
+                        var element = $('#' + artifactType);
+                        if (element.html() == '') {
+                            element.html($scope.testCase[artifactType].html);
+                            $compile(element.contents())($scope);
+                        }
                     }
                 }
             };
