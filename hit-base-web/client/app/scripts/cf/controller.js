@@ -141,7 +141,6 @@ angular.module('cf')
         $scope.editorService = null;
         $scope.treeService = null;
         $scope.cursorService = null;
-        $scope.delimeters = [];
         $scope.cf = CF;
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
@@ -279,37 +278,34 @@ angular.module('cf')
          * Validate the content of the editor
          */
         $scope.validateMessage = function () {
-            if ($scope.validator != null) {
-                $scope.vLoading = true;
-                $scope.vError = null;
-                if ($scope.cf.testCase != null && $scope.cf.message.content !== "") {
-                    try {
-                        var id = $scope.cf.testCase.testContext.id;
-                        var content = $scope.cf.message.content;
-                        var label = $scope.cf.testCase.label;
-                        var validated = $scope.validator.validate(id, content, "", "Free");
-                        validated.then(function (mvResult) {
-                            $scope.vLoading = false;
-                            $scope.loadValidationResult(mvResult);
-                        }, function (error) {
-                            $scope.vLoading = false;
-                            $scope.vError = error;
-                            $scope.loadValidationResult(null);
-                        });
-
-                    } catch (e) {
-                        $scope.vLoading = false;
-                        $scope.vError = e;
-                        $scope.loadValidationResult(null);
-                    }
-                } else {
-                    $scope.loadValidationResult(null);
-                    $scope.vLoading = false;
+            if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content !== "") {
+                try {
+                    $scope.vLoading = true;
                     $scope.vError = null;
+                    var id = $scope.cf.testCase.testContext.id;
+                    var content = $scope.cf.message.content;
+                    var label = $scope.cf.testCase.label;
+                    var validated = $scope.validator.validate(id, content, "", "Free");
+                    validated.then(function (mvResult) {
+                        $scope.vLoading = false;
+                        $scope.loadValidationResult(mvResult);
+                    }, function (error) {
+                        $scope.vLoading = false;
+                        $scope.vError = error;
+                        $scope.loadValidationResult(null);
+                    });
+
+                } catch (e) {
+                    $scope.vLoading = false;
+                    $scope.vError = e;
+                    $scope.loadValidationResult(null);
                 }
             } else {
-                $scope.vError = "No validator found for the specified format " + $scope.cf.testCase != null && $scope.cf.testCase.testContext != null ? $scope.cf.testCase.testContext.format : "";
+                $scope.loadValidationResult(null);
+                $scope.vLoading = false;
+                $scope.vError = null;
             }
+
         };
 
 
@@ -343,28 +339,25 @@ angular.module('cf')
         };
 
         $scope.parseMessage = function () {
-            if ($scope.parser != null) {
+            if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content != '') {
                 $scope.tLoading = true;
-                if ($scope.cf.testCase.testContext.profile != null && $scope.cf.message.content != '') {
-                    var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
-                    parsed.then(function (value) {
-                        $scope.tLoading = false;
-                        $scope.cf.tree.root.build_all(value.elements);
-                        ServiceDelegator.updateEditorMode($scope.editor, value.delimeters, $scope.testCase.testContext.format);
-                        $scope.editorService.setEditor($scope.editor);
-                        $scope.treeService.setEditor($scope.editor);
-                    }, function (error) {
-                        $scope.tLoading = false;
-                        $scope.tError = error;
-                    });
-                } else {
-                    $scope.cf.tree.root.build_all([]);
-                    $scope.tError = null;
+                var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
+                parsed.then(function (value) {
                     $scope.tLoading = false;
-                }
+                    $scope.cf.tree.root.build_all(value.elements);
+                    ServiceDelegator.updateEditorMode($scope.editor, value.delimeters, $scope.testCase.testContext.format);
+                    $scope.editorService.setEditor($scope.editor);
+                    $scope.treeService.setEditor($scope.editor);
+                }, function (error) {
+                    $scope.tLoading = false;
+                    $scope.tError = error;
+                });
             } else {
-                $scope.vError = "No parser found for the specified format " + $scope.cf.testCase != null && $scope.cf.testCase.testContext != null ? $scope.cf.testCase.testContext.format : "";
+                $scope.cf.tree.root.build_all([]);
+                $scope.tError = null;
+                $scope.tLoading = false;
             }
+
         };
 
         $scope.onNodeSelect = function (node) {
