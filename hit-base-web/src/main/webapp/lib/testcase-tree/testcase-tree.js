@@ -104,9 +104,9 @@
                         }
                     };
                     scope.user_clicks_branch = function (branch) {
-                        if (branch !== selected_branch) {
+                        //if (branch !== selected_branch) {
                             return select_branch(branch);
-                        }
+                        //}
                     };
 
                     scope.is_node_selectable = function (branch) {

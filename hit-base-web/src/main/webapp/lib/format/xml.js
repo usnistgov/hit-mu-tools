@@ -332,13 +332,35 @@ angular.module('xml').factory('XMLEditorService',
          * @returns {*}
          */
         XMLEditorServiceClass.prototype.select = function (editorObject,cursorObject) {
-            editorObject.doc.setSelection({
-                line: cursorObject.start.line - 1,
-                ch: cursorObject.start.index
-            }, {
-                line: cursorObject.end.line - 1,
-                ch: cursorObject.end.index
-            });
+//            editorObject.doc.setSelection({
+//                line: cursorObject.start.line - 1,
+//                ch: cursorObject.start.index
+//            }, {
+//                line: cursorObject.end.line - 1,
+//                ch: cursorObject.end.index
+//            });
+
+            var startIndex = cursorObject.startIndex;
+            var endIndex = cursorObject.endIndex;
+            var line = cursorObject.line;
+            if (startIndex !== null && endIndex !== null && startIndex >= 0 && endIndex >= 0) {
+                var line = parseInt(line) - 1;
+                editorObject.doc.setSelection({
+                    line: line,
+                    ch: startIndex
+                }, {
+                    line: line,
+                    ch: endIndex
+                });
+                editorObject.scrollIntoView({
+                    line: line,
+                    ch: startIndex
+                }, {
+                    line: line,
+                    ch: endIndex
+                });
+            }
+
         };
 
         XMLEditorServiceClass.prototype.isXML = function (message) {
