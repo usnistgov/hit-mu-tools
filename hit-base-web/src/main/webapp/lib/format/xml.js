@@ -156,16 +156,20 @@ angular.module('xml').factory('XMLTreeService',
          * @param endIndex
          * @returns {*}
          */
-        XMLTreeServiceClass.prototype.findNodeByIndex = function (tree, node, lineNumber, startIndex, endIndex, message) {
+        XMLTreeServiceClass.prototype.findNodeByIndex = function (tree, node, lineNumber) {
             if (node.data.lineNumber <= lineNumber) {
-                var endInd = this.getEndIndex(node, message);
-                if (angular.equals(node.data.startIndex, startIndex) && angular.equals(endInd, endIndex)) {
-                    return this.findLastChild(tree, node);
+//                var endInd = this.getEndIndex(node, message);
+//                if (angular.equals(node.data.startIndex, startIndex) && angular.equals(endInd, endIndex)) {
+//                    return this.findLastChild(tree, node);
+//                }
+                if (node.data.lineNumber == lineNumber) {
+                    return node;
                 }
+
                 var children = tree.get_children(node);
                 if (children && children.length > 0) {
                     for (var i = 0; i < children.length; i++) {
-                        var found = this.findNodeByIndex(tree, children[i], lineNumber, startIndex, endIndex, message);
+                        var found = this.findNodeByIndex(tree, children[i], lineNumber);
                         if (found != null) {
                             return found;
                         }
@@ -259,9 +263,57 @@ angular.module('xml').factory('XMLTreeService',
 
     }]);
 
+angular.module('xml').factory('XMLNodeFinder',
+    [ function () {
+        return  {
+            /**
+             *
+             * @param tree
+             * @param cursor
+             * @returns {*}
+             */
+            findNode: function (tree, line) {
+                var firstNode = tree.get_first_branch();
+                var children = tree.get_siblings(firstNode);
+                if (children) {
+                    var envelopeNode = children[0];
+                    if (envelopeNode == null) return null;
+                    return this.findNodeByLineNumber(tree, envelopeNode, line);
+                }
+                return null;
+            },
+
+            /**
+             *
+             * @param tree
+             * @param node
+             * @param lineNumber
+             * @returns {*}
+             */
+            findNodeByLineNumber: function (tree, node, lineNumber) {
+                if (node.data.start.line <= lineNumber) {
+                    if (node.data.start.line == lineNumber || node.data.end.line == lineNumber) {
+                        return node;
+                    }
+                    var children = tree.get_children(node);
+                    if (children && children.length > 0) {
+                        for (var i = 0; i < children.length; i++) {
+                            var found = this.findNodeByLineNumber(tree, children[i], lineNumber);
+                            if (found != null) {
+                                return found;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+        }
+    }]);
+
 
 angular.module('xml').factory('XMLCursorService',
-    [ 'CursorService', function (CursorService) {
+    [ 'CursorService', 'XMLNodeFinder', function (CursorService,XMLNodeFinder) {
 
         var XMLCursorServiceClass = function () {
             CursorService.call(this, arguments);
@@ -275,11 +327,16 @@ angular.module('xml').factory('XMLCursorService',
          * @param editor
          * @returns {*|Object|Array|string|number|Object|Array|Date|string|number}
          */
-        XMLCursorServiceClass.prototype.getCoordinate = function (editor) {
+        XMLCursorServiceClass.prototype.getCoordinate = function (editor, tree) {
             try {
-
+                var start, end, line;
+                var found = XMLNodeFinder.findNode(tree.root, editor.doc.getCursor(true).line + 1);
+                if (found !== null) {
+                    start = found.data.start;
+                    end = found.data.end;
+                }
+                return this.createCoordinate(start, end);
             } catch (e) {
-
             }
         };
 
@@ -290,9 +347,9 @@ angular.module('xml').factory('XMLCursorService',
          * @param endIndex
          * @returns {*|Object|Array|string|number|Object|Array|Date|string|number}
          */
-        XMLCursorServiceClass.prototype.createCoordinate = function (line, startIndex, endIndex, index, triggerTree) {
+        XMLCursorServiceClass.prototype.createCoordinate = function (start, end) {
             try {
-                return  angular.fromJson({start: startIndex, end: endIndex});
+                return  angular.fromJson({start: start, end: end});
             } catch (e) {
 
             }

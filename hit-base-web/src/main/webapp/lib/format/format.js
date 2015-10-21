@@ -52,6 +52,13 @@ angular.module('format').factory('CursorService',
             return 0;
         };
 
+
+        CursorService.prototype.setCursor = function (cursor) {
+            this.cursor = cursor;
+        };
+
+
+
         return CursorService;
     }]);
 
@@ -313,6 +320,15 @@ angular.module('format').factory('MessageValidatorClass', function ($http, $q, $
 //                }
 //            );
 
+//            $http.get('../../resources/erx/validate-message.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
         } else {
             $timeout(function () {
                 delay.reject("Unsupported format specified");
@@ -352,6 +368,14 @@ angular.module('format').factory('MessageParserClass', function ($http, $q, $tim
             );
 
 //            $http.get('../../resources/cf/messageObject.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+//            $http.get('../../resources/erx/parse-message-response.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
@@ -481,7 +505,7 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
             if (format === 'hl7v2') {
                 return  HL7V2CursorService;
             } else if (format === 'xml') {
-                return  XMLEditorService;
+                return  XMLCursorService;
             } else if (format === 'edi') {
                 return  EDICursorService;
             }
