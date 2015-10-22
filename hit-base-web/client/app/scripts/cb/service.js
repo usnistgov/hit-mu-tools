@@ -38,6 +38,16 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q','$http',
                 }
             );
 
+//
+//            $http.get("../../resources/erx/cb-testCases.json").then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
 
 //            $http.get("../../resources/cb/testCases.json").then(
 //                function (object) {
