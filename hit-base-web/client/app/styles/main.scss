@@ -46,6 +46,7 @@ body {
    background:white;
   color: black;
   border-radius: 14px;
+  margin: 10px;
 }
 
 #myCarousel{
@@ -1843,7 +1844,10 @@ table.validation-result-table {
   height: 80%;
 }
 
-
-
+.validation-result-info-content {
+  max-height: 700px !important;
+  width: 100% !important;
+  overflow: auto;
+}
 
 
