@@ -52,6 +52,13 @@ angular.module('format').factory('CursorService',
             return 0;
         };
 
+
+        CursorService.prototype.setCursor = function (cursor) {
+            this.cursor = cursor;
+        };
+
+
+
         return CursorService;
     }]);
 
@@ -287,10 +294,10 @@ angular.module('format').factory('MessageValidatorClass', function ($http, $q, $
         this.format = format;
     };
 
-    MessageValidatorClass.prototype.validate = function (testContextId, content, name, contextType,dqaCodes, facilityId) {
+    MessageValidatorClass.prototype.validate = function (testContextId, content, nav, contextType,dqaCodes, facilityId) {
         var delay = $q.defer();
         if (this.format && this.format != null) {
-            $http.post('api/' + this.format + '/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType,"dqaCodes": dqaCodes, "facilityId": facilityId})).then(
+            $http.post('api/' + this.format + '/testcontext/' + testContextId + '/validateMessage', angular.fromJson({"content": content, "contextType": contextType,"dqaCodes": dqaCodes, "facilityId": facilityId, "nav":nav})).then(
                 function (object) {
                     try {
                         delay.resolve(angular.fromJson(object.data));
@@ -305,6 +312,15 @@ angular.module('format').factory('MessageValidatorClass', function ($http, $q, $
 
 //
 //            $http.get('../../resources/cf/newValidationResult3.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
+//            $http.get('../../resources/erx/validate-message.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
@@ -352,6 +368,14 @@ angular.module('format').factory('MessageParserClass', function ($http, $q, $tim
             );
 
 //            $http.get('../../resources/cf/messageObject.json').then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+//            $http.get('../../resources/erx/parse-message-response.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
@@ -481,7 +505,7 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
             if (format === 'hl7v2') {
                 return  HL7V2CursorService;
             } else if (format === 'xml') {
-                return  XMLEditorService;
+                return  XMLCursorService;
             } else if (format === 'edi') {
                 return  EDICursorService;
             }
