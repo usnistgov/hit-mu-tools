@@ -340,7 +340,7 @@ angular.module('cb')
                 if ($scope.cb.testCase != null && $scope.cb.testCase.testContext != null && $scope.cb.message.content !== "") {
                     $scope.vLoading = true;
                     $scope.vError = null;
-                    var validator = $scope.validator.validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.label, "Based");
+                    var validator = $scope.validator.validate($scope.cb.testCase.testContext.id, $scope.cb.message.content, $scope.cb.testCase.nav, "Based");
                     validator.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.loadValidationResult(mvResult);
@@ -406,7 +406,9 @@ angular.module('cb')
                         $scope.tError = error.data;
                     });
                 } else {
-                    $scope.cb.tree.root.build_all([]);
+                    if (typeof $scope.cb.tree.root.build_all == 'function') {
+                        $scope.cb.tree.root.build_all([]);
+                    }
                     $scope.tError = null;
                     $scope.tLoading = false;
                 }
