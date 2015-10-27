@@ -270,8 +270,7 @@ angular.module('cf')
                         $scope.vError = null;
                         var id = $scope.cf.testCase.testContext.id;
                         var content = $scope.cf.message.content;
-                        var nav = $scope.cf.testCase.nav;
-                        var validated = $scope.validator.validate(id, content,nav, "Free");
+                        var validated = $scope.validator.validate(id, content,{}, "Free");
                         validated.then(function (mvResult) {
                             $scope.vLoading = false;
                             $scope.loadValidationResult(mvResult);
