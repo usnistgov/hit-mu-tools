@@ -32,7 +32,7 @@ angular.module('cf')
             return testCase.parentName + " - " + testCase.label;
         };
 
-        $scope.selectTestCase = function (testCase) {
+        $scope.selectTestCase = function (testCase,clear) {
             $scope.loadingTC = true;
             $timeout(function () {
                 if (testCase.testContext && testCase.testContext != null) {
@@ -158,7 +158,9 @@ angular.module('cf')
 
         $scope.refreshEditor = function () {
             $timeout(function () {
-                $scope.editor.refresh();
+                if($scope.editor) {
+                    $scope.editor.refresh();
+                }
             }, 1000);
         };
 
@@ -220,7 +222,6 @@ angular.module('cf')
             $scope.editor = CodeMirror.fromTextArea(document.getElementById("cfTextArea"), {
                 lineNumbers: true,
                 fixedGutter: true,
-                theme: "elegant",
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
@@ -248,15 +249,13 @@ angular.module('cf')
             $scope.editor.on("dblclick", function (editor) {
                 $timeout(function () {
                     var coordinate = $scope.cursorService.getCoordinate($scope.editor, $scope.cf.tree);
-                    $scope.cf.cursor.init(coordinate.line, coordinate.startIndex, coordinate.endIndex, coordinate.index, true);
+                    coordinate.lineNumber = coordinate.line;
+                    coordinate.startIndex = coordinate.startIndex +1;
+                    coordinate.endIndex = coordinate.endIndex +1;
+                    $scope.cf.cursor.init(coordinate, true);
                     $scope.treeService.selectNodeByIndex($scope.cf.tree.root, CF.cursor, CF.message.content);
                 });
             });
-
-            $scope.cf.editor.instance = $scope.editor;
-
-            $scope.refreshEditor();
-
         };
 
         /**
@@ -302,15 +301,6 @@ angular.module('cf')
         };
 
 
-        $scope.select = function (element) {
-            if (element != undefined && element.path != null && element.line != -1) {
-                var node = $scope.treeService.selectNodeByPath($scope.cf.tree.root, element.line, element.path);
-                var data = node != null ? node.data : null;
-                $scope.cf.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
-                $scope.editorService.select($scope.editor, $scope.cf.cursor);
-            }
-        };
-
         $scope.clearMessage = function () {
             $scope.nodelay = true;
             $scope.mError = null;
@@ -354,8 +344,8 @@ angular.module('cf')
         };
 
         $scope.onNodeSelect = function (node) {
-            var index = $scope.treeService.getEndIndex(node, $scope.cf.message.content);
-            $scope.cf.cursor.init(node.data.lineNumber, node.data.startIndex - 1, index - 1, node.data.startIndex - 1, false);
+            $scope.treeService.getEndIndex(node, $scope.cf.message.content);
+            $scope.cf.cursor.init(node.data, false);
             $scope.editorService.select($scope.editor, $scope.cf.cursor);
         };
 
@@ -381,9 +371,11 @@ angular.module('cf')
             $scope.mError = null;
             $scope.vError = null;
             $scope.initCodemirror();
+
             $scope.$on('cf:refreshEditor', function (event) {
                 $scope.refreshEditor();
             });
+
             $rootScope.$on('cf:testCaseLoaded', function (event, testCase) {
                 $scope.testCase = testCase;
                 if ($scope.testCase != null) {
@@ -391,6 +383,9 @@ angular.module('cf')
                     $scope.nodelay = true;
                     $scope.mError = null;
                     try {
+                        $scope.cf.editor = ServiceDelegator.getEditor($scope.testCase.testContext.format);
+                        $scope.cf.editor.instance = $scope.editor;
+                        $scope.cf.cursor = ServiceDelegator.getCursor($scope.testCase.testContext.format);
                         $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
                         $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
                         $scope.editorService = ServiceDelegator.getEditorService($scope.testCase.testContext.format);
