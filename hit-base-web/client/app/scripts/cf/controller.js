@@ -5,6 +5,7 @@ angular.module('cf')
 
         $scope.cf = CF;
         $scope.loading = false;
+        $scope.loadingTC = false;
         $scope.error = null;
         $scope.testCases = [];
         $scope.testCase = null;
@@ -16,6 +17,7 @@ angular.module('cf')
 
         $scope.setActiveTab = function (value) {
             $scope.tabs[0] = false;
+            $scope.tcLoadedTimer = null;
             $scope.tabs[1] = false;
             $scope.tabs[2] = false;
             $scope.tabs[3] = false;
@@ -30,7 +32,8 @@ angular.module('cf')
             return testCase.parentName + " - " + testCase.label;
         };
 
-        $scope.selectTestCase = function (testCase) {
+        $scope.selectTestCase = function (testCase,clear) {
+            $scope.loadingTC = true;
             $timeout(function () {
                 if (testCase.testContext && testCase.testContext != null) {
                     CF.testCase = testCase;
@@ -40,16 +43,11 @@ angular.module('cf')
                         StorageService.set(StorageService.CF_LOADED_TESTCASE_ID_KEY, testCase.id);
                         StorageService.remove(StorageService.CF_EDITOR_CONTENT_KEY);
                     }
-                    $timeout(function () {
-                        $rootScope.$broadcast('cf:testCaseLoaded', $scope.testCase);
-                    });
-                    $timeout(function () {
-                        $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
-                    });
-                    $timeout(function () {
-                        $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
-                    });
+                    $rootScope.$broadcast('cf:testCaseLoaded', $scope.testCase);
+                    $rootScope.$broadcast('cf:profileLoaded', $scope.testCase.testContext.profile);
+                    $rootScope.$broadcast('cf:valueSetLibraryLoaded', $scope.testCase.testContext.vocabularyLibrary);
                 }
+                $scope.loadingTC = false;
             });
         };
 
@@ -61,7 +59,7 @@ angular.module('cf')
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
                 angular.forEach(testCases, function (testPlan) {
-                    $scope.sortByPosition(testPlan);
+                    testCaseService.buildCFTestCases(testPlan);
                 });
                 $scope.testCases = $filter('orderBy')(testCases, 'position');
                 $scope.tree.build_all($scope.testCases);
@@ -77,8 +75,7 @@ angular.module('cf')
                     }
                 }
                 if (testCase != null) {
-                    $scope.selectNode(testCase.id);
-                    $scope.selectTestCase(testCase);
+                    $scope.selectNode(testCase.id, testCase.type);
                 }
                 $scope.loading = false;
                 $scope.error = null;
@@ -91,26 +88,15 @@ angular.module('cf')
 
         $scope.selectNode = function (id, type) {
             $timeout(function () {
-                testCaseService.selectNodeByIdAndType($scope.tree, id);
+                testCaseService.selectNodeByIdAndType($scope.tree, id, type);
             }, 0);
         };
-
-        $scope.sortByPosition = function (obj) {
-            obj.label = obj.name;
-            if (obj.children) {
-                obj.children = $filter('orderBy')(obj.children, 'position');
-                angular.forEach(obj.children, function (child) {
-                    $scope.sortByPosition(child);
-                });
-            }
-        };
-
 
         $scope.openProfileInfo = function () {
             var modalInstance = $modal.open({
                 templateUrl: 'CFProfileInfoCtrl.html',
-                windowClass: 'app-modal-window',
-                controller: 'CFProfileInfoCtrl'
+                windowClass: 'profile-modal',
+                 controller: 'CFProfileInfoCtrl'
             });
         };
 
@@ -172,7 +158,9 @@ angular.module('cf')
 
         $scope.refreshEditor = function () {
             $timeout(function () {
-                $scope.editor.refresh();
+                if($scope.editor) {
+                    $scope.editor.refresh();
+                }
             }, 1000);
         };
 
@@ -190,7 +178,7 @@ angular.module('cf')
                 $(this).fileupload('option', 'autoUpload'))) {
                 data.process().done(function () {
                     var fileName = data.files[0].name;
-                    data.url = 'api/hl7/message/upload';
+                    data.url = 'api/message/upload';
                     var jqXHR = data.submit()
                         .success(function (result, textStatus, jqXHR) {
                             $scope.nodelay = true;
@@ -234,8 +222,6 @@ angular.module('cf')
             $scope.editor = CodeMirror.fromTextArea(document.getElementById("cfTextArea"), {
                 lineNumbers: true,
                 fixedGutter: true,
-                theme: "elegant",
-                mode: 'edi',
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
@@ -262,52 +248,51 @@ angular.module('cf')
 
             $scope.editor.on("dblclick", function (editor) {
                 $timeout(function () {
-                    var coordinate = $scope.cursorService.getCoordinate($scope.editor);
-                    $scope.cf.cursor.init(coordinate.line, coordinate.startIndex, coordinate.endIndex, coordinate.index, true);
+                    var coordinate = $scope.cursorService.getCoordinate($scope.editor, $scope.cf.tree);
+                    coordinate.lineNumber = coordinate.line;
+                    coordinate.startIndex = coordinate.startIndex +1;
+                    coordinate.endIndex = coordinate.endIndex +1;
+                    $scope.cf.cursor.init(coordinate, true);
                     $scope.treeService.selectNodeByIndex($scope.cf.tree.root, CF.cursor, CF.message.content);
                 });
             });
-
-            $scope.cf.editor.instance = $scope.editor;
-
-            $scope.refreshEditor();
-
         };
 
         /**
          * Validate the content of the editor
          */
         $scope.validateMessage = function () {
-            if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content !== "") {
-                try {
-                    $scope.vLoading = true;
-                    $scope.vError = null;
-                    var id = $scope.cf.testCase.testContext.id;
-                    var content = $scope.cf.message.content;
-                    var label = $scope.cf.testCase.label;
-                    var validated = $scope.validator.validate(id, content, "", "Free");
-                    validated.then(function (mvResult) {
+            try {
+                if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content !== "") {
+                    try {
+                        $scope.vLoading = true;
+                        $scope.vError = null;
+                        var id = $scope.cf.testCase.testContext.id;
+                        var content = $scope.cf.message.content;
+                        var validated = $scope.validator.validate(id, content,{}, "Free");
+                        validated.then(function (mvResult) {
+                            $scope.vLoading = false;
+                            $scope.loadValidationResult(mvResult);
+                        }, function (error) {
+                            $scope.vLoading = false;
+                            $scope.vError = error;
+                            $scope.loadValidationResult(null);
+                        });
+                    } catch (e) {
                         $scope.vLoading = false;
-                        $scope.loadValidationResult(mvResult);
-                    }, function (error) {
-                        $scope.vLoading = false;
-                        $scope.vError = error;
+                        $scope.vError = e;
                         $scope.loadValidationResult(null);
-                    });
-
-                } catch (e) {
-                    $scope.vLoading = false;
-                    $scope.vError = e;
+                    }
+                } else {
                     $scope.loadValidationResult(null);
+                    $scope.vLoading = false;
+                    $scope.vError = null;
                 }
-            } else {
-                $scope.loadValidationResult(null);
+            } catch (error) {
                 $scope.vLoading = false;
                 $scope.vError = null;
             }
-
         };
-
 
         $scope.loadValidationResult = function (mvResult) {
             $timeout(function () {
@@ -315,15 +300,6 @@ angular.module('cf')
             });
         };
 
-
-        $scope.select = function (element) {
-            if (element != undefined && element.path != null && element.line != -1) {
-                var node = $scope.treeService.selectNodeByPath($scope.cf.tree.root, element.line, element.path);
-                var data = node != null ? node.data : null;
-                $scope.cf.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false);
-                $scope.editorService.select($scope.editor, $scope.cf.cursor);
-            }
-        };
 
         $scope.clearMessage = function () {
             $scope.nodelay = true;
@@ -339,21 +315,28 @@ angular.module('cf')
         };
 
         $scope.parseMessage = function () {
-            if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content != '') {
-                $scope.tLoading = true;
-                var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
-                parsed.then(function (value) {
+            try {
+                if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content != '') {
+                    $scope.tLoading = true;
+                    var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
+                    parsed.then(function (value) {
+                        $scope.tLoading = false;
+                        $scope.cf.tree.root.build_all(value.elements);
+                        ServiceDelegator.updateEditorMode($scope.editor, value.delimeters, $scope.testCase.testContext.format);
+                        $scope.editorService.setEditor($scope.editor);
+                        $scope.treeService.setEditor($scope.editor);
+                    }, function (error) {
+                        $scope.tLoading = false;
+                        $scope.tError = error;
+                    });
+                } else {
+                     if (typeof $scope.cf.tree.root.build_all == 'function') {
+                        $scope.cf.tree.root.build_all([]);
+                    }
+                    $scope.tError = null;
                     $scope.tLoading = false;
-                    $scope.cf.tree.root.build_all(value.elements);
-                    ServiceDelegator.updateEditorMode($scope.editor, value.delimeters, $scope.testCase.testContext.format);
-                    $scope.editorService.setEditor($scope.editor);
-                    $scope.treeService.setEditor($scope.editor);
-                }, function (error) {
-                    $scope.tLoading = false;
-                    $scope.tError = error;
-                });
-            } else {
-                $scope.cf.tree.root.build_all([]);
+                }
+            } catch (error) {
                 $scope.tError = null;
                 $scope.tLoading = false;
             }
@@ -361,8 +344,8 @@ angular.module('cf')
         };
 
         $scope.onNodeSelect = function (node) {
-            var index = $scope.treeService.getEndIndex(node, $scope.cf.message.content);
-            $scope.cf.cursor.init(node.data.lineNumber, node.data.startIndex - 1, index - 1, node.data.startIndex - 1, false);
+            $scope.treeService.getEndIndex(node, $scope.cf.message.content);
+            $scope.cf.cursor.init(node.data, false);
             $scope.editorService.select($scope.editor, $scope.cf.cursor);
         };
 
@@ -388,17 +371,21 @@ angular.module('cf')
             $scope.mError = null;
             $scope.vError = null;
             $scope.initCodemirror();
+
             $scope.$on('cf:refreshEditor', function (event) {
                 $scope.refreshEditor();
             });
+
             $rootScope.$on('cf:testCaseLoaded', function (event, testCase) {
                 $scope.testCase = testCase;
-                $scope.refreshEditor();
                 if ($scope.testCase != null) {
                     var content = StorageService.get(StorageService.CF_EDITOR_CONTENT_KEY) == null ? '' : StorageService.get(StorageService.CF_EDITOR_CONTENT_KEY);
                     $scope.nodelay = true;
                     $scope.mError = null;
                     try {
+                        $scope.cf.editor = ServiceDelegator.getEditor($scope.testCase.testContext.format);
+                        $scope.cf.editor.instance = $scope.editor;
+                        $scope.cf.cursor = ServiceDelegator.getCursor($scope.testCase.testContext.format);
                         $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
                         $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
                         $scope.editorService = ServiceDelegator.getEditorService($scope.testCase.testContext.format);
@@ -413,6 +400,7 @@ angular.module('cf')
                         $scope.vError = error;
                     }
                 }
+                $scope.refreshEditor();
             });
         };
     }]);

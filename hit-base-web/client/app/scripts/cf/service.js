@@ -2,10 +2,10 @@
 
 
 angular.module('cf').factory('CF',
-    ['$rootScope', '$http', '$q', 'Editor', 'EDICursor','Message','Tree', function ($rootScope, $http, $q, Editor, EDICursor, Message, Tree) {
+    ['Message','Tree', function (Message, Tree) {
         var CF = {
-            editor: new Editor(),
-            cursor: new EDICursor(),
+            editor: null,
+            cursor: null,
             tree: new Tree(),
             testCase: null,
             selectedTestCase: null,
@@ -28,6 +28,15 @@ angular.module('cf').factory('CFTestCaseListLoader', ['$q','$http',
                     delay.reject(response.data);
                 }
             );
+//            $http.get("../../resources/erx/cf-testCases.json", {timeout: 60000}).then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
 //            $http.get("../../resources/cf/testCases.json", {timeout: 60000}).then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));

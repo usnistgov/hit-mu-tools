@@ -273,6 +273,13 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         return $rootScope.scrollbarWidth;
     };
 
+    $rootScope.openValidationResultInfo = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'ValidationResultInfoCtrl.html',
+            windowClass: 'profile-modal',
+            controller: 'ValidationResultInfoCtrl'
+        });
+    };
 
 });
 
@@ -369,8 +376,7 @@ angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function 
     };
 }]);
 
-
-angular.module('hit-tool-services').controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
+app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;
     $scope.tmpTableElements = [].concat(table != null ? table.valueSetElements : []);
     $scope.cancel = function () {
@@ -380,8 +386,13 @@ angular.module('hit-tool-services').controller('TableFoundCtrl', function ($scop
 
 
 
-
-
+app.controller('ValidationResultInfoCtrl', [ '$scope', '$modalInstance',
+    function ($scope, $modalInstance) {
+        $scope.close = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }
+]);
 
 
 

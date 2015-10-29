@@ -46,6 +46,7 @@ body {
    background:white;
   color: black;
   border-radius: 14px;
+  margin: 10px;
 }
 
 #myCarousel{
@@ -836,6 +837,7 @@ table.forumline > tr > td  {
   overflow-y: auto;
 }
 
+
 .bg {
    background: #f5f5f5;
 }
@@ -1531,8 +1533,6 @@ li.validation-result-subtab {
 }
 
 
-
-
 .container-doc-testcase-tree {
   width: 100% !important;
   max-width: 100% !important;
@@ -1543,8 +1543,8 @@ li.validation-result-subtab {
 .profile-modal .modal-dialog {
   width: 60%;
   height: 80%;
-  overflow-y: auto;
 }
+
 
 .st-sort-ascent:before {
   content: '\25B2';
@@ -1808,5 +1808,46 @@ table.vocab-result-table {
   overflow: auto;
 }
 
+.container-validation-table {
+  max-height: 395px;
+  overflow: none;
+  //    height: 350px !important;
+  //  max-height: 380px !important;
+  //  overflow: auto;
+  //    margin-top: 20px;
+}
+
+
+table.validation-result-table {
+  max-height: 340px !important;
+}
+
+.profile-info {
+  max-height: 700px !important;
+  width: 100% !important;
+  overflow: auto;
+}
+
+.valueset-modal-content {
+  max-height: 700px !important;
+  width: 100% !important;
+  overflow: auto;
+}
+
+.valueset-modal .modal-dialog {
+  width: 90%;
+  height: 90%;
+}
+
+.base-modal .modal-dialog {
+  width: 60%;
+  height: 80%;
+}
+
+.validation-result-info-content {
+  max-height: 700px !important;
+  width: 100% !important;
+  overflow: auto;
+}
 
 
