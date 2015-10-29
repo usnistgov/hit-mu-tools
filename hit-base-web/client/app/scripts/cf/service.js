@@ -2,10 +2,10 @@
 
 
 angular.module('cf').factory('CF',
-    ['$rootScope', '$http', '$q', 'Editor', 'EDICursor','Message','Tree', function ($rootScope, $http, $q, Editor, EDICursor, Message, Tree) {
+    ['Message','Tree', function (Message, Tree) {
         var CF = {
-            editor: new Editor(),
-            cursor: new EDICursor(),
+            editor: null,
+            cursor: null,
             tree: new Tree(),
             testCase: null,
             selectedTestCase: null,

@@ -111,7 +111,7 @@ angular.module('cb')
                     }
                     if (testCase != null) {
                         var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
-                        $scope.loadTestCase(testCase, tab);
+                        $scope.loadTestCase(testCase, tab,false);
                     }
                 }
                 $scope.loading = false;
@@ -159,16 +159,16 @@ angular.module('cb')
         };
 
 
-        $scope.loadTestCase = function (testCase, tab) {
+        $scope.loadTestCase = function (testCase, tab,clear) {
             $timeout(function () {
                 if (testCase.type === 'TestStep') {
                     CB.testCase = testCase;
                     $scope.testCase = CB.testCase;
                     var id = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
                     var type = StorageService.get(StorageService.CB_LOADED_TESTCASE_TYPE_KEY);
-                    if (id != $scope.testCase.id || type != $scope.testCase.type) {
-                        StorageService.set(StorageService.CB_LOADED_TESTCASE_ID_KEY, $scope.testCase.id);
-                        StorageService.set(StorageService.CB_LOADED_TESTCASE_TYPE_KEY, $scope.testCase.type);
+                    StorageService.set(StorageService.CB_LOADED_TESTCASE_ID_KEY, $scope.testCase.id);
+                    StorageService.set(StorageService.CB_LOADED_TESTCASE_TYPE_KEY, $scope.testCase.type);
+                    if(clear === undefined || clear === true){
                         StorageService.remove(StorageService.CB_EDITOR_CONTENT_KEY);
                     }
                     $rootScope.$broadcast('cb:testCaseLoaded', $scope.testCase, tab);
@@ -294,7 +294,6 @@ angular.module('cb')
             $scope.editor = CodeMirror.fromTextArea(document.getElementById("cb-textarea"), {
                 lineNumbers: true,
                 fixedGutter: true,
-                theme: "elegant",
                 readOnly: false,
                 showCursorWhenSelecting: true
             });
@@ -321,15 +320,14 @@ angular.module('cb')
             $scope.editor.on("dblclick", function (editor) {
                 $timeout(function () {
                     var coordinate = $scope.cursorService.getCoordinate($scope.editor, $scope.cb.tree);
-                    $scope.cb.cursor.init(coordinate.line, coordinate.startIndex, coordinate.endIndex, coordinate.index, true);
+                    var line = editor.doc.getCursor(true).line + 1;
+                    coordinate.lineNumber = coordinate.line;
+                    coordinate.startIndex = coordinate.startIndex +1;
+                    coordinate.endIndex = coordinate.endIndex +1;
+                    $scope.cb.cursor.init(coordinate, true);
                     $scope.treeService.selectNodeByIndex($scope.cb.tree.root, CB.cursor, CB.message.content);
                 });
             });
-
-            $scope.cb.editor.instance = $scope.editor;
-
-            $scope.refreshEditor();
-
         };
 
         /**
@@ -365,15 +363,6 @@ angular.module('cb')
             $timeout(function () {
                 $rootScope.$broadcast('cb:validationResultLoaded', mvResult);
             });
-        };
-
-        $scope.select = function (element) {
-            if (element != undefined && element.path != null && element.line != -1) {
-                var node = $scope.treeService.selectNodeByPath($scope.cb.tree.root, element.line, element.path);
-                var data = node != null ? node.data : null;
-                $scope.cb.cursor.init(data != null ? data.lineNumber : element.line, data != null ? data.startIndex - 1 : element.column - 1, data != null ? data.endIndex - 1 : element.column - 1, data != null ? data.startIndex - 1 : element.column - 1, false)
-                $scope.editorService.select($scope.editor, $scope.cb.cursor);
-            }
         };
 
         $scope.clearMessage = function () {
@@ -419,8 +408,8 @@ angular.module('cb')
         };
 
         $scope.onNodeSelect = function (node) {
-            var index = $scope.treeService.getEndIndex(node, $scope.cb.message.content);
-            $scope.cb.cursor.init(node.data.lineNumber, node.data.startIndex - 1, index - 1, node.data.startIndex - 1, false);
+            $scope.treeService.getEndIndex(node, $scope.cb.message.content);
+            $scope.cb.cursor.init(node.data, false);
             $scope.editorService.select($scope.editor, $scope.cb.cursor);
         };
 
@@ -443,21 +432,21 @@ angular.module('cb')
             $scope.tError = null;
             $scope.mError = null;
             $scope.vError = null;
-
-            $scope.initCodemirror();
             $scope.loadValidationResult(null);
+            $scope.initCodemirror();
 
             $scope.$on('cb:refreshEditor', function (event) {
                 $scope.refreshEditor();
             });
-
             $rootScope.$on('cb:testCaseLoaded', function (event, testCase) {
-                $scope.refreshEditor();
                 $scope.testCase = testCase;
                 if ($scope.testCase != null) {
                     var content = StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY) == null ? '' : StorageService.get(StorageService.CB_EDITOR_CONTENT_KEY);
                     $scope.nodelay = true;
                     $scope.mError = null;
+                    $scope.cb.editor = ServiceDelegator.getEditor($scope.testCase.testContext.format);
+                    $scope.cb.editor.instance = $scope.editor;
+                    $scope.cb.cursor = ServiceDelegator.getCursor($scope.testCase.testContext.format);
                     $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
                     $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
                     $scope.editorService = ServiceDelegator.getEditorService($scope.testCase.testContext.format);
@@ -468,7 +457,7 @@ angular.module('cb')
                         $scope.execute();
                     }
                 }
-
+                $scope.refreshEditor();
             });
         };
 
