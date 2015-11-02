@@ -1,4 +1,4 @@
-<div ng-controller="CBExecutionCtrl" ng-init="init()">
+<div>
     <div class="" style="margin:10px">
         <div ng-show="!loading">
             <div class="">
@@ -8,7 +8,7 @@
                     <li ng-show="testCase['nav'].testCase != null">{{testCase['nav'].testCase}}</li>
                     <li ng-show="testCase['nav'].testStep != null">{{testCase['nav'].testStep}}</li>
                 </ol>
-                <span ng-show="testCase == null">No Test Case Loaded.</span>
+                <span ng-show="testCase == null" style="text-align:center">No Test Case Loaded.</span>
             </div>
             <div class="">
                 <div>
@@ -54,6 +54,5 @@
         <div ng-show="loading" style="text-align:center">
             <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
         </div>
-
     </div>
 </div>
