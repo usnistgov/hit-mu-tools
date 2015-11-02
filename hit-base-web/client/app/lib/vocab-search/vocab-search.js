@@ -36,15 +36,20 @@
             $scope.vocabularyService = new VocabularyService();
             $scope.loading = false;
 
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
+
 //            $rootScope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
 //                $scope.vocabularyLibrary = vocabularyLibrary;
 //                $scope.init($scope.valueSetIds, $scope.vocabularyLibrary);
 //            });
 
-            $rootScope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
-                if($scope.vocabularyLibrary === null || $scope.vocabularyLibrary.id != vocabularyLibrary.id) {
+            $scope.$on($scope.type + ':valueSetLibraryLoaded', function (event, vocabularyLibrary) {
+                if(vocabularyLibrary != null && ($scope.vocabularyLibrary === null || $scope.vocabularyLibrary.id != vocabularyLibrary.id)) {
                     $scope.vocabularyLibrary = vocabularyLibrary;
                     $scope.init($scope.vocabularyLibrary);
+                }else{
+                    $scope.vocabularyLibrary = null;
                 }
             });
 
@@ -139,22 +144,37 @@
                 return $scope.selectedValueSetDefinition != null && $scope.selectedTableLibrary && $scope.selectedTableLibrary.noValidation && $scope.selectedTableLibrary.noValidation.ids && $scope.selectedTableLibrary.noValidation.ids.indexOf($scope.selectedValueSetDefinition.bindingIdentifier) > 0;
             };
 
+            $scope.openCopyrightDlg = function () {
+                var modalInstance = $modal.open({
+                    templateUrl: 'ValueSetCopyrightCtrl.html',
+                    windowClass: 'base-modal',
+                    controller: 'ValueSetCopyrightCtrl'
+                });
+            };
+
 
         }]);
 
+    angular.module('hit-vocab-search').controller('ValueSetCopyrightCtrl', function ($scope, $modalInstance) {
+        $scope.close = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    });
 
     angular.module('hit-vocab-search')
-        .controller('VocabGroupCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
+        .controller('VocabGroupCtrl', ['$scope', '$timeout', '$rootScope', '$filter',function ($scope, $timeout,$rootScope,$filter) {
             $scope.tableList = [];
             $scope.tmpList = [].concat($scope.tableList);
             $scope.error = null;
             $scope.tableLibrary = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
 
             $scope.init = function (tableLibrary) {
                 if (tableLibrary) {
                     $scope.tableLibrary = tableLibrary;
-                    $scope.tableList = tableLibrary.valueSetDefinitions;
+                    $scope.tableList =  $filter('orderBy')(tableLibrary.valueSetDefinitions, 'bindingIdentifier');
                     $scope.tmpList = [].concat($scope.tableList);
+
                 }
             };
         }]);
@@ -287,7 +307,7 @@
                 var modalInstance = $modal.open({
                     templateUrl: 'TableFoundCtrl.html',
                     controller: 'ValueSetDetailsCtrl',
-                    windowClass: 'app-modal-window',
+                    windowClass: 'valueset-modal',
                     animation:false,
                     keyboard:true,
                     backdrop:true,
@@ -296,10 +316,6 @@
                             return t;
                         }
                     }
-                });
-
-                modalInstance.result.then(function (selectedItem) {
-                 }, function () {
                 });
             }
         };
@@ -331,21 +347,21 @@
             return delay.promise;
         };
 
-
         return VocabularyService;
 
     });
 
 
-    mod.controller('ValueSetDetailsCtrl', function ($scope, $modalInstance, table) {
-        $scope.table = table;
-        $scope.tmpValueSetElements = [].concat(table != null ? table.valueSetElements : []);
+    mod.controller('ValueSetDetailsCtrl', function ($scope, $modalInstance, table,$rootScope,$filter) {
+        $scope.valueSet = table;
+        $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+        //table.valueSetElements=  $filter('orderBy')(table != null ? table.valueSetElements: [], 'bindingIdentifier');
+        $scope.tmpValueSetElements = [].concat(table != null ? table.valueSetElements: []);
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-
         $scope.close = function () {
-            $modalInstance.close($scope.table);
+            $modalInstance.close();
         };
 
     });

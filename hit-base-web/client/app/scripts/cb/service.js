@@ -2,13 +2,13 @@
 
 
 angular.module('cb').factory('CB',
-    ['$http', '$q', 'Editor', 'EDICursor', 'Message', 'ValidationSettings', 'Tree', function ($http, $q, Editor, EDICursor, Message, ValidationSettings,Tree) {
+    ['Message', 'ValidationSettings', 'Tree', function (Message, ValidationSettings,Tree) {
         var CB = {
             testCase: null,
             selectedTestCase: null,
-            editor: new Editor(),
+            editor:null,
             tree: new Tree(),
-            cursor: new EDICursor(),
+            cursor: null,
             message: new Message(),
             validationSettings: new ValidationSettings(),
             setContent: function (value) {
@@ -37,6 +37,16 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q','$http',
                     delay.reject(response.data);
                 }
             );
+
+//
+//            $http.get("../../resources/erx/cb-testCases.json").then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
 
 
 //            $http.get("../../resources/cb/testCases.json").then(

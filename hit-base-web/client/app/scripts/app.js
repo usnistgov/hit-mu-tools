@@ -1,10 +1,7 @@
 'use strict';
 
-angular.module('xml', []);
-angular.module('hl7v2', []);
-angular.module('edi', []);
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'xml', 'hl7v2','edi']);
+angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
@@ -20,7 +17,10 @@ var app = angular.module('hit-tool', [
     'ngAnimate',
     'ui.bootstrap',
     'angularBootstrapNavTree',
-     'QuickList',
+    'QuickList',
+    'format',
+    'default',
+    'hl7v2-edi',
     'xml',
     'hl7v2',
     'edi',
@@ -44,7 +44,7 @@ var app = angular.module('hit-tool', [
 //    'ngMockE2E'
 ]);
 
-app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider) {
 
 
     localStorageServiceProvider
@@ -85,9 +85,10 @@ app.config(function ($routeProvider, $httpProvider,localStorageServiceProvider) 
 });
 
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,StorageService,$route,$window) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window) {
     $rootScope.appInfo = {};
-    $rootScope.stackPosition =0;
+    $rootScope.stackPosition = 0;
+    $rootScope.scrollbarWidth = null;
 
 
     new AppInfo().then(function (response) {
@@ -100,7 +101,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     }, function (newLocation, oldLocation) {
 
         //true only for onPopState
-        if($rootScope.activePath === newLocation) {
+        if ($rootScope.activePath === newLocation) {
 
             var back,
                 historyState = $window.history.state;
@@ -122,7 +123,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
 
                 $window.history.replaceState({
                     position: $rootScope.stackPosition
-                },'');
+                }, '');
 
                 $rootScope.stackPosition++;
 
@@ -133,7 +134,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
 //            }
 
         }
-
 
 
     });
@@ -209,10 +209,8 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     };
 
 
-
-
     $rootScope.toHTML = function (content) {
-      return $sce.trustAsHtml(content);
+        return $sce.trustAsHtml(content);
 //        return  content;
     };
 
@@ -239,13 +237,49 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo,Storag
     };
 
 
-    $rootScope.$on('$locationChangeSuccess', function() {
+    $rootScope.$on('$locationChangeSuccess', function () {
         //$rootScope.activePath = $location.path();
         $rootScope.setActive($location.path());
     });
 
 
+    $rootScope.getScrollbarWidth = function () {
 
+        if ($rootScope.scrollbarWidth == null) {
+            var outer = document.createElement("div");
+            outer.style.visibility = "hidden";
+            outer.style.width = "100px";
+            outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+            document.body.appendChild(outer);
+
+            var widthNoScroll = outer.offsetWidth;
+            // force scrollbars
+            outer.style.overflow = "scroll";
+
+            // add innerdiv
+            var inner = document.createElement("div");
+            inner.style.width = "100%";
+            outer.appendChild(inner);
+
+            var widthWithScroll = inner.offsetWidth;
+
+            // remove divs
+            outer.parentNode.removeChild(outer);
+
+            $rootScope.scrollbarWidth = widthNoScroll - widthWithScroll;
+        }
+
+        return $rootScope.scrollbarWidth;
+    };
+
+    $rootScope.openValidationResultInfo = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'ValidationResultInfoCtrl.html',
+            windowClass: 'profile-modal',
+            controller: 'ValidationResultInfoCtrl'
+        });
+    };
 
 });
 
@@ -342,8 +376,7 @@ angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function 
     };
 }]);
 
-
-angular.module('hit-tool-services').controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
+app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;
     $scope.tmpTableElements = [].concat(table != null ? table.valueSetElements : []);
     $scope.cancel = function () {
@@ -353,8 +386,13 @@ angular.module('hit-tool-services').controller('TableFoundCtrl', function ($scop
 
 
 
-
-
+app.controller('ValidationResultInfoCtrl', [ '$scope', '$modalInstance',
+    function ($scope, $modalInstance) {
+        $scope.close = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }
+]);
 
 
 
