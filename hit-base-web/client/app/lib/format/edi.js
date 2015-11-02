@@ -73,7 +73,13 @@ angular.module('edi').factory('EDIReportService', function ($http, $q, ReportSer
     return new EDIReportServiceClass();
 });
 
+angular.module('edi').factory('EDICursor', function (HL7V2EDICursorClass) {
+    return new HL7V2EDICursorClass();
+});
 
 
+angular.module('edi').factory('EDIEditor', function (HL7V2EDIEditorClass) {
+    return new HL7V2EDIEditorClass();
+});
 
 
