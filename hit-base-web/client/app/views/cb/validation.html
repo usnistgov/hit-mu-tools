@@ -5,6 +5,7 @@
                 <!--<div class="row" ng-show="error != null">-->
                 <!--<div class="alert alert-danger" role="alert" ng-bind="error"></div>-->
                 <!--</div>-->
+
                 <div ng-show="tError !== null">
                     <div class="alert alert-danger" role="alert" ng-bind="tError"></div>
                 </div>
@@ -25,9 +26,9 @@
                             <div class="panel-body container-message-tree">
                                 <div ng-show="!tLoading">
                                     <div ng-show="tError === null" class="message-tree">
-                                         <abn-tree tree-control="cb.tree.root" icon-leaf=""
+                                        <abn-tree tree-control="cb.tree.root" icon-leaf=""
                                                   on-select="onNodeSelect(branch)"></abn-tree>
-                                        </div>
+                                    </div>
                                 </div>
                                 <div ng-show="tLoading" style="text-align:center">
                                     <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
@@ -76,6 +77,13 @@
 
             </span>
                             <span class="row fileupload-buttonbar  pull-right">
+
+                                <!--<button title="Validate" type="button" class="btn btn-xs btn-primary"-->
+                                        <!--ng-click="showDQAOptions()">-->
+                                    <!--<i class="fa fa-cog"></i>-->
+                                    <!--DQA-->
+                                <!--</button>-->
+
                                 <button title="Validate" type="button" class="btn btn-xs btn-success"
                                         ng-click="execute()">
                                     <i class="fa fa-check-circle"></i>
@@ -117,8 +125,6 @@
                                                 </form>
                                             </div>
                                             <div class="panel-body container-message-editor">
-
-
                                                 <div class="form-group">
                                                     <textarea type="cb" class="form-control" id="cb-textarea"
                                                               name="cb-textarea"
@@ -131,11 +137,14 @@
                                             <div class="panel-heading">
                                                 <i class="fa fa-check-square-o"></i>
                                                 Message Validation Result
+
                                                 <a title="View Result Categories"
                                                    ng-click="openValidationResultInfo()">
                                                     <i class="point fa fa-info-circle"></i>
                                                 </a>
      <span class="pull-right">
+
+
 
                                 <button title="View Report" type="button" class="btn btn-xs btn-primary"
                                         ng-click="setActiveTab(1)">
@@ -150,7 +159,7 @@
                                                 </div>
                                                 <div ng-show="!vLoading">
                                                     <div ng-show="!vError || vError == null">
-                                                         <div validation-result type="cb" message="cb.message"
+                                                        <div validation-result type="cb" message="cb.message"
                                                              format="cb.testCase.testContext.format"
                                                              editor="cb.editor" tree="cb.tree" cursor="cb.cursor"></div>
                                                     </div>
