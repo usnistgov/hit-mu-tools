@@ -69,6 +69,14 @@
 		</pluginManagement>
 
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>gov.nist.hit.example</groupId>
+  <artifactId>hit-example-tool</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+		</dependency> 
+	
+	</dependencies>
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>

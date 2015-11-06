@@ -78,11 +78,11 @@ angular.module('cf')
                     }
                     $scope.error = null;
                 } else {
-                    $scope.error = "Ooops, Something went wrong. Please refresh your page. We are sorry for the inconvenience.";
+                    $scope.error = "Something went wrong, Please refresh your page.";
                 }
                 $scope.loading = false;
             }, function (error) {
-                $scope.error = "Sorry, Cannot load the profiles. Try again";
+                $scope.error = "Something went wrong, Please refresh your page.";
                 $scope.loading = false;
             });
         };
@@ -204,7 +204,7 @@ angular.module('cf')
                         })
                         .error(function (jqXHR, textStatus, errorThrown) {
                             $scope.cf.message.name = fileName;
-                            $scope.mError = 'Sorry, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
+                            $scope.mError = 'Something went wrong, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
                         })
                         .complete(function (result, textStatus, jqXHR) {
 
@@ -289,7 +289,7 @@ angular.module('cf')
                     var id = $scope.cf.testCase.testContext.id;
                     var content = $scope.cf.message.content;
                     var label = $scope.cf.testCase.label;
-                    var validated = $scope.validator.validate(id, content, {}, "Free");
+                    var validated = $scope.validator.validate(id, content, null, "Free");
                     validated.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.loadValidationResult(mvResult);

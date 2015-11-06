@@ -51,12 +51,6 @@
                             <span>
                                {{selectedTestCase.type}}: {{selectedTestCase.name}}
                             </span>
-                            <!--<span class="pull-right" ng-show=" selectedTestCase.type==='TestCase' && selectedTestCase.testingType === 'Isolated' ">-->
-                            <!--<button title="Start Test" type="button" class="btn btn-sm btn-success"-->
-                            <!--ng-click="loadTestCase()">-->
-                            <!--<i class="fa fa-play"></i>Start-->
-                            <!--</button>-->
-                            <!--</span>-->
                             <span class="pull-right">
                                 <button title="Download Test Package" type="button" class="btn btn-xs btn-primary"
                                         ng-show="selectedTestCase.testPackage && selectedTestCase.testPackage != null && selectedTestCase.testPackage.pdfPath != null"
@@ -64,7 +58,7 @@
                                     <i class="fa fa-download"></i>
                                     Download Test Package
                                 </button>
-                                <button title="Start Test" ng-show="selectedTestCase.type === 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null" type="button"
+                                <button title="Start Test" ng-show="selectedTestCase.type === 'TestCase' || (selectedTestCase.type == 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null)" type="button"
                                         class="btn btn-xs btn-success"
                                         ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
                                     <i class="fa fa-play"></i>Start
@@ -86,14 +80,12 @@
                                 </div>
                             </div>
                     </div>
-
                 </div>
             </div>
             <div ng-show="loadingTC" style="text-align:center">
                 <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
             </div>
         </div>
-
     </div>
 </div>
 

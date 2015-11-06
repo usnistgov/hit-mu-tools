@@ -1,0 +1,33 @@
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <div>Test Result  <span class="pull-right">
+                            <button type="button" ng-click="resetTestCase()" title="Restart" class="btn btn-xs btn-danger">
+                                <i class="fa fa-refresh"></i> Restart
+                            </button>
+                        </span>
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <tr>
+                <td><b>Test Status</b></td>
+                <td>{{testCase.executionStatus === 'COMPLETE' ? 'Completed':'In Progress'}}</td>
+            </tr>
+            <tr>
+                <td><b>Test Result</b></td>
+                <td>
+                <span ng-show="testCase.executionStatus === 'COMPLETE'">
+                    <span ng-show="isTestCaseSuccessful()">
+                         <i title="Complete" class="glyphicon glyphicon-ok green"></i> Passed
+                    </span>
+                    <span ng-show="!isTestCaseSuccessful()">
+                             <i title="Message is Invalid" class="glyphicon glyphicon-remove red"></i>Failed
+                    </span>
+                </span>
+                <span ng-show="testCase.executionStatus !== 'COMPLETE'">
+                 </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

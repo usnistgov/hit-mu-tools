@@ -1,12 +1,14 @@
 'use strict';
 
 angular.module('commonServices', []);
-angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi']);
+angular.module('hit-util', []);
+angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi', 'hit-util']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
+
 var app = angular.module('hit-tool', [
     'ngRoute',
     'ui.bootstrap',
@@ -18,6 +20,7 @@ var app = angular.module('hit-tool', [
     'ui.bootstrap',
     'angularBootstrapNavTree',
     'QuickList',
+    'hit-util',
     'format',
     'default',
     'hl7v2-edi',
@@ -85,7 +88,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
 });
 
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window,$sce) {
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
@@ -280,6 +283,9 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
             controller: 'ValidationResultInfoCtrl'
         });
     };
+
+
+
 
 });
 
