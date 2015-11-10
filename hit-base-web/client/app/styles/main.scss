@@ -1858,3 +1858,8 @@ table.validation-result-table {
 .green {
   color: #c1f0a2;
 }
+
+ul.base-menu, ul.base-menu > li {
+  background: #f9f9f9;
+  cursor: pointer;
+}

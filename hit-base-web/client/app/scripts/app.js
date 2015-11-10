@@ -42,6 +42,7 @@ var app = angular.module('hit-tool', [
     'hit-testcase-viewer',
     'hit-testcase-tree',
     'hit-doc',
+    'hit-settings',
     'doc'
 //    ,
 //    'ngMockE2E'
@@ -281,6 +282,15 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
             templateUrl: 'ValidationResultInfoCtrl.html',
             windowClass: 'profile-modal',
             controller: 'ValidationResultInfoCtrl'
+        });
+    };
+
+    $rootScope.showSettings = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'SettingsCtrl.html',
+            size:'lg',
+            keyboard:'false',
+            controller: 'SettingsCtrl'
         });
     };
 

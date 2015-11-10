@@ -373,6 +373,10 @@ angular.module('cf')
         };
 
         $scope.execute = function () {
+            if ($scope.tokenPromise) {
+                $timeout.cancel($scope.tokenPromise);
+                $scope.tokenPromise = undefined;
+            }
             if ($scope.cf.testCase != null) {
                 $scope.error = null;
                 $scope.tError = null;

@@ -26,7 +26,7 @@ angular.module('commonServices').factory('StorageService',
             RECEIVER_FACILITYID_KEY: 'RECEIVER_FACILITYID',
             ACTIVE_SUB_TAB_KEY: 'ACTIVE_SUB_TAB',
             CB_TESTCASE_LOADED_RESULT_MAP_KEY:'CB_TESTCASE_LOADED_RESULT_MAP_KEY',
-
+            SETTINGS_KEY: 'SETTINGS_KEY',
 
 //            SENDER_USERNAME_KEY: 'SENDER_USERNAME',
 //            SENDER_PWD_KEY: 'SENDER_PWD',
