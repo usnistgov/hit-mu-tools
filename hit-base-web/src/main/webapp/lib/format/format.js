@@ -823,7 +823,53 @@ angular.module('format').factory('NewValidationReport', function ($http, $q) {
 angular.module('format').factory('Logger', function () {
     var Logger = function () {
         this.content = '';
+        this.ins = [
+            "Configuring connection. Please wait...",
+            "Connection configured.",
+            "Waiting for incoming message....Elapsed time(second):",
+            "<-------------------------------------- Inbound Message ",
+            "Inbound message is Invalid",
+            "Outbound message is Invalid",
+            "Transaction completed",
+            "We did not receive any incoming message after 30s. <p>Possible cause (1): You are using wrong credentials. Please check the credentials in your outbound message against those created for your system.</p>  <p>Possible cause (2):The endpoint address may be incorrect.   Verify that you are using the correct endpoint address that is displayed by the tool.</p>",
+            "We did not receive any incoming message after 30s",
+            "We were unable to send the response after 30s",
+            "Failed to configure incoming connection. ",
+            "Transaction aborted",
+            "Outbound Message  -------------------------------------->",
+            "Transaction stopped",
+            "Stopping transaction. Please wait...."
+        ];
+
+        this.ous = [
+            "Outbound Message ========================>",
+            "Outbound message sent successfully.",
+            "Inbound message received <========================",
+            "Transaction completed",
+            "Incorrect message received",
+            "Transaction aborted",
+            "Transaction stopped"
+        ];
     };
+
+    Logger.prototype.logInbound = function (index) {
+        this.log(this.ins[index]);
+    };
+
+    Logger.prototype.getInbound = function (index) {
+         return this.ins[index];
+    };
+
+
+    Logger.prototype.getOutbound = function (index) {
+        return this.ous[index];
+    };
+
+
+    Logger.prototype.logOutbound = function (index) {
+        this.log(this.ous[index]);
+    };
+
 
     Logger.prototype.log = function (value) {
         this.content = this.content + "\n" + this.getCurrentTime() + ":" + value;
