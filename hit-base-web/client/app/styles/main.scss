@@ -1057,6 +1057,7 @@ table.cf-profiles{
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
 
@@ -1381,9 +1382,9 @@ li.validation-result-subtab {
 //}
 //
 
-
 .testcase-content {
-  max-height: 700px !important;
+  height:592px;
+  max-height: 592px !important;
   width: 100% !important;
   overflow: auto;
 }
@@ -1414,9 +1415,9 @@ li.validation-result-subtab {
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
-
 
 #footer {
   //  text-align: center;
@@ -1805,6 +1806,7 @@ table.vocab-result-table {
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
 
@@ -1862,4 +1864,8 @@ table.validation-result-table {
 ul.base-menu, ul.base-menu > li {
   background: #f9f9f9;
   cursor: pointer;
+}
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
 }
