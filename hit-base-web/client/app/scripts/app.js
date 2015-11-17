@@ -410,6 +410,23 @@ app.controller('ValidationResultInfoCtrl', [ '$scope', '$modalInstance',
     }
 ]);
 
+app.filter('capitalize', function() {
+    return function(input) {
+        return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
+    }
+});
+
+
+app.directive('stRatio', function () {
+    return {
+
+        link: function (scope, element, attr) {
+            var ratio = +(attr.stRatio);
+            element.css('width', ratio + '%');
+        }
+    };
+});
+
 
 
 
