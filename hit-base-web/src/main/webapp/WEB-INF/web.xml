@@ -11,7 +11,11 @@
 		<param-value>hit-base-tool</param-value>
 	</context-param>
 	<error-page>
-		<location>/views/error.html</location>
+		<location>/error.html</location>
+	</error-page>
+		<error-page>
+		<error-code>404</error-code>
+		<location>/404.html</location>
 	</error-page>
 	<resource-ref>
 		<description>DB Connection</description>
