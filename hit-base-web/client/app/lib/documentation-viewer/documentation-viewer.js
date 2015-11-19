@@ -9,7 +9,7 @@
                 scope: {
                     stage: '@'
                 },
-                templateUrl: 'lib/documentation-viewer/documentation-viewer.html',
+                templateUrl: 'DocumentationViewer.html',
                 replace: false,
                 controller: 'DocumentationCtrl'
             };
@@ -24,7 +24,7 @@
                 scope: {
                     stage: '@'
                 },
-                templateUrl: 'lib/documentation-viewer/testcase-doc.html',
+                templateUrl: 'TestCaseDoc.html',
                 replace: false,
                 controller: 'TestCaseDocumentationCtrl'
             };
@@ -36,7 +36,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/known-issues.html',
+                templateUrl: 'KnownIssues.html',
                 replace: false,
                 controller: 'KnownIssuesCtrl'
             };
@@ -47,7 +47,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/release-notes.html',
+                templateUrl: 'ReleaseNotes.html',
                 replace: false,
                 controller: 'ReleaseNotesCtrl'
             };
@@ -59,7 +59,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/user-docs.html',
+                templateUrl: 'UserDocs.html',
                 replace: false,
                 controller: 'UserDocsCtrl'
             };
@@ -74,7 +74,7 @@
                 scope: {
                     type: '@'
                 },
-                templateUrl: 'lib/documentation-viewer/resource-doc.html',
+                templateUrl: 'ResourceDoc.html',
                 replace: false,
                 controller: 'ResourceDocsCtrl'
             };
@@ -129,6 +129,22 @@
             };
 
             $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+
+            $scope.gotToDoc = function (path) {
                 if (path != null) {
                     var form = document.createElement("form");
                     form.action = "api/documentation/downloadDocument";

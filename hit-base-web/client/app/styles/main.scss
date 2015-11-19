@@ -1871,16 +1871,15 @@ ul.base-menu, ul.base-menu > li {
 }
 
 
+
 #error {
-  padding: 30px 10px;
+  //  padding: 30px 10px;
   font-size: 20px;
   line-height: 1.4;
   color: #737373;
   background: #f0f0f0;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-  max-width: 380px;
-  _width: 380px;
   margin: 0 auto;
 }
 #error > h1 {
@@ -1896,6 +1895,8 @@ ul.base-menu, ul.base-menu > li {
 
 #error > p {
   margin: 1em 0;
+  text-align: center;
+
 }
 
 #error  > ul {
