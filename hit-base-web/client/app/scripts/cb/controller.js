@@ -3,10 +3,17 @@
 angular.module('cb')
     .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', function ($scope, $window, $rootScope, CB, StorageService, $timeout) {
 
+        $scope.testCaseLoaded = null;
+
         $scope.init = function () {
             var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
             if (tab == null || tab != '/cb_execution') tab = '/cb_testcase';
             $rootScope.setSubActive(tab);
+
+            $scope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
+                $scope.testCaseLoaded = testCase;
+            });
+
         };
 
         $scope.setSubActive = function (tab) {

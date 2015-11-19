@@ -1,7 +1,7 @@
-<div id="subNavBar" class="subNavBar" ng-controller="CBTestingCtrl" ng-ini="init()">
+<div id="subNavBar" class="subNavBar" ng-controller="CBTestingCtrl" ng-init="init()">
     <ul class="clearfix mainSubNav">
         <li ng-click="setSubActive('/cb_testcase')" class="jslink" ><a ng-class="{'current':isSubActive('/cb_testcase')}"> <i class="fa fa-th-list"></i> Test Selection</a></li>
-        <li ng-click="setSubActive('/cb_execution')" class="jslink" ><a ng-class="{'current':isSubActive('/cb_execution')}"> <i class="fa fa-cogs"></i> Test Execution</a></li>
+        <li ng-click="setSubActive('/cb_execution')" class="jslink" ><a ng-class="{'current':isSubActive('/cb_execution')}"> <i class="fa fa-cogs"></i> Test Execution</a> <span style="color:red" ng-show="testCaseLoaded != null">({{testCaseLoaded.name}})</span></li>
     </ul>
 
     <div ng-show="isSubActive('/cb_testcase')">

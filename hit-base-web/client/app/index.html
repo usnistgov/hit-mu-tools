@@ -64,6 +64,15 @@
     <link rel="stylesheet" href="lib/documentation-viewer/documentation-viewer.css"/>
     <!--<link rel="stylesheet" href="lib/tree-grid/treeGrid.css">-->
 
+    <style id="antiClickjack">body{display:none !important;}</style>
+    <script type="text/javascript">
+        if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            top.location = self.location;
+        }
+    </script>
 </head>
 <body ng-app="hit-tool">
 <div id="wrapper">
@@ -206,8 +215,17 @@
 
     <div ng-include="'views/error.html'"></div>
     <div ng-include="'views/templates.html'"></div>
-    <div ng-include="'lib/vocab-search/valueset-found-modal.html'"></div>
-    <div ng-include="'lib/settings/settings.html'"></div>
+    <div ng-include="'lib/angular-bootstrap-nav-tree/abn_tree_template.html'"></div>
+    <div ng-include="'lib/vocab-search/vocab-search-tpls.html'"></div>
+    <div ng-include="'lib/settings/settings-tpls.html'"></div>
+    <div ng-include="'lib/profile-viewer/profile-viewer-tpls.html'"></div>
+    <div ng-include="'lib/validation-result/validation-result-tpls.html'"></div>
+    <div ng-include="'lib/testcase-viewer/testcase-viewer-tpls.html'"></div>
+    <div ng-include="'lib/report-viewer/report-viewer-tpls.html'"></div>
+    <div ng-include="'lib/testcase-tree/testcase-tree-tpls.html'"></div>
+    <div ng-include="'lib/documentation-viewer/documentation-viewer-tpls.html'"></div>
+
+
 
 </div>
 </body>
