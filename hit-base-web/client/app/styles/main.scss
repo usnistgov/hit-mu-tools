@@ -1057,6 +1057,7 @@ table.cf-profiles{
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
 
@@ -1381,9 +1382,9 @@ li.validation-result-subtab {
 //}
 //
 
-
 .testcase-content {
-  max-height: 700px !important;
+  height:592px;
+  max-height: 592px !important;
   width: 100% !important;
   overflow: auto;
 }
@@ -1414,9 +1415,9 @@ li.validation-result-subtab {
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
-
 
 #footer {
   //  text-align: center;
@@ -1805,6 +1806,7 @@ table.vocab-result-table {
 
 .container-testcase {
   max-width: 99% !important;
+  max-height: 700px !important;
   overflow: auto;
 }
 
@@ -1851,3 +1853,58 @@ table.validation-result-table {
 }
 
 
+.red {
+  color: #f2aaaa;
+}
+
+.green {
+  color: #c1f0a2;
+}
+
+ul.base-menu, ul.base-menu > li {
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+
+
+#error {
+  //  padding: 30px 10px;
+  font-size: 20px;
+  line-height: 1.4;
+  color: #737373;
+  background: #f0f0f0;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  margin: 0 auto;
+}
+#error > h1 {
+  margin: 0 10px;
+  font-size: 24px;
+  text-align: center;
+}
+
+#error > h1 span {
+  color: #bbb;
+}
+
+
+#error > p {
+  margin: 1em 0;
+  text-align: center;
+
+}
+
+#error  > ul {
+  padding: 0 0 0 40px;
+  margin: 1em 0;
+}
+
+.error-modal .modal-dialog {
+  width: 50%;
+  height: 50%;
+}

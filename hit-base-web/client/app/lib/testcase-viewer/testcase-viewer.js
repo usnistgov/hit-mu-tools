@@ -13,7 +13,7 @@
                 scope: {
                     type: '@'
                 },
-                templateUrl: 'lib/testcase-viewer/testcase-viewer.html',
+                templateUrl: 'TestCaseViewer.html',
                 controller: 'TestCaseViewerCtrl'
             };
         }
@@ -203,7 +203,9 @@
                             showCursorWhenSelecting: true
                         });
                     }
-                    $scope.editor.setSize("100%", getSizeByContent($scope.editor.getValue()));
+//                    $scope.editor.setSize("100%", getSizeByContent($scope.editor.getValue()));
+                    $scope.editor.setSize("100%", "590");
+
                 }, 100);
             };
         }]);
