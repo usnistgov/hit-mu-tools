@@ -41,13 +41,10 @@
                 relevance: true,
                 collapse: true
             };
-
             $scope.predicates = [];
             $scope.confStatements = [];
-
             $scope.segments = [];
             $scope.datatypes = [];
-
             $rootScope.pvNodesMap = {};
 
             $scope.getConstraintsAsString = function (constraints) {
@@ -192,10 +189,14 @@
                     $scope.options.collapse = true;
                     $scope.profile = profile;
                     $scope.profileService.getJson($scope.profile.id).then(function (jsonObject) {
-                        $scope.loading = false;
-                        $scope.loading = true;
                         $scope.nodeData = [];
-                        $scope.loading = false;
+                        $scope.predicates = [];
+                        $scope.confStatements = [];
+                        $scope.predicates = [];
+                        $scope.segments = [];
+                        $scope.datatypes = [];
+                        $scope.parentsMap = [];
+                        $rootScope.pvNodesMap = {};
                         $scope.model = angular.fromJson(jsonObject);
                         angular.forEach($scope.model.message.children, function (segmentRefOrGroup) {
                             $scope.processElement(segmentRefOrGroup);
@@ -210,7 +211,12 @@
                         $scope.error = "Sorry, Cannot load the profile.";
                         $scope.loading = false;
                         $scope.nodeData = [];
-                        $scope.elements = [];
+                        $scope.predicates = [];
+                        $scope.confStatements = [];
+                        $scope.predicates = [];
+                        $scope.segments = [];
+                        $scope.datatypes = [];
+                        $scope.parentsMap = [];
                         $scope.confStatements = [];
                         $scope.tmpConfStatements = [].concat($scope.confStatements);
                         $scope.refresh();
@@ -218,9 +224,13 @@
                 } else {
                     $scope.loading = false;
                     $scope.nodeData = [];
-                    $scope.elements = [];
+                    $scope.predicates = [];
+                    $scope.confStatements = [];
+                    $scope.predicates = [];
+                    $scope.segments = [];
+                    $scope.datatypes = [];
+                    $scope.parentsMap = [];
                     $scope.refresh();
-                    $scope.loading = false;
                     $scope.confStatements = [];
                     $scope.tmpConfStatements = [].concat($scope.confStatements);
 
