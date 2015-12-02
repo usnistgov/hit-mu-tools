@@ -372,7 +372,7 @@ angular.module('cb')
                                             var receivedMessage = parseRequest(incoming);
                                             CBExecutionService.setExecutionMessage($scope.testStep, receivedMessage);
                                             $timeout(function () {
-                                                $scope.$broadcast('isolated:setEditorContent', receivedMessage);
+                                                $scope.$broadcast('cb:setEditorContent', receivedMessage);
                                             });
                                         } catch (error) {
                                             $scope.error = errors[2];

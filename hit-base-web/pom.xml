@@ -70,11 +70,12 @@
 
 	</build>
 	<dependencies>
-		<dependency>
+ <dependency>
 			<groupId>gov.nist.hit.example</groupId>
   <artifactId>hit-example-tool</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-		</dependency> 
+		</dependency>  
+
 	
 	</dependencies>
 	<repositories>

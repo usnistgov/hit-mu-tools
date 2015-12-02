@@ -423,6 +423,11 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 //        }
 //    });
 
+    $rootScope.pettyPrintType = function (type) {
+        return type === 'TestStep' ? 'Test Step': type === 'TestCase'? 'Test Case':type;
+    };
+
+
 
 
 
@@ -499,17 +504,7 @@ app.directive('stRatio', function () {
 angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function ($http, $q) {
     return function () {
         var delay = $q.defer();
-        $http.get('api/appInfo').then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
-
-
-//        $http.get('../../resources/appInfo.json').then(
+//        $http.get('api/appInfo').then(
 //            function (object) {
 //                delay.resolve(angular.fromJson(object.data));
 //            },
@@ -517,6 +512,16 @@ angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function 
 //                delay.reject(response.data);
 //            }
 //        );
+
+
+        $http.get('../../resources/appInfo.json').then(
+            function (object) {
+                delay.resolve(angular.fromJson(object.data));
+            },
+            function (response) {
+                delay.reject(response.data);
+            }
+        );
 
         return delay.promise;
     };
