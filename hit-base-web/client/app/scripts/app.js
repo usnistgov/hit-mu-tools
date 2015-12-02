@@ -87,7 +87,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
         }).when('/error', {
             templateUrl: 'error.html'
         })
-
         .otherwise({
             redirectTo: '/'
         });
