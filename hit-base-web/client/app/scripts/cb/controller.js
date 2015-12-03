@@ -372,7 +372,7 @@ angular.module('cb')
                                             var receivedMessage = parseRequest(incoming);
                                             CBExecutionService.setExecutionMessage($scope.testStep, receivedMessage);
                                             $timeout(function () {
-                                                $scope.$broadcast('isolated:setEditorContent', receivedMessage);
+                                                $scope.$broadcast('cb:setEditorContent', receivedMessage);
                                             });
                                         } catch (error) {
                                             $scope.error = errors[2];
@@ -901,6 +901,14 @@ angular.module('cb')
             $scope.vError = null;
             $scope.setValidationReport(null);
         };
+
+
+        $scope.removeDuplicates = function () {
+            $scope.vLoading = true;
+            $scope.$broadcast('cb:removeDuplicates');
+        };
+
+
 
         $scope.init = function () {
             $scope.clear();

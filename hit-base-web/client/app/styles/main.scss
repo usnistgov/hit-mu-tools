@@ -1946,3 +1946,9 @@ ul.base-menu, ul.base-menu > li {
   color:black;
   font-weight:normal;
 }
+
+.message-content-info-content {
+  max-height: 700px !important;
+  width: 100% !important;
+  overflow: auto;
+}

@@ -390,6 +390,12 @@ angular.module('cf')
             }
         };
 
+        $scope.removeDuplicates = function () {
+            $scope.vLoading = true;
+            $scope.$broadcast('cf:removeDuplicates');
+        };
+
+
         $scope.init = function () {
             $scope.vLoading = false;
             $scope.tLoading = false;
