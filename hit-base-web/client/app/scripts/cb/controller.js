@@ -1001,6 +1001,11 @@ angular.module('cb')
                 $scope.cb.message.name = '';
                 $scope.execute();
             });
+
+            $rootScope.$on('cb:duplicatesRemoved', function (event, report) {
+                $scope.vLoading = false;
+            });
+
         };
 
     }]);
