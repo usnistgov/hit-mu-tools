@@ -18,7 +18,7 @@
     </div>
     <div class="modal-body">
         <div class="validation-result-info-content">
-            <div ng-if="appInfo.validationResultInfo != null" ng-bind-html="appInfo.validationResultInfo">
+            <div ng-if="appInfo.validationResultInfo != null" ng-bind-html="toHTML(appInfo.validationResultInfo)">
             </div>
             <div ng-if="appInfo.validationResultInfo == null">
                 No information available.

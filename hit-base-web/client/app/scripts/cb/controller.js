@@ -902,6 +902,14 @@ angular.module('cb')
             $scope.setValidationReport(null);
         };
 
+
+        $scope.removeDuplicates = function () {
+            $scope.vLoading = true;
+            $scope.$broadcast('cb:removeDuplicates');
+        };
+
+
+
         $scope.init = function () {
             $scope.clear();
             $scope.initCodemirror();
