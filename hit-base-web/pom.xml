@@ -70,7 +70,7 @@
 
 	</build>
 	<dependencies>
-		<dependency>
+ <dependency>
 			<groupId>lri-r2-config</groupId>
 			<artifactId>lri-r2-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

@@ -87,7 +87,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
         }).when('/error', {
             templateUrl: 'error.html'
         })
-
         .otherwise({
             redirectTo: '/'
         });
@@ -347,9 +346,11 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         });
         vcModalInstance.result.then(function () {
             StorageService.clearAll();
+            $templateCache.removeAll();
             $rootScope.index();
         }, function () {
             StorageService.clearAll();
+            $templateCache.removeAll();
             $rootScope.index();
         });
     };
@@ -422,6 +423,11 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 //            $templateCache.remove(current.templateUrl);
 //        }
 //    });
+
+    $rootScope.pettyPrintType = function (type) {
+        return type === 'TestStep' ? 'Test Step': type === 'TestCase'? 'Test Case':type;
+    };
+
 
 
 

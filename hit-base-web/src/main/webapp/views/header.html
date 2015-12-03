@@ -1,3 +1,12 @@
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+    if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+    } else {
+        top.location = self.location;
+    }
+</script>
 <!-- <!-- Fixed navbar -->
 <div class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="brand" id="appheader">
@@ -18,7 +27,7 @@
                 Context-based</a></li>
             <li ng-class="{'active':isActive('/doc')}"><a href="#/doc"><i class="fa fa-book"></i>Documentation</a></li>
             <li ng-class="{'active':isActive('/about')}"><a href="#/about"><i class="fa fa-question-circle"></i>About</a></li>
-            <li ng-class="{'active':isActive('/contact')}"><a href="#/contact"><i class="fa fa-phone-square"></i>Contact Us</a></li>
+            <!--<li ng-class="{'active':isActive('/contact')}"><a href="#/contact"><i class="fa fa-phone-square"></i>Contact Us</a></li>-->
         </ul>
 
         <ul class="nav navbar-nav navbar-right" style="margin-right: 5px">

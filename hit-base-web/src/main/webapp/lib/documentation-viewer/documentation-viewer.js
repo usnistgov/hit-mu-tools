@@ -72,7 +72,8 @@
             return {
                 restrict: 'A',
                 scope: {
-                    type: '@'
+                    type: '@',
+                    name: '@'
                 },
                 templateUrl: 'ResourceDoc.html',
                 replace: false,
@@ -125,7 +126,7 @@
             });
 
             $scope.isLink = function (path) {
-                return path != null && path.startsWith("http");
+                return path && path != null && path.startsWith("http");
             };
 
             $scope.downloadDocument = function (path) {
@@ -242,7 +243,7 @@
             $scope.error = null;
             $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
 
-            if ($scope.type != null && $scope.type != '') {
+            if ($scope.type != null && $scope.type != '' && $scope.name != null && $scope.name != '') {
                 $scope.loading = true;
                 var listLoader = new ResourceDocListLoader($scope.type);
                 listLoader.then(function (result) {
