@@ -111,11 +111,11 @@
                     Profile Information
                 </span>
                 <span class="pull-right">
-                    <a ng-click="close()"><i class="fa fa-times"></i></a>
+                   <button class="btn btn-xs btn-primary" ng-click="close()"><i class="fa fa-times"></i>Close</button>
                 </span>
     </div>
     <div class="modal-body">
-        <div ng-bind-html="appInfo.profileInfo"/>
+        <div ng-bind-html="toHTML(appInfo.profileInfo)"/>
     </div>
     <!--<div class="modal-footer">-->
     <!--<span class="pull-right">-->
