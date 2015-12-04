@@ -336,7 +336,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 
     $rootScope.openVersionChangeDlg = function () {
         $rootScope.blankPage();
-
         var vcModalInstance = $modal.open({
             templateUrl: 'VersionChangeCtrl.html',
             size: 'lg',
@@ -345,15 +344,19 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
             'controller': 'VersionChangeCtrl'
         });
         vcModalInstance.result.then(function () {
-            StorageService.clearAll();
-            $templateCache.removeAll();
-            $rootScope.index();
+            $rootScope.clearSession();
+             $rootScope.index();
         }, function () {
-            StorageService.clearAll();
-            $templateCache.removeAll();
-            $rootScope.index();
+            $rootScope.clearSession();
+             $rootScope.index();
         });
     };
+
+    $rootScope.clearSession = function () {
+        StorageService.clearAll();
+        $templateCache.removeAll();
+    };
+
 
     $rootScope.openErrorDlg = function () {
         $location.path('/error');
@@ -427,10 +430,6 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
     $rootScope.pettyPrintType = function (type) {
         return type === 'TestStep' ? 'Test Step': type === 'TestCase'? 'Test Case':type;
     };
-
-
-
-
 
 
 });
@@ -527,6 +526,7 @@ angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function 
         return delay.promise;
     };
 }]);
+
 
 app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;

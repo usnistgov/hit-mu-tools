@@ -427,6 +427,11 @@ angular.module('cf')
                     }
                 }
             });
+
+            $rootScope.$on('cf:duplicatesRemoved', function (event, report) {
+                $scope.vLoading = false;
+            });
+
         };
 
     }])
