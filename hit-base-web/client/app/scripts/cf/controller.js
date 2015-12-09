@@ -289,6 +289,9 @@ angular.module('cf')
                     var id = $scope.cf.testCase.testContext.id;
                     var content = $scope.cf.message.content;
                     var label = $scope.cf.testCase.label;
+                    if( $scope.validator == null) {
+                        $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
+                    }
                     var validated = $scope.validator.validate(id, content, null, "Free");
                     validated.then(function (mvResult) {
                         $scope.vLoading = false;
@@ -342,6 +345,9 @@ angular.module('cf')
             try {
                 if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content != '') {
                     $scope.tLoading = true;
+                    if($scope.parser == null){
+                        $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                    }
                     var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
                     parsed.then(function (value) {
                         $scope.tLoading = false;
