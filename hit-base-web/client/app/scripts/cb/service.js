@@ -78,15 +78,15 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q','$http',
 
 angular.module('cb').factory('CBCommunicationUser', function (Endpoint, CBTransaction, $q, $http) {
     var CBCommunicationUser = function () {
-        this.id = null;
-        this.senderUsername = null; // tool auto generate or collect this at registration
-        this.senderPassword = null; // tool auto generate or collect this at registration
-        this.senderFacilityID = null;
-        this.receiverUsername = null; // user enter this into the tool as a receiver
-        this.receiverPassword = null; // user enter this into the tool as a receiver
-        this.receiverFacilityId = null; // user enter this into the tool as a receiver
-        this.receiverEndpoint = null; // user enter this into the tool as a receiver
-        this.endpoint = new Endpoint();
+//        this.id = null;
+//        this.senderUsername = null; // tool auto generate or collect this at registration
+//        this.senderPassword = null; // tool auto generate or collect this at registration
+//        this.senderFacilityID = null;
+//        this.receiverUsername = null; // user enter this into the tool as a receiver
+//        this.receiverPassword = null; // user enter this into the tool as a receiver
+//        this.receiverFacilityId = null; // user enter this into the tool as a receiver
+//        this.receiverEndpoint = null; // user enter this into the tool as a receiver
+//        this.endpoint = new Endpoint();
         this.transaction = new CBTransaction();
     };
 
@@ -98,12 +98,10 @@ angular.module('cb').factory('CBCommunicationUser', function (Endpoint, CBTransa
         $http.post('api/transaction/initUser', data).then(
             function (response) {
                 var user = angular.fromJson(response.data);
-                self.id = user.id;
-                self.senderUsername = user.username;
-                self.senderPassword = user.password;
-                self.senderFacilityID = user.facilityID;
-                self.endpoint = new Endpoint(user.endpoint);
-                self.transaction.init(self.senderUsername, self.senderPassword, self.senderFacilityID);
+                for(var key in user){
+                    self[key]= user[key];
+                }
+                self.transaction.init(self);
                 delay.resolve(true);
             },
             function (response) {
@@ -175,10 +173,8 @@ angular.module('cb').factory('CBInitiator',
 
 angular.module('cb').factory('CBTransaction', function ($q, $http) {
     var CBTransaction = function () {
-        this.username = null;
+        this.userInfo = null;
         this.running = false;
-        this.password = null;
-        this.facilityID = null;
         this.incoming = null;
         this.outgoing = null;
     };
@@ -186,7 +182,7 @@ angular.module('cb').factory('CBTransaction', function ($q, $http) {
     CBTransaction.prototype.messages = function () {
         var delay = $q.defer();
         var self = this;
-        var data = angular.fromJson({"username": self.username, "password": self.password, "facilityID": self.facilityID});
+        var data = angular.fromJson(this.userInfo);
         $http.post('api/transaction', data).then(
             function (response) {
                 var transaction = angular.fromJson(response.data);
@@ -214,12 +210,10 @@ angular.module('cb').factory('CBTransaction', function ($q, $http) {
         return delay.promise;
     };
 
-    CBTransaction.prototype.init = function (username, password, facilityID) {
+    CBTransaction.prototype.init = function (userInfo) {
         this.clearMessages();
-        this.username = username;
-        this.password = password;
-        this.facilityID = facilityID;
-    };
+        this.userInfo = userInfo;
+     };
 
 
     CBTransaction.prototype.clearMessages = function () {
@@ -230,7 +224,7 @@ angular.module('cb').factory('CBTransaction', function ($q, $http) {
     CBTransaction.prototype.closeConnection = function () {
         var self = this;
         var delay = $q.defer();
-        var data = angular.fromJson({"username": self.username, "password": self.password, "facilityID": self.facilityID});
+        var data = angular.fromJson(this.userInfo);
         $http.post('api/transaction/close', data).then(
             function (response) {
                 self.running = true;

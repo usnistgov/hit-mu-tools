@@ -1,3 +1,12 @@
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+    if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+    } else {
+        top.location = self.location;
+    }
+</script>
 <script type="text/ng-template" id="DocumentationViewer.html">
     <div style="margin:10px">
     <accordion close-others="false">
@@ -8,46 +17,41 @@
             <div user-docs ></div>
         </accordion-group>
 
-        <br />
-        <br />
 
         <accordion-group  panel-class="panel-info" is-open="status.tcDoc">
             <accordion-heading>
                 <i class="fa" ng-class="{'fa-caret-down': status.tcDoc, 'fa-caret-right': !status.tcDoc}"></i> Test Case  Documentation
             </accordion-heading>
-            <div testcase-doc stage="CF"></div>
+            <!--<div testcase-doc stage="CF"></div>-->
             <div testcase-doc stage="CB"></div>
             <div testcase-doc stage="ISOLATED"></div>
         </accordion-group>
 
-        <br />
-        <br />
 
         <accordion-group  panel-class="panel-info" is-open="status.resourceDocs">
             <accordion-heading>
                 <i class="fa" ng-class="{'fa-caret-down': status.resourceDocs, 'fa-caret-right': !status.resourceDocs}"></i> Resource Documentation
             </accordion-heading>
 
-            <div resource-doc type="PROFILE" ></div>
-            <div resource-doc type="TABLE" ></div>
-            <div resource-doc type="CONSTRAINT" ></div>
+            <div resource-doc type="PROFILE" name="Profiles" ></div>
+            <div resource-doc type="TABLE" name="Value Sets"></div>
+            <div resource-doc type="CONSTRAINT" name="Constraints" ></div>
 
         </accordion-group>
 
-        <br />
-        <br />
 
 
-
-        <accordion-group heading="Tool Releases" panel-class="panel-info" is-open="status.releases">
+        <accordion-group panel-class="panel-info" is-open="status.downloads">
             <accordion-heading>
-                <i class="fa" ng-class="{'fa-caret-down': status.releases, 'fa-caret-right': !status.releases}"></i> Tool Downloads
+                <i class="fa" ng-class="{'fa-caret-down': status.downloads, 'fa-caret-right': !status.downloads}"></i> Validation Tool Downloads
             </accordion-heading>
-                No Download Available
+
+            <div installation-guide> </div>
+
+            <div tool-downloads></div>
         </accordion-group>
 
-        <br />
-        <br />
+
 
         <accordion-group heading="Release Notes" panel-class="panel-info" is-open="status.releaseNotes">
             <accordion-heading>
@@ -56,8 +60,6 @@
             <div release-notes ></div>
         </accordion-group>
 
-        <br />
-        <br />
 
 
         <accordion-group heading="Known Issues" panel-class="panel-info" is-open="status.knownIssues">
@@ -66,6 +68,8 @@
             </accordion-heading>
             <div known-issues ></div>
         </accordion-group>
+
+
 
     </accordion>
 </div>
@@ -83,16 +87,16 @@
                     <table class="table table-striped table-bordered table-condensed table-fix-header doc-table">
                         <thead>
                         <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
-                            <th st-ratio="25">Title</th>
-                            <th st-ratio="25">File</th>
+                            <th st-ratio="40">Document Title</th>
+                            <th st-ratio="35">File Name/Link</th>
                             <th st-ratio="25">Date</th>
-                            <th st-ratio="25">Version</th>
+                            <!--<th st-ratio="25">Version</th>-->
                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="doc in docs">
-                            <td st-ratio="25"> {{doc.title}}</td>
-                            <td st-ratio="25">
+                            <td st-ratio="40"> {{doc.title}}</td>
+                            <td st-ratio="35">
                                 <span ng-if="doc.name == null">-</span>
                                 <a ng-if="doc.name != null && doc.path != null" class="point"
                                    ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
@@ -101,8 +105,8 @@
                                 <span ng-if="doc.date == null">-</span>
                                 <span ng-if="doc.date != null">{{doc.date}}</span>
                             </td>
-                            <td st-ratio="25"><span ng-if="doc.version == null">-</span>
-                                <span ng-if="doc.version != null">{{doc.version}}</span></td>
+                            <!--<td st-ratio="25"><span ng-if="doc.version == null">-</span>-->
+                                <!--<span ng-if="doc.version != null">{{doc.version}}</span></td>-->
                         </tr>
                         </tbody>
                     </table>
@@ -133,29 +137,29 @@
                     <table class="table table-striped table-bordered table-condensed table-fix-header doc-table">
                         <thead>
                         <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
-                            <th st-ratio="20">Title</th>
-                            <th st-ratio="20">File</th>
-                            <th st-ratio="20">Date</th>
-                            <th st-ratio="20">Version</th>
-                            <th st-ratio="20">Comments</th>
+                            <th st-ratio="40">Document Title</th>
+                            <th st-ratio="35">File Name/Link</th>
+                            <th st-ratio="25">Date</th>
+                            <!--<th st-ratio="20">Version</th>-->
+                            <!--<th st-ratio="20">Comments</th>-->
                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="doc in docs">
-                            <td st-ratio="20">{{doc.title}}</td>
-                            <td st-ratio="20">
+                            <td st-ratio="40">{{doc.title}}</td>
+                            <td st-ratio="35">
                                 <span ng-if="doc.name == null">-</span>
                                 <a ng-if="doc.name != null && doc.path != null" class="point"
                                    ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
                             </td>
-                            <td st-ratio="20">
+                            <td st-ratio="25">
                                 <span ng-if="doc.date == null">-</span>
                                 <span ng-if="doc.date != null">{{doc.date}}</span>
                             </td>
-                            <td st-ratio="20"><span ng-if="doc.version == null">-</span>
-                                <span ng-if="doc.version != null">{{doc.version}}</span></td>
-                            <td st-ratio="20"><span ng-if="doc.comments == null">-</span>
-                                <span ng-if="doc.comments != null">{{doc.comments}}</span></td>
+                            <!--<td st-ratio="20"><span ng-if="doc.version == null">-</span>-->
+                                <!--<span ng-if="doc.version != null">{{doc.version}}</span></td>-->
+                            <!--<td st-ratio="20"><span ng-if="doc.comments == null">-</span>-->
+                                <!--<span ng-if="doc.comments != null">{{doc.comments}}</span></td>-->
                         </tr>
                         </tbody>
                     </table>
@@ -182,13 +186,13 @@
                     <accordion-heading>
                         <i class="fa"
                            ng-class="{'fa-caret-down': status[type], 'fa-caret-right': !status[type]}"></i>
-                        {{type | capitalize}}s
+                        {{name}}
                     </accordion-heading>
 
                     <button title="Download All" type="button" class="btn btn-sm btn-primary"
                             ng-click="downloadResourceDocs()">
-                        <i class="fa fa-check-circle"></i>
-                        Download All {{type | capitalize}}s (.zip)
+                        <i class="fa fa-download"></i>
+                        Download All {{name}} (.zip)
                     </button>
 
                     <br/>
@@ -198,12 +202,12 @@
                         <table class="table table-striped table-bordered table-condensed table-fix-header doc-table">
                             <thead>
                             <tr  class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
-                                <th st-ratio="50">Title</th>
-                                <th st-ratio="50">File</th>
+                                <th st-ratio="50">Document Title</th>
+                                <th st-ratio="50">File (XML Format)</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="doc in data | orderBy:'name'">
+                            <tr ng-repeat="doc in data | orderBy:'position'">
                                 <td st-ratio="50">{{doc.title}}</td>
                                 <td st-ratio="50">
                                     <span ng-if="doc.name == null">-</span>
@@ -241,13 +245,13 @@
                     <button ng-show="data.stage != 'CF'" title="Download Complete TestCase" type="button"
                             class="btn btn-sm btn-primary"
                             ng-click="downloadCompleteTestPackage(data.stage)">
-                        <i class="fa fa-check-circle"></i>
+                        <i class="fa fa-download"></i>
                         Download Complete TestPackage (.zip)
                     </button>
 
                     <button title="Download Example Messages" type="button" class="btn btn-sm btn-primary"
                             ng-click="downloadExampleMessages(data.stage)">
-                        <i class="fa fa-check-circle"></i>
+                        <i class="fa fa-download"></i>
                         Download Example Messages (.zip)
                     </button>
 
@@ -255,18 +259,18 @@
                     <br/>
 
                     <div class="container-doc-testcase-tree ">
-                        <table tt-table tt-params="params" class="table table-striped table-bordered table-condensed table-fix-header doc-table">
+                        <table tt-table tt-params="params" class="table table-striped table-bordered table-condensed testcases-doc">
                             <thead>
-                            <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
-                                <th st-ratio="20">Test Case Name</th>
-                                <th st-ratio="10">Test Story</th>
-                                <th st-ratio="10">Message Content</th>
-                                <th st-ratio="10">Test Data Specification</th>
-                                <th st-ratio="10">Juror Document</th>
-                                <th st-ratio="10">Test Package</th>
-                                <th st-ratio="10">Example Message</th>
-                                <th st-ratio="10">Conformance Profile</th>
-                                <th st-ratio="10">ValueSet Library</th>
+                            <tr class="tbl-header">
+                                <th>Test Case Name</th>
+                                <th>Test Story</th>
+                                <th>Message Content</th>
+                                <th>Test Data Specification</th>
+                                <th>Juror Document</th>
+                                <th>Test Package</th>
+                                <th>Example Message</th>
+                                <th>Conformance Profile</th>
+                                <th>ValueSet Library</th>
                             </tr>
                             </thead>
                             <tbody class=""></tbody>
@@ -285,45 +289,45 @@
 <script type="text/ng-template" id="TestCaseDocumentationNode.html">
     <tr tt-node
         is-branch="node.children != null && node.children.length > 0">
-        <td st-ratio="20">
-            <span style="white-space: nowrap">{{ node.title }} </span>
+        <td style="white-space: nowrap">
+            {{node.title}}
         </td>
-        <td st-ratio="10">
+        <td >
             <span ng-if="!node.tsPath ||node.tsPath === null">-</span>
             <a ng-if="node.tsPath != null" ng-click="downloadArtifact(node.tsPath,node.title)">Test_Story.pdf</a>
         </td>
 
-        <td st-ratio="10">
+        <td >
             <span ng-if="!node.mcPath || node.mcPath === null">-</span>
             <a ng-if="node.mcPath != null" class="point" ng-click="downloadArtifact(node.mcPath,node.title)">Message_Content.pdf</a>
         </td>
-        <td st-ratio="10">
+        <td>
             <span ng-if="!node.tdsPath ||node.tdsPath === null">-</span>
             <a ng-if="node.tdsPath != null" class="point" ng-click="downloadArtifact(node.tdsPath,node.title)">Test_Data_Specification.pdf</a>
         </td>
-        <td st-ratio="10">
+        <td  >
             <span ng-if="!node.jdPath ||node.jdPath === null">-</span>
             <a ng-if="node.jdPath != null" class="point" ng-click="downloadArtifact(node.jdPath,node.title)">Juror_Document.pdf</a>
         </td>
 
-        <td st-ratio="10">
+        <td  >
             <span ng-if="!node.tpPath || node.tpPath === null">-</span>
             <a ng-if="node.tpPath != null" class="point" ng-click="downloadArtifact(node.tpPath,node.title)">Test_Package.pdf</a>
         </td>
 
-        <td st-ratio="10">
+        <td  >
             <span ng-if="!node.exMsgPresent">-</span>
             <a ng-if="node.exMsgPresent" class="point" ng-click="downloadMessage(node)">Message.txt</a>
         </td>
 
-        <td st-ratio="10">
+        <td  >
             <span ng-if="!node.xmlConfProfilePresent">-</span>
-            <a ng-if="node.xmlConfProfilePresent && (node.format === 'hl7v2' || node.format === 'edi')" class="point"
+            <a ng-if="node.xmlConfProfilePresent" class="point"
                ng-click="downloadProfile(node)">Profile.json</a>
         </td>
-        <td st-ratio="10">
+        <td>
             <span ng-if="!node.xmlValueSetLibraryPresent">-</span>
-            <a ng-if="node.xmlValueSetLibraryPresent && (node.format === 'hl7v2' || node.format === 'edi')"
+            <a ng-if="node.xmlValueSetLibraryPresent"
                class="point" ng-click="downloadValueSetLib(node)">ValueSetLibrary.json</a>
         </td>
 
@@ -342,19 +346,18 @@
                     <table class="table table-striped table-bordered table-condensed table-fix-header doc-table">
                         <thead>
                         <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
-                            <th st-ratio="25">Title</th>
-                            <th st-ratio="25">File</th>
-                            <th st-ratio="25">Date</th>
-                            <th st-ratio="25">Comments</th>
-                        </tr>
+                            <th st-ratio="40">Document Title</th>
+                            <th st-ratio="35">File Name/Link</th>
+                            <th st-ratio="25">Date Posted</th>
+                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="doc in docs | orderBy:'position'">
-                            <td st-ratio="25">{{doc.title}}</td>
-                            <td st-ratio="25">
-                                <span ng-if="doc.name == null">-</span>
-                    <span ng-if="doc.name != null">
-                    <a class="point" ng-if="isLink(doc.path)" ng-href="{{doc.path}}">{{doc.name}}</a>
+                            <td st-ratio="40">{{doc.title}}</td>
+                            <td st-ratio="35">
+                                <span ng-if="doc.path == null">-</span>
+                    <span ng-if="doc.path != null">
+                    <a class="point" ng-if="isLink(doc.path)" target="_blank" ng-href="{{doc.path}}">{{doc.path}}</a>
                     <a class="point" ng-if="!isLink(doc.path)" ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
                     </span>
                             </td>
@@ -362,8 +365,7 @@
                                 <span ng-if="doc.date == null">-</span>
                                 <span ng-if="doc.date != null">{{doc.date}}</span>
                             </td>
-                            <td st-ratio="25"><span ng-if="doc.comments == null">-</span>
-                                <span ng-if="doc.comments != null">{{doc.comments}}</span></td>
+
                         </tr>
                         </tbody>
                     </table>
@@ -379,4 +381,79 @@
         </div>
     </div>
 
+</script>
+
+<script type="text/ng-template" id="InstallationGuide.html">
+    <div ng-show="loading" style="text-align:center">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+    </div>
+    <div ng-show="!loading">
+        <div ng-show="error === null">
+            <div ng-show="doc !== null" class="" style="margin:10px">
+                <div class="container-doc-testcase-tree ">
+                    <table class="table table-striped table-bordered table-condensed doc-table">
+                        <thead>
+                        <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
+                            <th st-ratio="70">Document</th>
+                            <th st-ratio="30">Date Posted</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td st-ratio="70">
+                                <a class="point" ng-click="downloadDocument(doc.path)">{{doc.title}}</a>
+                             </td>
+                            <td st-ratio="30">
+                                 <span>{{doc.date}}</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div ng-show="error !== null">
+            <div class="alert alert-danger" role="alert" ng-bind="error"></div>
+        </div>
+    </div>
+</script>
+
+
+<script type="text/ng-template" id="ToolDownloadList.html">
+    <div ng-show="loading" style="text-align:center">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+    </div>
+    <div ng-show="!loading">
+        <div ng-show="error === null">
+            <div ng-show="data.length > 0" class="" style="margin:10px">
+                <div class="container-doc-testcase-tree ">
+                    <table class="table table-striped table-bordered table-condensed table-fix-header doc-table">
+                        <thead>
+                        <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
+                            <th st-ratio="70">Document</th>
+                            <th st-ratio="30">Date Posted</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="doc in data | orderBy:'date'">
+                             <td st-ratio="70">
+                                   <a class="point" target="_blank" ng-href="{{doc.path}}">{{doc.title}}</a>
+                            </td>
+                            <td st-ratio="30">
+                                 {{doc.date}}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div ng-show="data.length <= 0" class="" style="margin:10px">
+                No Download Available
+            </div>
+        </div>
+
+        <div ng-show="error !== null">
+            <div class="alert alert-danger" role="alert" ng-bind="error"></div>
+        </div>
+    </div>
 </script>

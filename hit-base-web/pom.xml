@@ -71,7 +71,7 @@
 	</build>
 
 	<dependencies>
-		<dependency>
+
 			<groupId>edos-r2-config</groupId>
 			<artifactId>edos-r2-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

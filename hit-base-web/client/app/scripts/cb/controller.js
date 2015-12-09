@@ -372,7 +372,7 @@ angular.module('cb')
                                             var receivedMessage = parseRequest(incoming);
                                             CBExecutionService.setExecutionMessage($scope.testStep, receivedMessage);
                                             $timeout(function () {
-                                                $scope.$broadcast('isolated:setEditorContent', receivedMessage);
+                                                $scope.$broadcast('cb:setEditorContent', receivedMessage);
                                             });
                                         } catch (error) {
                                             $scope.error = errors[2];
@@ -715,6 +715,43 @@ angular.module('cb')
             }
         };
 
+
+
+        $scope.options = {
+//            acceptFileTypes: /(\.|\/)(txt|text|hl7|json)$/i,
+            paramName: 'file',
+            formAcceptCharset: 'utf-8',
+            autoUpload: true,
+            type: 'POST'
+        };
+
+        $scope.$on('fileuploadadd', function (e, data) {
+            if (data.autoUpload || (data.autoUpload !== false &&
+                $(this).fileupload('option', 'autoUpload'))) {
+                data.process().done(function () {
+                    var fileName = data.files[0].name;
+                    data.url = 'api/message/upload';
+                    var jqXHR = data.submit()
+                        .success(function (result, textStatus, jqXHR) {
+                            $scope.nodelay = true;
+                            var tmp = angular.fromJson(result);
+                            $scope.cb.message.name = fileName;
+                            $scope.cb.editor.instance.doc.setValue(tmp.content);
+                            $scope.mError = null;
+                            $scope.execute();
+                        })
+                        .error(function (jqXHR, textStatus, errorThrown) {
+                            $scope.cb.message.name = fileName;
+                            $scope.mError = 'Sorry, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
+                        })
+                        .complete(function (result, textStatus, jqXHR) {
+
+                        });
+                });
+            }
+        });
+
+
         $scope.setLoadRate = function (value) {
             $scope.loadRate = value;
         };
@@ -767,6 +804,10 @@ angular.module('cb')
                     if ($scope.cb.message.content !== '' && $scope.testStep.testContext != null) {
                         $scope.vLoading = true;
                         $scope.vError = null;
+
+                        if($scope.validator == null){
+                            $scope.validator = ServiceDelegator.getMessageValidator($scope.testStep.testContext.format);
+                        }
                         var validator = $scope.validator.validate($scope.testStep.testContext.id, $scope.cb.message.content, $scope.testStep.nav, "Based", [], "1223");
                         validator.then(function (mvResult) {
                             $scope.vLoading = false;
@@ -839,6 +880,9 @@ angular.module('cb')
                 if ($scope.testStep != null) {
                     if ($scope.cb.message.content != '' && $scope.testStep.testContext != null) {
                         $scope.tLoading = true;
+                        if($scope.parser == null){
+                            $scope.parser = ServiceDelegator.getMessageParser($scope.testStep.testContext.format);
+                        }
                         var parsed = $scope.parser.parse($scope.testStep.testContext.id, $scope.cb.message.content);
                         parsed.then(function (value) {
                             $scope.tLoading = false;
@@ -902,6 +946,14 @@ angular.module('cb')
             $scope.setValidationReport(null);
         };
 
+
+        $scope.removeDuplicates = function () {
+            $scope.vLoading = true;
+            $scope.$broadcast('cb:removeDuplicates');
+        };
+
+
+
         $scope.init = function () {
             $scope.clear();
             $scope.initCodemirror();
@@ -956,6 +1008,11 @@ angular.module('cb')
                 $scope.cb.message.name = '';
                 $scope.execute();
             });
+
+            $rootScope.$on('cb:duplicatesRemoved', function (event, report) {
+                $scope.vLoading = false;
+            });
+
         };
 
     }]);

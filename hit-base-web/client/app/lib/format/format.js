@@ -671,7 +671,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                     testStep['nav'] = {};
                     //node["children"].push(testStep);
                     testStep['nav']['testCase'] = node.name;
-                    testStep['nav']['testStep'] = testStep.position + "." + testStep.name;
+                    testStep['nav']['testStep'] = testStep.name;
                     testStep['nav']['testPlan'] = node['nav'].testPlan;
                     testStep['nav']['testGroup'] = node['nav'].testGroup;
                     that.buildTree(testStep);
@@ -681,7 +681,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                     node["children"].push(testStep);
                     testStep['nav'] = {};
                     testStep['nav']['testCase'] = node.name;
-                    testStep['nav']['testStep'] = testStep.position + "." + testStep.name;
+                    testStep['nav']['testStep'] = testStep.name;
                     testStep['nav']['testPlan'] = node['nav'].testPlan;
                     testStep['nav']['testGroup'] = node['nav'].testGroup;
                     that.buildTree(testStep);
@@ -696,7 +696,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
     TestCaseService.prototype.buildCFTestCases = function (obj) {
         obj.label = !obj.children ? obj.position + "." + obj.name: obj.name;
         obj['nav'] = {};
-        obj['nav']['testStep'] = obj.label;
+        obj['nav']['testStep'] = obj.name;
         obj['nav']['testCase'] = null;
         obj['nav']['testPlan'] =null;
         obj['nav']['testGroup'] =null;
@@ -706,14 +706,15 @@ angular.module('format').factory('TestCaseService', function ($filter) {
             obj.children = $filter('orderBy')(obj.children, 'position');
             angular.forEach(obj.children, function (child) {
                 child['nav'] = {};
-                child['nav']['testStep'] = child.label;
-                child['nav']['testCase'] = obj.label;
+                child['nav']['testStep'] = child.name;
+                child['nav']['testCase'] = obj.name;
                 child['nav']['testPlan'] = obj['nav'].testPlan;
                 child['nav']['testGroup'] =null;
                 that.buildCFTestCases(child);
             });
         }
     };
+
 
 
     TestCaseService.prototype.findNode = function (tree, node, id, type) {
@@ -1043,6 +1044,184 @@ angular.module('format').factory('ValidationResult', function (ValidationResultI
 
     return ValidationResult;
 });
+
+//
+//angular.module('format').factory('TransportUser', function (Transaction, $q, $http) {
+//    var TransportUser = function (format, protocol) {
+////        this.id = null;
+////        this.senderUsername = null; // tool auto generate or collect this at registration
+////        this.senderPassword = null; // tool auto generate or collect this at registration
+////        this.senderFacilityID = null;
+////        this.receiverUsername = null; // user enter this into the tool as a receiver
+////        this.receiverPassword = null; // user enter this into the tool as a receiver
+////        this.receiverFacilityId = null; // user enter this into the tool as a receiver
+////        this.receiverEndpoint = null; // user enter this into the tool as a receiver
+////        this.endpoint = new Endpoint();
+//        this.format = format;
+//        this.protocol = protocol;
+//        this.info = null;
+//        this.transaction = new Transaction();
+//    };
+//
+//    TransportUser.prototype.init = function () {
+//        var delay = $q.defer();
+//        var self = this;
+////        var data = angular.fromJson({"username": self.username, "tokenId": self.tokenId, "id": self.id});
+//        var data = angular.fromJson({"id": self.id});
+//        $http.post('api/' + format + '/transport/' + protocol + '/initUser', data).then(
+//            function (response) {
+//                var user = angular.fromJson(response.data);
+//                for(var key in user){
+//                    self[key]= user[key];
+//                }
+//
+//                var transaction = new Transaction(this.format,this.protocol);
+//                self.transaction = transaction;
+//                transaction.init(self);
+//                delay.resolve(true);
+//            },
+//            function (response) {
+//                delay.reject(response);
+//            }
+//        );
+//
+////
+////        $http.get('../../resources/cb/user.json').then(
+////            function (response) {
+////                var user = angular.fromJson(response.data);
+////                self.id = user.id;
+////                self.senderUsername = user.username;
+////                self.senderPassword = user.password;
+////                self.senderFacilityID = user.facilityID;
+////        self.endpoint = new Endpoint(user.endpoint);
+////                self.transaction.init(self.senderUsername, self.senderPassword, self.senderFacilityID);
+////                delay.resolve(true);
+////            },
+////            function (response) {
+////                delay.reject(response);
+////            }
+////        );
+//
+//        return delay.promise;
+//    };
+//
+//
+//    return TransportUser;
+//});
+//
+//
+//angular.module('format').factory('Transaction', function ($q, $http) {
+//    var Transaction = function (format, protocol) {
+//        this.userInfo = null;
+//        this.running = false;
+//        this.incoming = null;
+//        this.outgoing = null;
+//    };
+//
+//    Transaction.prototype.messages = function () {
+//        var delay = $q.defer();
+//        var self = this;
+//        var data = angular.fromJson(this.userInfo);
+//        $http.post('api/transaction', data).then(
+//            function (response) {
+//                var transaction = angular.fromJson(response.data);
+//                self.incoming = transaction.incoming;
+//                self.outgoing = transaction.outgoing;
+//                delay.resolve(transaction);
+//            },
+//            function (response) {
+//                delay.reject(null);
+//            }
+//        );
+//
+////        $http.get('../../resources/cb/transaction.json').then(
+////            function (response) {
+////                var transaction = angular.fromJson(response.data);
+////                self.incoming = transaction.incoming;
+////                self.outgoing = transaction.outgoing;
+////                delay.resolve(transaction);
+////            },
+////            function (response) {
+////                delay.reject(null);
+////            }
+////        );
+//
+//        return delay.promise;
+//    };
+//
+//    CBTransaction.prototype.init = function (userInfo) {
+//        this.clearMessages();
+//        this.userInfo = userInfo;
+//    };
+//
+//
+//    CBTransaction.prototype.clearMessages = function () {
+//        this.incoming = null;
+//        this.outgoing = null;
+//    };
+//
+//    CBTransaction.prototype.closeConnection = function () {
+//        var self = this;
+//        var delay = $q.defer();
+//        var data = angular.fromJson(this.userInfo);
+//        $http.post('api/transaction/close', data).then(
+//            function (response) {
+//                self.running = true;
+//                self.clearMessages();
+//                delay.resolve(true);
+//            },
+//            function (response) {
+//                self.running = false;
+//                delay.reject(null);
+//            }
+//        );
+////
+////        $http.get('../../resources/cb/clearFacilityId.json').then(
+////            function (response) {
+////
+////                self.clearMessages();
+////                delay.resolve(true);
+////            },
+////            function (response) {
+////                delay.reject(null);
+////            }
+////        );
+//        return delay.promise;
+//    };
+//
+//    CBTransaction.prototype.openConnection = function (responseMessageId) {
+//        var self = this;
+//        var delay = $q.defer();
+//        var data = angular.fromJson({"username": self.username, "password": self.password, "facilityID": self.facilityID, "responseMessageId": responseMessageId});
+//        $http.post('api/transaction/open', data).then(
+//            function (response) {
+//                self.running = true;
+//                self.clearMessages();
+//                delay.resolve(true);
+//            },
+//            function (response) {
+//                self.running = false;
+//                delay.reject(null);
+//            }
+//        );
+//
+////        $http.get('../../resources/cb/initFacilityId.json').then(
+////            function (response) {
+////                self.running = true;
+////                delay.resolve(true);
+////            },
+////            function (response) {
+////                self.running = false;
+////                delay.reject(null);
+////            }
+////        );
+//
+//
+//        return delay.promise;
+//    };
+//    return CBTransaction;
+//});
+//
 
 
 
