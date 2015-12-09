@@ -9,7 +9,7 @@
                 scope: {
                     stage: '@'
                 },
-                templateUrl: 'lib/documentation-viewer/documentation-viewer.html',
+                templateUrl: 'DocumentationViewer.html',
                 replace: false,
                 controller: 'DocumentationCtrl'
             };
@@ -24,7 +24,7 @@
                 scope: {
                     stage: '@'
                 },
-                templateUrl: 'lib/documentation-viewer/testcase-doc.html',
+                templateUrl: 'TestCaseDoc.html',
                 replace: false,
                 controller: 'TestCaseDocumentationCtrl'
             };
@@ -36,7 +36,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/known-issues.html',
+                templateUrl: 'KnownIssues.html',
                 replace: false,
                 controller: 'KnownIssuesCtrl'
             };
@@ -47,7 +47,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/release-notes.html',
+                templateUrl: 'ReleaseNotes.html',
                 replace: false,
                 controller: 'ReleaseNotesCtrl'
             };
@@ -59,7 +59,7 @@
         function () {
             return {
                 restrict: 'A',
-                templateUrl: 'lib/documentation-viewer/user-docs.html',
+                templateUrl: 'UserDocs.html',
                 replace: false,
                 controller: 'UserDocsCtrl'
             };
@@ -67,9 +67,66 @@
     ]);
 
 
+    mod.directive('resourceDoc', [
+        function () {
+            return {
+                restrict: 'A',
+                scope: {
+                    type: '@',
+                    name: '@'
+                },
+                templateUrl: 'ResourceDoc.html',
+                replace: false,
+                controller: 'ResourceDocsCtrl'
+            };
+        }
+    ]);
+
+    mod.directive('installationGuide', [
+        function () {
+            return {
+                restrict: 'A',
+                templateUrl: 'InstallationGuide.html',
+                replace: false,
+                controller: 'InstallationGuideCtrl'
+            };
+        }
+    ]);
+
+
+    mod.directive('toolDownloads', [
+        function () {
+            return {
+                restrict: 'A',
+                templateUrl: 'ToolDownloadList.html',
+                replace: false,
+                controller: 'ToolDownloadListCtrl'
+            };
+        }
+    ]);
+
+
+
     mod
         .controller('DocumentationCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout) {
             $scope.status = {userDoc: true};
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
+            $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
 
         }]);
 
@@ -79,6 +136,7 @@
             $scope.docs = [];
             $scope.loading = true;
             $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
 
             var loader = new UserDocListLoader();
             loader.then(function (result) {
@@ -91,10 +149,26 @@
             });
 
             $scope.isLink = function (path) {
-                return path != null && path.startsWith("http");
+                return path && path != null && path.startsWith("http");
             };
 
             $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+
+            $scope.gotToDoc = function (path) {
                 if (path != null) {
                     var form = document.createElement("form");
                     form.action = "api/documentation/downloadDocument";
@@ -118,6 +192,8 @@
             $scope.docs = [];
             $scope.loading = false;
             $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
             var loader = new ReleaseNoteListLoader();
             loader.then(function (result) {
                 $scope.loading = false;
@@ -143,6 +219,8 @@
                     form.submit();
                 }
             }
+
+
         }]);
 
 
@@ -151,6 +229,8 @@
             $scope.docs = [];
             $scope.loading = false;
             $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
             var loader = new KnownIssueListLoader();
             loader.then(function (result) {
                 $scope.loading = false;
@@ -179,12 +259,120 @@
 
         }]);
 
+    mod
+        .controller('ResourceDocsCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', 'ResourceDocListLoader', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout, ResourceDocListLoader) {
+            $scope.data = null;
+            $scope.loading = false;
+            $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+            if ($scope.type != null && $scope.type != "" && $scope.name != null && $scope.name != "") {
+                $scope.loading = true;
+                var listLoader = new ResourceDocListLoader($scope.type);
+                listLoader.then(function (result) {
+                    $scope.error = null;
+                    $scope.data = result;
+                    $scope.loading = false;
+                }, function (error) {
+                    $scope.loading = false;
+                    $scope.error = "Sorry, failed to load the " + $scope.name;
+                });
+            }
+
+            $scope.downloadResourceDocs = function () {
+                if ($scope.type != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadResourceDocs";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "type";
+                    input.value = $scope.type;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+
+            $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+
+        }]);
+
+    mod
+        .controller('ToolDownloadListCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', 'DeliverableListLoader', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout, DeliverableListLoader) {
+            $scope.data = [];
+            $scope.loading = false;
+            $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+            $scope.loading = true;
+            var listLoader = new DeliverableListLoader();
+            listLoader.then(function (result) {
+                $scope.error = null;
+                $scope.data = result;
+                $scope.loading = false;
+            }, function (error) {
+                $scope.loading = false;
+                $scope.error = "Sorry, failed to load the files";
+                $scope.data = [];
+            });
+        }]);
+
+    mod
+        .controller('InstallationGuideCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', 'InstallationGuideLoader', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout, InstallationGuideLoader) {
+            $scope.doc = null;
+            $scope.loading = false;
+            $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+            $scope.loading = true;
+            var listLoader = new InstallationGuideLoader();
+            listLoader.then(function (result) {
+                $scope.error = null;
+                $scope.doc = result;
+                $scope.loading = false;
+            }, function (error) {
+                $scope.loading = false;
+                $scope.error = "Sorry, failed to load the installation guide";
+                $scope.doc = null;
+            });
+
+            $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        }]);
+
 
     mod
         .controller('TestCaseDocumentationCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', 'TestCaseDocumentationLoader', 'ngTreetableParams', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout, TestCaseDocumentationLoader, ngTreetableParams) {
             $scope.context = null;
             $scope.data = null;
             $scope.loading = false;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
             $scope.error = null;
             var testCaseLoader = new TestCaseDocumentationLoader();
             $scope.error = null;
@@ -194,9 +382,11 @@
                 var tcLoader = testCaseLoader.getOneByStage($scope.stage);
                 tcLoader.then(function (data) {
                     $scope.error = null;
-                    $scope.context = data;
-                    $scope.data = angular.fromJson($scope.context.json);
-                    $scope.params.refresh();
+                    if (data != null) {
+                        $scope.context = data;
+                        $scope.data = angular.fromJson($scope.context.json);
+                        $scope.params.refresh();
+                    }
                     $scope.loading = false;
                 }, function (error) {
                     $scope.loading = false;
@@ -313,6 +503,22 @@
                     document.body.appendChild(form);
                     form.submit();
                 }
+            };
+
+            $scope.downloadDocument = function (path) {
+                if (path != null) {
+                    var form = document.createElement("form");
+                    form.action = "api/documentation/downloadDocument";
+                    form.method = "POST";
+                    form.target = "_target";
+                    var input = document.createElement("input");
+                    input.name = "path";
+                    input.value = path;
+                    form.appendChild(input);
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
             }
 
 
@@ -340,7 +546,11 @@
 
                 $http.get('api/documentation/testcases', {params: {"stage": stage}, timeout: 60000}).then(
                     function (object) {
-                        delay.resolve(angular.fromJson(object.data));
+                        if (object.data != null && object.data != "") {
+                            delay.resolve(angular.fromJson(object.data));
+                        } else {
+                            delay.resolve(null);
+                        }
                     },
                     function (response) {
                         delay.reject(response.data);
@@ -949,6 +1159,64 @@
             };
         }
     ]);
+
+
+    mod.factory('ResourceDocListLoader', ['$q', '$http', 'StorageService', '$timeout',
+        function ($q, $http, StorageService, $timeout) {
+            return function (type) {
+                var delay = $q.defer();
+                $http.get('api/documentation/resourcedocs', {params: {"type": type}, timeout: 60000}).then(
+                    function (object) {
+                        delay.resolve(angular.fromJson(object.data));
+                    },
+                    function (response) {
+                        delay.reject(response.data);
+                    }
+                );
+                return delay.promise;
+            };
+        }
+    ]);
+
+
+    mod.factory('DeliverableListLoader', ['$q', '$http', 'StorageService', '$timeout',
+        function ($q, $http, StorageService, $timeout, $rootScope) {
+            return function () {
+                var delay = $q.defer();
+                $http.get('api/documentation/deliverables', {timeout: 60000}).then(
+                    function (object) {
+                        delay.resolve(angular.fromJson(object.data));
+                    },
+                    function (response) {
+                        delay.reject(response.data);
+                    }
+                );
+                return delay.promise;
+            };
+        }
+    ]);
+
+    mod.factory('InstallationGuideLoader', ['$q', '$http', '$timeout',
+        function ($q, $http, $timeout, $rootScope) {
+            return function () {
+                var delay = $q.defer();
+                $http.get('api/documentation/installationguide', {timeout: 60000}).then(
+                    function (object) {
+                        if(object.data != null && object.data != "") {
+                            delay.resolve(angular.fromJson(object.data));
+                        }else{
+                            delay.resolve(null);
+                        }
+                    },
+                    function (response) {
+                        delay.reject(response.data);
+                    }
+                );
+                return delay.promise;
+            };
+        }
+    ]);
+
 
 
 }).call(this);

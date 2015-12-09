@@ -1,15 +1,24 @@
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+    if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+    } else {
+        top.location = self.location;
+    }
+</script>
 <script type="text/ng-template" id="ValidationResultInfoCtrl.html">
     <div class="modal-header">
                 <span style="font-weight: bold; font-size: 20px">
                     Validation Result Information
                 </span>
                 <span class="pull-right">
-                    <a class="point" ng-click="close()"><i class="fa fa-times"></i></a>
+                    <button class="btn btn-xs btn-primary" class="point" ng-click="close()"><i class="fa fa-times"></i>Close</button>
                 </span>
     </div>
     <div class="modal-body">
         <div class="validation-result-info-content">
-            <div ng-if="appInfo.validationResultInfo != null" ng-bind-html="appInfo.validationResultInfo">
+            <div ng-if="appInfo.validationResultInfo != null" ng-bind-html="toHTML(appInfo.validationResultInfo)">
             </div>
             <div ng-if="appInfo.validationResultInfo == null">
                 No information available.
@@ -17,3 +26,75 @@
         </div>
     </div>
 </script>
+
+<script type="text/ng-template" id="VersionChangeCtrl.html">
+    <div class="modal-body">
+        <div ng-include="'sc.html'"></div>
+        <br />
+        <br />
+        <div style="text-align:center">
+            <button class="btn btn-xs btn-primary" ng-click="close()" type="button"
+               title="Cancel" class="point">
+                <i class="fa fa-refresh"></i>
+                Refresh
+            </button>
+        </div>
+
+    </div>
+</script>
+
+
+<script type="text/ng-template" id="InvalidReqCtrl.html">
+    <div class="modal-body">
+        <div ng-include="'ir.html'"></div>
+
+        <br />
+        <br />
+
+        <div style="text-align:center">
+            <button class="btn btn-xs btn-primary" ng-click="close()" type="button"
+               title="Cancel" class="point">
+                <i class="fa fa-times"></i>
+                Close
+            </button>
+        </div>
+
+    </div>
+</script>
+
+<script type="text/ng-template" id="ErrorCtrl.html">
+    <div class="modal-body">
+        <div ng-include="'down.html'"></div>
+
+        <br />
+        <br />
+
+        <div style="text-align:center">
+            <button class="btn btn-xs btn-primary" ng-click="close()" type="button"
+               title="Cancel" class="point">
+                <i class="fa fa-times"></i>
+                Close
+            </button>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="NotFoundCtrl.html">
+    <div class="modal-body">
+        <div ng-include="'nf.html'"></div>
+
+        <br />
+        <br />
+
+        <div style="text-align:center">
+            <button class="btn btn-xs btn-primary" ng-click="close()" type="button"
+               title="Cancel" class="point">
+                <i class="fa fa-times"></i>
+                Close
+            </button>
+        </div>
+
+    </div>
+</script>
+
+

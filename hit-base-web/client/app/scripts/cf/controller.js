@@ -78,11 +78,11 @@ angular.module('cf')
                     }
                     $scope.error = null;
                 } else {
-                    $scope.error = "Ooops, Something went wrong. Please refresh your page. We are sorry for the inconvenience.";
+                    $scope.error = "Something went wrong, Please refresh your page.";
                 }
                 $scope.loading = false;
             }, function (error) {
-                $scope.error = "Sorry, Cannot load the profiles. Try again";
+                $scope.error = "Something went wrong, Please refresh your page.";
                 $scope.loading = false;
             });
         };
@@ -204,7 +204,7 @@ angular.module('cf')
                         })
                         .error(function (jqXHR, textStatus, errorThrown) {
                             $scope.cf.message.name = fileName;
-                            $scope.mError = 'Sorry, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
+                            $scope.mError = 'Something went wrong, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
                         })
                         .complete(function (result, textStatus, jqXHR) {
 
@@ -289,7 +289,10 @@ angular.module('cf')
                     var id = $scope.cf.testCase.testContext.id;
                     var content = $scope.cf.message.content;
                     var label = $scope.cf.testCase.label;
-                    var validated = $scope.validator.validate(id, content, {}, "Free");
+                    if( $scope.validator == null) {
+                        $scope.validator = ServiceDelegator.getMessageValidator($scope.testCase.testContext.format);
+                    }
+                    var validated = $scope.validator.validate(id, content, null, "Free");
                     validated.then(function (mvResult) {
                         $scope.vLoading = false;
                         $scope.loadValidationResult(mvResult);
@@ -342,6 +345,9 @@ angular.module('cf')
             try {
                 if ($scope.cf.testCase != null && $scope.cf.testCase.testContext != null && $scope.cf.message.content != '') {
                     $scope.tLoading = true;
+                    if($scope.parser == null){
+                        $scope.parser = ServiceDelegator.getMessageParser($scope.testCase.testContext.format);
+                    }
                     var parsed = $scope.parser.parse($scope.cf.testCase.testContext.id, $scope.cf.message.content);
                     parsed.then(function (value) {
                         $scope.tLoading = false;
@@ -373,6 +379,10 @@ angular.module('cf')
         };
 
         $scope.execute = function () {
+            if ($scope.tokenPromise) {
+                $timeout.cancel($scope.tokenPromise);
+                $scope.tokenPromise = undefined;
+            }
             if ($scope.cf.testCase != null) {
                 $scope.error = null;
                 $scope.tError = null;
@@ -385,6 +395,12 @@ angular.module('cf')
                 $scope.parseMessage();
             }
         };
+
+        $scope.removeDuplicates = function () {
+            $scope.vLoading = true;
+            $scope.$broadcast('cf:removeDuplicates');
+        };
+
 
         $scope.init = function () {
             $scope.vLoading = false;
@@ -417,6 +433,11 @@ angular.module('cf')
                     }
                 }
             });
+
+            $rootScope.$on('cf:duplicatesRemoved', function (event, report) {
+                $scope.vLoading = false;
+            });
+
         };
 
     }])

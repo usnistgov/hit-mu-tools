@@ -17,6 +17,11 @@
     <meta name="description" content="NIST Immunization Tool">
     <meta name="author" content="NIST">
     <link rel="shortcut icon" href="assets/ico/favicon.ico">
+    <style>
+        [ng\: cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x- ng-cloak {
+                          display: none !important;
+                      }
+    </style>
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
@@ -31,7 +36,6 @@
     <!-- endbuild -->
 
     <!-- Custom styles for this template -->
-    <script src="lib/utils.js"></script>
     <link href="styles/carousel.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/font-awesome.min.css">
 
@@ -60,8 +64,17 @@
     <link rel="stylesheet" href="lib/documentation-viewer/documentation-viewer.css"/>
     <!--<link rel="stylesheet" href="lib/tree-grid/treeGrid.css">-->
 
+    <style id="antiClickjack">body{display:none !important;}</style>
+    <script type="text/javascript">
+        if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            top.location = self.location;
+        }
+    </script>
 </head>
-<body ng-app="hit-tool">
+<body ng-app="hit-tool" window-exit>
 <div id="wrapper">
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
@@ -118,6 +131,7 @@
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/sass-bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
@@ -156,7 +170,8 @@
     <script src="lib/angular-treetable/js/jquery.treetable.js"></script>
     <script src="lib/angular-treetable/js/angular-treetable-custom.js"></script>
 
-
+    <script src="lib/utils.js"></script>
+    <script src="lib/xml-util.js"></script>
     <script src="lib/lrInfiniteScroll/lrInfiniteScroll.js"></script>
     <script src="lib/profile-viewer/profile-viewer.js"></script>
     <script src="lib/vocab-search/vocab-search.js"></script>
@@ -171,6 +186,7 @@
     <script src="lib/format/hl7v2.js"></script>
     <script src="lib/format/xml.js"></script>
     <script src="lib/format/edi.js"></script>
+    <script src="lib/settings/settings.js"></script>
 
     <!--<script src="lib/angular-mocks/angular-mocks.js"></script>-->
 
@@ -193,14 +209,23 @@
     <script src="scripts/cb/controller.js"></script>
     <script src="scripts/contact/controller.js"></script>
     <script src="scripts/about/controller/about.js"></script>
-    <script src="scripts/directives/editor.js"></script>
-    <script src="scripts/directives/popover.js"></script>
+    <script src="scripts/directives/directives.js"></script>
 
     <!-- endbuild -->
 
     <div ng-include="'views/error.html'"></div>
     <div ng-include="'views/templates.html'"></div>
-    <div ng-include="'lib/vocab-search/valueset-found-modal.html'"></div>
+    <div ng-include="'lib/angular-bootstrap-nav-tree/abn_tree_template.html'"></div>
+    <div ng-include="'lib/vocab-search/vocab-search-tpls.html'"></div>
+    <div ng-include="'lib/settings/settings-tpls.html'"></div>
+    <div ng-include="'lib/profile-viewer/profile-viewer-tpls.html'"></div>
+    <div ng-include="'lib/validation-result/validation-result-tpls.html'"></div>
+    <div ng-include="'lib/testcase-viewer/testcase-viewer-tpls.html'"></div>
+    <div ng-include="'lib/report-viewer/report-viewer-tpls.html'"></div>
+    <div ng-include="'lib/testcase-tree/testcase-tree-tpls.html'"></div>
+    <div ng-include="'lib/documentation-viewer/documentation-viewer-tpls.html'"></div>
+
+
 
 </div>
 </body>

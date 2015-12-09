@@ -1,21 +1,19 @@
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+    if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+    } else {
+        top.location = self.location;
+    }
+</script>
 <div ng-controller="CBValidatorCtrl" ng-init="init()">
     <div class="panel panel-info">
         <div class="panel-body">
-            <div ng-show="cb.testCase != null">
-                <!--<div class="row" ng-show="error != null">-->
-                <!--<div class="alert alert-danger" role="alert" ng-bind="error"></div>-->
-                <!--</div>-->
-
-                <div ng-show="tError !== null">
-                    <div class="alert alert-danger" role="alert" ng-bind="tError"></div>
-                </div>
+            <div ng-show="cb.testStep != null">
                 <div ng-show="mError != null">
                     <div class="alert alert-danger" role="alert" ng-bind="mError"></div>
                 </div>
-                <div ng-show="vError != null">
-                    <div class="alert alert-danger" role="alert" ng-bind="vError"></div>
-                </div>
-
                 <div class="row">
                     <div class="col-md-4">
                         <div class="panel panel-info">
@@ -26,6 +24,9 @@
                                 <div ng-show="!tLoading">
                                     <div ng-show="tError === null" class="message-tree">
                                         <abn-tree tree-control="cb.tree.root" icon-leaf="" on-select="onNodeSelect(branch)"></abn-tree>
+                                    </div>
+                                    <div ng-show="tError !== null">
+                                        <div class="alert alert-danger" role="alert" ng-bind="tError"></div>
                                     </div>
                                 </div>
                                 <div ng-show="tLoading" style="text-align:center">
@@ -44,9 +45,6 @@
                                                 <form id="fileupload" data-file-upload="options" method="POST" enctype="multipart/form-data" data-ng-class="{'fileupload-processing': processing() || loadingFiles}" role="form" class="form-inline">
             <span><i class="glyphicon glyphicon-file"></i> Message Content
                     <span style="margin-right:10px"></span>
-
-
-
                         <div class="btn-group">
                             <button title="Refresh at the interval of {{loadRate/1000}} second(s)" type="button" class="btn btn-xs btn-primary" data-toggle="dropdown">
                                 <i class="fa fa-refresh"></i>
@@ -54,7 +52,7 @@
                                 <span ng-show="loadRate == 10000000000000000">Disable</span>
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu point" role="menu">
+                            <ul class="dropdown-menu base-menu" role="menu">
                                 <li><a class="point" ng-click="setLoadRate(10000000000000000)">Disable</a></li>
                                 <li><a class="point" ng-click="setLoadRate(1000)">1 second</a></li>
                                 <li><a class="point" ng-click="setLoadRate(2000)">2 seconds</a></li>
@@ -76,27 +74,27 @@
                                     <!--DQA-->
                                 <!--</button>-->
 
-                                <button title="Validate" type="button" class="btn btn-xs btn-success" ng-click="execute()">
+                                <button title="Validate" type="button" class="btn btn-xs btn-success" ng-disabled="isTestCase() && isTestCaseCompleted()" ng-click="execute()">
                                     <i class="fa fa-check-circle"></i>
                                     Validate
                                 </button>
 
-                                <button title="Load Example" type="button" class="btn btn-xs btn-primary" ng-click="loadMessage()" ng-disabled="!testCase.testContext.message ||  testCase.testContext.message === null || testCase.testContext.message.content === ''">
+                                <button title="Load Example" type="button" class="btn btn-xs btn-primary" ng-click="loadExampleMessage()" ng-disabled="!testStep.testContext.message ||  testStep.testContext.message === null || testStep.testContext.message.content === '' || (isTestCase() && isTestCaseCompleted())">
                                     <i class="fa fa-arrow-circle-down"></i>Load Example
                                 </button>
 
-                                <span title="Browse" class="btn btn-xs btn-primary fileinput-button" ng-class="{disabled: disabled}">
+                                <span title="Browse" class="btn btn-xs btn-primary fileinput-button" ng-disabled="isTestCase() && isTestCaseCompleted()">
                         <i class="fa fa-folder-open"></i>Browse
                         <span></span>
-                        <input type="file" name="file" id="file" multiple="false" ng-disabled="disabled">
+                        <input type="file" name="file" id="file" multiple="false" ng-disabled="isTestCase() && isTestCaseCompleted()">
                          </span>
-                                <button title="Download" type="button" class="btn btn-xs btn-primary" ng-disabled="!hasContent()" ng-click="saveMessage()">
+                                <button title="Download" type="button" class="btn btn-xs btn-primary" ng-hide="!hasContent()" ng-click="saveMessage()">
                                     <i class="fa fa-download"></i>Download
                                 </button>
 
 
 
-                                 <button title="Clear" type="button" class="btn btn-xs btn-warning" ng-click="clearMessage()">
+                                 <button title="Clear" type="button" class="btn btn-xs btn-warning" ng-disabled="isTestCase() && isTestCaseCompleted()" ng-click="clearMessage()">
                                      <i class="fa fa-times"></i>Clear
                                  </button>
 
@@ -120,12 +118,15 @@
                                                 <i class="fa fa-check-square-o"></i>
                                                 Message Validation Result
 
-                                                <a title="View Result Categories" ng-click="openValidationResultInfo()">
-                                                    <i class="point fa fa-info-circle"></i>
-                                                </a>
+                                                <button title="View Result Categories" class="btn btn-xs btn-primary" ng-click="openValidationResultInfo()">
+                                                    <i class="fa fa-info-circle"></i>&nbsp;Help
+                                                </button>
      <span class="pull-right">
 
-
+                                <button title="Remove Duplicates" type="button" class="btn btn-xs btn-warning" ng-click="removeDuplicates()">
+                                    <i class="fa fa-times"></i>
+                                    Remove Duplicates
+                                </button>
 
                                 <button title="View Report" type="button" class="btn btn-xs btn-primary" ng-click="setActiveTab(1)">
                                     <i class="fa fa-eye"></i>
@@ -139,7 +140,10 @@
                                                 </div>
                                                 <div ng-show="!vLoading">
                                                     <div ng-show="!vError || vError == null">
-                                                        <div validation-result="" type="cb" message="cb.message" format="cb.testCase.testContext.format" editor="cb.editor" tree="cb.tree" cursor="cb.cursor"></div>
+                                                        <div validation-result="" type="cb" message="cb.message" format="cb.testStep.testContext.format" editor="cb.editor" tree="cb.tree" cursor="cb.cursor"></div>
+                                                    </div>
+                                                    <div ng-show="vError != null">
+                                                        <div class="alert alert-danger" role="alert" ng-bind="vError"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -153,8 +157,8 @@
                 </div>
 
             </div>
-            <div ng-show="cb.testCase === null">
-                No TestCase Loaded
+            <div ng-show="cb.testStep === null">
+                No Test Step Loaded
             </div>
 
         </div>

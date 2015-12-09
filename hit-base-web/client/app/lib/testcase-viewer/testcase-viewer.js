@@ -13,14 +13,14 @@
                 scope: {
                     type: '@'
                 },
-                templateUrl: 'lib/testcase-viewer/testcase-viewer.html',
+                templateUrl: 'TestCaseViewer.html',
                 controller: 'TestCaseViewerCtrl'
             };
         }
     ]);
 
     mod
-        .controller('TestCaseViewerCtrl', ['$scope', '$rootScope', '$sce', 'TestCaseViewerService', '$compile', '$timeout', function ($scope, $rootScope, $sce, TestCaseViewerService, $compile, $timeout) {
+        .controller('TestCaseViewerCtrl', ['$scope', '$rootScope', '$sce', 'TestCaseViewerService', '$compile', '$timeout', '$modal', function ($scope, $rootScope, $sce, TestCaseViewerService, $compile, $timeout, $modal) {
             $scope.tabs = [];
             $scope.loading = false;
             $scope.editor = null;
@@ -94,6 +94,25 @@
 
             var getTestType = function (testCase) {
                 return testCase.type.toLowerCase();
+            };
+
+            $scope.isMcHelpPresent = function () {
+                return $rootScope.appInfo != null && $rootScope.appInfo.messageContentInfo != null;
+            };
+
+            $scope.openMcInfo = function () {
+                var modalInstance = $modal.open({
+                    templateUrl: 'MessageContentInfoCtrl.html',
+                    windowClass: 'message-content-info-modal',
+                    controller: 'MessageContentInfoCtrl',
+                    keyboard: true,
+                    backdrop: true,
+                    resolve: {
+                        mcHelpInfo: function () {
+                            return $rootScope.appInfo.messageContentInfo;
+                        }
+                    }
+                });
             };
 
             $scope.downloadTestArtifact = function (path) {
@@ -203,7 +222,9 @@
                             showCursorWhenSelecting: true
                         });
                     }
-                    $scope.editor.setSize("100%", getSizeByContent($scope.editor.getValue()));
+//                    $scope.editor.setSize("100%", getSizeByContent($scope.editor.getValue()));
+                    $scope.editor.setSize("100%", "590");
+
                 }, 100);
             };
         }]);
@@ -271,4 +292,15 @@
         return TestCaseViewerService;
 
     });
+
+    mod.controller('MessageContentInfoCtrl',
+        function ($scope, $modalInstance, mcHelpInfo) {
+            $scope.mcHelpInfo = mcHelpInfo;
+            $scope.close = function () {
+                $modalInstance.dismiss('cancel');
+            }
+        }
+    );
+
+
 })(angular);
