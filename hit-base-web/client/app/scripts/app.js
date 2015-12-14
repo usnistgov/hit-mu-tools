@@ -124,13 +124,12 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
 
 });
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window,$sce,$templateCache) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window,$sce,$templateCache, UserService,User) {
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
 
-
-    new AppInfo().then(function (appInfo) {
+    AppInfo.get().then(function (appInfo) {
         $rootScope.appInfo = appInfo;
         httpHeaders.common['csrfToken'] = appInfo.csrfToken;
         httpHeaders.common['dTime'] = appInfo.date;
@@ -139,6 +138,12 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         $rootScope.openErrorDlg();
     });
 
+    UserService.create().then(function (info) {
+        User.info = info;
+     }, function (error) {
+        User.info = null;
+        $rootScope.openErrorDlg();
+    });
 
     $rootScope.$watch(function () {
         return $location.path();
@@ -499,34 +504,6 @@ app.directive('stRatio', function () {
     };
 
 });
-
-
-angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function ($http, $q) {
-    return function () {
-        var delay = $q.defer();
-        $http.get('api/appInfo').then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
-
-
-//        $http.get('../../resources/appInfo.json').then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-        return delay.promise;
-    };
-}]);
-
 
 app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;
