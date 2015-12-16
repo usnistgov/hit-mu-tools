@@ -6,18 +6,11 @@ angular.module('cb').factory('CB',
 
         var initTransport = function(){
             var transport = new Transport();
-
-//            for(var key in info){
-//                self[key]= info[key];
-//            }
-//
-//            user.receiverUsername = StorageService.get(StorageService.RECEIVER_USERNAME_KEY);
-//            user.receiverPassword = StorageService.get(StorageService.RECEIVER_PWD_KEY);
-//            user.receiverFacilityId = StorageService.get(StorageService.RECEIVER_FACILITYID_KEY);
-//            user.receiverEndpoint = StorageService.get(StorageService.RECEIVER_ENDPOINT_KEY);
+            if(StorageService.get(StorageService.USER_CONFIG_KEY) != null) {
+                transport.config = angular.fromJson(StorageService.get(StorageService.USER_CONFIG_KEY));
+            }
             return transport;
         };
-
         var CB = {
             testCase: null,
             selectedTestCase: null,

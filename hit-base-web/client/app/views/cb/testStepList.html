@@ -1,4 +1,6 @@
-<style id="antiClickjack">body{display:none !important;}</style>
+<style id="antiClickjack">body {
+    display: none !important;
+}</style>
 <script type="text/javascript">
     if (self === top) {
         var antiClickjack = document.getElementById("antiClickjack");
@@ -7,17 +9,13 @@
         top.location = self.location;
     }
 </script>
-<div class="panel panel-info" >
+<div class="panel panel-info">
     <div class="panel-heading">
-        <div ng-click="testStepListCollapsed = !testStepListCollapsed">
-            <i class="fa fa-caret-down" ng-show="!testStepListCollapsed"></i>
-            <i class="fa fa-caret-right" ng-show="testStepListCollapsed"></i>
-            <span ng-show="testCase.executionStatus !== 'COMPLETE'">Test Steps Execution</span>
+             <span ng-show="testCase.executionStatus !== 'COMPLETE'">Test Steps Execution</span>
             <span ng-show="testCase.executionStatus === 'COMPLETE'">Test Steps Result</span>
-        </div>
-    </div>
+     </div>
     <div class="panel-body">
-        <div collapse="testStepListCollapsed">
+        <div>
             <table
                     class="table table-striped table-bordered  table-condensed">
                 <thead>
@@ -92,6 +90,11 @@
                     </span>
                     </td>
                     <td style="width:10%">
+
+                        <!--<a ng-show="row.testingType !== 'SUT_INITIATOR' && row.testingType !== 'TA_INITIATOR' && row.testingType !== 'SUT_RESPONDER' && row.testingType !== 'TA_RESPONDER' && transport.logs[row.id] && transport.logs[row.id] != null"-->
+                        <!--ng-click="viewConsole(row.id)">-->
+                        <!--</a>-->
+
                         <div ng-show="testStep != null && row.id === testStep.id && testStep.testingType === 'SUT_INITIATOR'">
                             <div class="" style="margin-bottom: 20px">
                                 <button title="Config Info" type="button"
@@ -134,10 +137,9 @@
                                         class="fa fa-cog"></i>
                                 </button>
                                 <button type="button"
-                                        ng-click="send()" ng-disabled="!isValidConfig() || connecting"
-                                        title="Send" class="btn btn-sm btn-success">
-                                    <i class="fa fa-arrow-right"></i>
-                                    Send
+                                        ng-click="send()" ng-disabled="!hasUserContent() || connecting"
+                                        title="Send" class="btn btn-xs btn-success">
+                                    <i class="fa fa-play"></i>
                                 </button>
                                 <!--<span ng-show="connecting">-->
                                 <!--<i class="fa fa-spinner"></i> Remaining time (s): {{counter}} / {{counterMax}}-->
@@ -157,12 +159,13 @@
                         </div>
 
 
-
-
                     </td>
                 </tr>
                 </tbody>
             </table>
+
+
+
         </div>
     </div>
 </div>

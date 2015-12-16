@@ -53,30 +53,33 @@
                 <div class="row" ng-show="testCase.type === 'TestCase'">
                     <div class="col-md-9">
                         <div ng-include="'views/cb/testStepList.html'"></div>
+                        <div ng-show="testStep != null" style="margin:10px">
+                            <span class="pull-left">
+                                            <button type="button" ng-click="goBack(testStep)"
+                                                    ng-show="!isTestCaseCompleted() && !isFirstStep(testStep)"
+                                                    title="Execute Previous Step" class="btn btn-sm btn-primary">
+                                                <span><i class="fa fa-arrow-left"></i> Back</span>
+                                            </button>
+                                 </span>
+
+                            <span class="pull-right">
+                                            <button type="button" ng-click="goNext(testStep)"
+                                                    ng-show="!isTestCaseCompleted() && isTestStepCompleted(testStep)"
+                                                    title="Execute Next Step" class="btn btn-sm btn-primary">
+                                                <span ng-show="isLastStep(testStep)"><i class="fa fa-check"></i> Finish</span>
+                                                <span ng-show="!isLastStep(testStep)"><i class="fa fa-arrow-right"></i> Next</span>
+                                            </button>
+                                 </span>
+
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <div ng-include="'views/cb/resultSummary.html'"></div>
 
                         <div ng-include="'views/cb/console.html'"></div>
-
-
-                    </div>
-
-                    <div class="col-md-12" ng-show="testStep != null" style="margin:10px">
-                        <div ng-show="testCase != null">
-                            <span style="font-size: 18px; font-weight: bold">{{testStep.position}}. Test Step: {{testStep.name}}</span>
-                                 <span class="pull-right" style="margin-right: 10px">
-                                            <button type="button" ng-click="executeNextTestStep(testStep)"
-                                                    ng-show="!isTestCaseCompleted() && isTestStepCompleted(testStep)"
-                                                    title="Execute Next Step" class="btn btn-sm btn-success">
-                                                <span ng-show="isLastStep(testStep)"><i class="fa fa-check"></i> Complete</span>
-                                                <span ng-show="!isLastStep(testStep)"><i class="fa fa-arrow-right"></i> Next</span>
-                                            </button>
-                                 </span>
-                            <hr/>
-                        </div>
                     </div>
                 </div>
+
 
                 <div ng-include="'views/cb/execTestStep.html'"></div>
             </div>
