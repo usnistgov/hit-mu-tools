@@ -27,7 +27,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService','User', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService,User) {
 
         $scope.loading = false;
         $scope.error = null;
@@ -49,6 +49,7 @@ angular.module('cb')
         $scope.warning = null;
         $scope.sutInititiatorForm = '';
         $scope.taInititiatorForm = '';
+        $scope.user = User;
 
         var errors = [
             "Incorrect message Received. Please check the log for more details",
@@ -134,7 +135,7 @@ angular.module('cb')
         $scope.clearTestStep = function () {
             CB.testStep = null;
             $scope.testStep = null;
-            $scope.$broadcast('isolated:removeTestStep');
+            $scope.$broadcast('cb:removeTestStep');
         };
 
 
@@ -370,7 +371,7 @@ angular.module('cb')
                     TestExecutionService.deleteExecutionMessage(testStep);
                     TestExecutionService.deleteMessageTree(testStep);
                 }
-                delete $scope.testCase.executionStatus;
+                if($scope.testCase.executionStatus){delete $scope.testCase.executionStatus;}
             }
         };
 
@@ -405,7 +406,6 @@ angular.module('cb')
         };
 
         $scope.send = function () {
-            $scope.configCollapsed = false;
             $scope.connecting = true;
             $scope.progressStep($scope.testStep);
             $scope.error = null;

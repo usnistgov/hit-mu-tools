@@ -144,8 +144,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         }, function (error) {
             User.info = null;
             StorageService.remove(StorageService.USER_KEY);
-            $rootScope.openErrorDlg();
-        });
+         });
     }else{
         User.info = angular.fromJson(StorageService.get(StorageService.USER_KEY));
     };
