@@ -27,7 +27,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService','User', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService,User) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User) {
 
         $scope.loading = false;
         $scope.error = null;
@@ -177,7 +177,6 @@ angular.module('cb')
         };
 
 
-
         $scope.goNext = function (row) {
             if ($scope.isManualStep(row)) {
                 $scope.completeStep(row);
@@ -194,25 +193,7 @@ angular.module('cb')
                 $scope.completeStep(row);
             }
             if (!$scope.isFirstStep(row)) {
-                var previousStep = $scope.findPreviousStep(row.position);
-                $scope.warning = null;
-                var log = $scope.transport.logs[previousStep.id];
-                $scope.logger.content = log && log != null?log: '';
-                if (!$scope.isManualStep(previousStep)) {
-                    if ($scope.isSutInitiator(previousStep) || $scope.isTaInitiator(previousStep)) {
-                        $scope.transport.loadConfigForm(previousStep.protocol, previousStep['testingType']).then(function (form) {
-                            if (previousStep['testingType'] === 'TA_INITIATOR') {
-                                $scope.taInititiatorForm = form;
-                            } else if (previousStep['testingType'] === 'SUT_INITIATOR') {
-                                $scope.sutInititiatorForm = form;
-                            }
-                        });
-                        if ($scope.isSutInitiator(previousStep)) {
-                            $scope.transport.configListener(previousStep.protocol);
-                        }
-                    }
-                }
-                $scope.selectTestStep(previousStep);
+                $scope.executeTestStep($scope.findPreviousStep(row.position));
             }
         };
 
@@ -220,12 +201,18 @@ angular.module('cb')
         $scope.executeTestStep = function (testStep) {
             $scope.warning = null;
             var log = $scope.transport.logs[testStep.id];
-            $scope.logger.content = log && log != null?log: '';
+            $scope.logger.content = log && log != null ? log : '';
             if (testStep != null) {
                 if (!$scope.isManualStep(testStep)) {
 //                    TestExecutionService.deleteValidationReport(testStep);
                     if ($scope.isSutInitiator(testStep) || $scope.isTaInitiator(testStep)) {
 //                        TestExecutionService.setExecutionMessage(testStep, null);
+
+                        if ($scope.isSutInitiator(testStep)) {
+                            $scope.transport.loadSutInitiatorConfig(testStep.protocol);
+                        } else {
+                            $scope.transport.loadTaInitiatorConfig(testStep.protocol);
+                        }
                         $scope.transport.loadConfigForm(testStep.protocol, testStep['testingType']).then(function (form) {
                             if (testStep['testingType'] === 'TA_INITIATOR') {
                                 $scope.taInititiatorForm = form;
@@ -233,21 +220,20 @@ angular.module('cb')
                                 $scope.sutInititiatorForm = form;
                             }
                         });
-                        if ($scope.isSutInitiator(testStep)) {
-                            $scope.transport.configListener(testStep.protocol);
-                        }
                     }
                 }
                 $scope.selectTestStep(testStep);
             }
         };
 
+
         $scope.openConfig = function () {
             if ($scope.testStep['testingType'] === 'SUT_INITIATOR') {
                 var modalInstance = $modal.open({
                     templateUrl: 'SutInitiatorConfigForm.html',
                     windClass: 'initiator-config-modal',
-                    keyboard: 'false',
+                    backdrop: 'static',
+                    'keyboard': false,
                     controller: 'InitiatorConfigCtrl',
                     resolve: {
                         htmlForm: function () {
@@ -268,7 +254,8 @@ angular.module('cb')
                 var modalInstance = $modal.open({
                     templateUrl: 'TaInitiatorConfigForm.html',
                     size: 'initiator-config-modal',
-                    keyboard: 'false',
+                    backdrop: 'static',
+                    'keyboard': false,
                     controller: 'InitiatorConfigCtrl',
                     resolve: {
                         htmlForm: function () {
@@ -371,7 +358,9 @@ angular.module('cb')
                     TestExecutionService.deleteExecutionMessage(testStep);
                     TestExecutionService.deleteMessageTree(testStep);
                 }
-                if($scope.testCase.executionStatus){delete $scope.testCase.executionStatus;}
+                if ($scope.testCase.executionStatus) {
+                    delete $scope.testCase.executionStatus;
+                }
             }
         };
 
@@ -413,7 +402,7 @@ angular.module('cb')
                 $scope.logger.clear();
                 $scope.received = '';
                 $scope.logger.logOutbound(0);
-                $scope.transport.send($scope.testStep.id,CB.editor.instance.doc.getValue()).then(function (response) {
+                $scope.transport.send($scope.testStep.id, CB.editor.instance.doc.getValue()).then(function (response) {
                     var received = response.incoming;
                     var sent = response.outgoing;
                     $scope.logger.logOutbound(1);
@@ -485,36 +474,29 @@ angular.module('cb')
                             var execute = function () {
                                 ++$scope.counter;
                                 $scope.logger.log($scope.logger.getInbound(2) + $scope.counter + "s");
-                                $scope.transport.fetchTaInitiatorTransaction($scope.testStep.id, CB.transport.config.sutInitiator, rspMessageId).then(function (response) {
-                                    var incoming = response.incoming;
-                                    var outbound = response.outgoing;
-                                    if ($scope.counter < $scope.counterMax) {
-                                        if (incoming != null && incoming != '' && received == '') {
-                                            $scope.logger.logInbound(3);
-                                            $scope.log(incoming);
-                                            received = incoming;
+                                $scope.transport.searchTransaction($scope.testStep.id, CB.transport.config.sutInitiator, rspMessageId).then(function (transaction) {
+                                    if (transaction != null) {
+                                        var incoming = transaction.incoming;
+                                        var outbound = transaction.outgoing;
+                                        $scope.logger.logInbound(3);
+                                        $scope.log(incoming);
+
+                                        if (incoming != null && incoming != '') {
                                             var receivedMessage = parseRequest(incoming);
                                             TestExecutionService.setExecutionMessage($scope.testStep, receivedMessage);
                                             $scope.$broadcast('cb:loadEditorContent', receivedMessage);
                                         }
-                                        if (outbound != null && outbound != '' && sent == '') {
-                                            $scope.logger.logInbound(12);
-                                            $scope.log(outbound);
-                                            sent = outbound;
+
+                                        $scope.logger.logInbound(12);
+                                        $scope.log(outbound);
+
+                                        if (outbound != null && outbound != '') {
                                             var sentMessage = parseResponse(outbound);
                                             $scope.setNextStepMessage(sentMessage);
-
                                         }
-                                        if (incoming != '' && outbound != '' && incoming != null && outbound != null) {
-                                            $scope.stopListener();
-                                        }
-                                    } else {
-                                        if (incoming == null || incoming == '') {
-                                            $scope.warning = $scope.logger.logOutbound(7);
-                                            $scope.logger.logInbound(8);
-                                        } else if (outbound == null || outbound == '') {
-                                            $scope.logger.logInbound(9);
-                                        }
+                                        $scope.stopListener();
+                                    } else if ($scope.counter >= $scope.counterMax) {
+                                        $scope.warning = $scope.logger.logOutbound(7);
                                         $scope.stopListener();
                                     }
                                 }, function (error) {
@@ -527,7 +509,7 @@ angular.module('cb')
                             };
                             TestExecutionClock.start(execute);
                         } else {
-                            var error = "Failed to start the communication";
+                            var error = "Failed to start the transaction";
                             $scope.logger.log($scope.logger.getInbound(10) + "Error: " + error);
                             $scope.logger.logInbound(11);
                             $scope.connecting = false;
@@ -654,8 +636,8 @@ angular.module('cb')
                 $scope.testCase = testCase;
                 $scope.clearExecution();
                 if (testCase.type === 'TestCase') {
-                        $scope.executeTestStep($scope.testCase.children[0]);
-                 } else if (testCase.type === 'TestStep') {
+                    $scope.executeTestStep($scope.testCase.children[0]);
+                } else if (testCase.type === 'TestStep') {
                     $scope.setActiveTab(0);
                     CB.testStep = testCase;
                     $scope.testStep = testCase;
@@ -935,7 +917,7 @@ angular.module('cb')
                 if (mvResult != null) {
                     TestExecutionService.setExecutionStatus($scope.testStep, 'COMPLETE');
                 }
-                $rootScope.$broadcast('cb:validationResultLoaded', mvResult);
+                $rootScope.$broadcast('cb:validationResultLoaded', mvResult,$scope.testStep.name);
             }
         };
 

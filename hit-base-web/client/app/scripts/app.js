@@ -18,6 +18,7 @@ var app = angular.module('hit-tool', [
     'LocalStorageModule',
     'ngResource',
     'ngSanitize',
+    'ngIdle',
     'ngAnimate',
     'ui.bootstrap',
     'angularBootstrapNavTree',
@@ -50,7 +51,7 @@ var app = angular.module('hit-tool', [
 //    'ngMockE2E'
 ]);
 
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
 
 
     localStorageServiceProvider
@@ -93,6 +94,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
 
     $httpProvider.interceptors.push('ErrorInterceptor');
 
+
+    IdleProvider.idle(30*60);
+    IdleProvider.timeout(30);
+    KeepaliveProvider.interval(10);
+
     httpHeaders = $httpProvider.defaults.headers;
 
 
@@ -124,7 +130,7 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
 
 });
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, UserService, User) {
+app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle) {
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
@@ -133,21 +139,15 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         $rootScope.appInfo = appInfo;
         httpHeaders.common['csrfToken'] = appInfo.csrfToken;
         httpHeaders.common['dTime'] = appInfo.date;
+        var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
+        if(previousToken != null && previousToken != appInfo.date){
+            $rootScope.openVersionChangeDlg();
+        }
+        StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.date);
     }, function (error) {
         $rootScope.appInfo = {};
         $rootScope.openErrorDlg();
     });
-    if(StorageService.get(StorageService.USER_KEY) == null) {
-        UserService.create().then(function (info) {
-            User.info = info;
-            StorageService.set(StorageService.USER_KEY,info);
-        }, function (error) {
-            User.info = null;
-            StorageService.remove(StorageService.USER_KEY);
-         });
-    }else{
-        User.info = angular.fromJson(StorageService.get(StorageService.USER_KEY));
-    };
 
     $rootScope.$watch(function () {
         return $location.path();
@@ -343,6 +343,8 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
         });
     };
 
+
+
     $rootScope.openVersionChangeDlg = function () {
         $rootScope.blankPage();
         var vcModalInstance = $modal.open({
@@ -362,6 +364,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
     };
 
     $rootScope.clearSession = function () {
+        User.delete();
         StorageService.clearAll();
         $templateCache.removeAll();
     };
@@ -438,6 +441,64 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 
     $rootScope.pettyPrintType = function (type) {
         return type === 'TestStep' ? 'Test Step' : type === 'TestCase' ? 'Test Case' : type;
+    };
+
+    $rootScope.started = false;
+
+    Idle.watch();
+
+    $rootScope.$on('IdleStart', function() {
+        closeModals();
+        $rootScope.warning = $modal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $rootScope.$on('IdleEnd', function() {
+        closeModals();
+    });
+
+    $rootScope.$on('IdleTimeout', function() {
+        closeModals();
+        $rootScope.timedout = $modal.open({
+            templateUrl: 'timedout-dialog.html',
+            windowClass: 'modal-danger',
+            backdrop:true,
+            keyboard: 'false',
+            controller: 'IdleTimeoutCrl'
+        });
+        $rootScope.timedout.result.then(function () {
+            $rootScope.clearSession();
+            $rootScope.index();
+        }, function () {
+            $rootScope.clearSession();
+            $rootScope.index();
+        });
+    });
+
+    function closeModals() {
+        if ($rootScope.warning) {
+            $rootScope.warning.close();
+            $rootScope.warning = null;
+        }
+
+        if ($rootScope.timedout) {
+            $rootScope.timedout.close();
+            $rootScope.timedout = null;
+        }
+    };
+
+    $rootScope.start = function() {
+        closeModals();
+        Idle.watch();
+        $rootScope.started = true;
+    };
+
+    $rootScope.stop = function() {
+        closeModals();
+        Idle.unwatch();
+        $rootScope.started = false;
     };
 
 
@@ -578,7 +639,13 @@ app.controller('NotFoundCtrl', [ '$scope', '$modalInstance', 'StorageService', '
 ]);
 
 
-
+app.controller('IdleTimeoutCrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
+    function ($scope, $modalInstance, StorageService, $window) {
+        $scope.close = function () {
+            $modalInstance.close();
+        };
+    }
+]);
 
 
 

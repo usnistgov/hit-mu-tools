@@ -87,7 +87,7 @@
                         <!--</a>-->
 
                         <div ng-show="testStep != null && row.id === testStep.id && testStep.testingType === 'SUT_INITIATOR'">
-                            <div class="" style="margin-bottom: 20px">
+                            <div class="" style="margin-bottom: 20px" ng-show="transport.config.sutInitiator != null">
                                 <button title="Config Info" type="button" ng-click="openConfig()" class="btn btn-xs btn-primary"><i class="fa fa-cog"></i>
                                 </button>
                                 <button type="button" title="Start Listening" ng-click="startListener()" ng-disabled="sutInitiatorForm.$invalid || connecting" title="Start listening" class="btn btn-xs btn-success">
@@ -98,6 +98,10 @@
                                 <!--<span ng-show="connecting">-->
                                 <!--<i class="fa fa-spinner"></i> Remaining time (s): {{counter}} / {{counterMax}}-->
                                 <!--</span>-->
+                            </div>
+
+                            <div class="" ng-show="transport.config.sutInitiator == null">
+                                No configuration Information Available
                             </div>
                             <!--<div class="row" collapse="configCollapsed">-->
                             <!--<div class="col-md-5">-->
@@ -113,7 +117,7 @@
                         </div>
 
                         <div ng-show="testStep != null && row.id === testStep.id && testStep.testingType === 'TA_INITIATOR'">
-                            <div class="" style="margin-bottom: 20px">
+                            <div class="" style="margin-bottom: 20px" ng-show="transport.config.taInitiator != null">
                                 <button title="Config Info" type="button" ng-click="openConfig()" class="btn btn-xs btn-primary"><i class="fa fa-cog"></i>
                                 </button>
                                 <button type="button" ng-click="send()" ng-disabled="!hasUserContent() || connecting" title="Send" class="btn btn-xs btn-success">
@@ -122,6 +126,9 @@
                                 <!--<span ng-show="connecting">-->
                                 <!--<i class="fa fa-spinner"></i> Remaining time (s): {{counter}} / {{counterMax}}-->
                                 <!--</span>-->
+                            </div>
+                            <div class="" ng-show="transport.config.taInitiator == null">
+                                No configuration Information Available
                             </div>
                             <!--<div class="row" collapse="configCollapsed">-->
                             <!--<div class="col-md-5">-->

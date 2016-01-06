@@ -79,7 +79,7 @@ angular.module('hit-tool-directives').directive('mypopover', function ($compile,
 });
 
 
-angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache) {
+angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache,User) {
     return {
         restrict: 'AE',
         //performance will be improved in compile
@@ -88,6 +88,7 @@ angular.module('hit-tool-directives').directive('windowExit', function($window, 
                 chkevent = $window.attachEvent ? 'onbeforeunload' : 'beforeunload'; /// make IE7, IE8 compatable
 
             myEvent(chkevent, function (e) { // For >=IE7, Chrome, Firefox
+//                User.delete();
                 $templateCache.removeAll();
             });
         }
