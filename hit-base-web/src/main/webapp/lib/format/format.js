@@ -1516,6 +1516,7 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
 
     Transport.prototype.deleteTransaction = function (testStepId) {
         var delay = $q.defer();
+        var self = this;
         if(self.transactions && self.transactions != null && self.transactions[testStepId]) {
             var transaction = self.transactions[testStepId];
             $http.post('api/transport/transaction/'+ transaction.id + '/delete').then(
