@@ -262,7 +262,13 @@ angular.module('cb')
                             return $scope.taInititiatorForm;
                         },
                         config: function () {
-                            return CB.transport.config.taInitiator;
+                            var config = StorageService.get(StorageService.USER_CONFIG_KEY);
+                            if(config != null && config != ""){
+                                config = angular.fromJson(config);
+                            }else{
+                                config = CB.transport.config;
+                            }
+                            return  config.taInitiator;
                         },
                         domain: function () {
                             return CB.transport.domain;
@@ -272,11 +278,9 @@ angular.module('cb')
                         }
                     }
                 });
-                modalInstance.result.then(function (config) {
-                    CB.transport.config.taInitiator = config;
-                    var savedConfig = angular.fromJson(StorageService.get(StorageService.USER_CONFIG_KEY));
-                    savedConfig.taInitiator = config;
-                    StorageService.set(StorageService.USER_CONFIG_KEY, angular.toJson(savedConfig));
+                modalInstance.result.then(function (taInitiator) {
+                    CB.transport.config.taInitiator = taInitiator;
+                    StorageService.set(StorageService.USER_CONFIG_KEY, angular.toJson(CB.transport.config));
                 }, function () {
                 });
             }
@@ -447,7 +451,8 @@ angular.module('cb')
             $scope.counter = $scope.counterMax;
             TestExecutionClock.stop();
             $scope.logger.logInbound(14);
-            $scope.transport.stopListener($scope.testStep.id).then(function (response) {
+            var sutInitiator = CB.transport.config.sutInitiator;
+            $scope.transport.stopListener($scope.testStep.id,sutInitiator).then(function (response) {
                 $scope.logger.logInbound(13);
                 $scope.transport.logs[$scope.testStep.id] = $scope.logger.content;
             }, function (error) {
@@ -467,14 +472,15 @@ angular.module('cb')
                 $scope.warning = null;
                 var received = '';
                 var sent = '';
+                var sutInitiator = CB.transport.config.sutInitiator;
                 $scope.logger.logInbound(0);
-                $scope.transport.startListener($scope.testStep.id).then(function (started) {
+                $scope.transport.startListener($scope.testStep.id,rspMessageId,sutInitiator).then(function (started) {
                         if (started) {
                             $scope.logger.logInbound(1);
                             var execute = function () {
                                 ++$scope.counter;
                                 $scope.logger.log($scope.logger.getInbound(2) + $scope.counter + "s");
-                                $scope.transport.searchTransaction($scope.testStep.id, CB.transport.config.sutInitiator, rspMessageId).then(function (transaction) {
+                                $scope.transport.searchTransaction($scope.testStep.id, sutInitiator, rspMessageId).then(function (transaction) {
                                     if (transaction != null) {
                                         var incoming = transaction.incoming;
                                         var outbound = transaction.outgoing;
