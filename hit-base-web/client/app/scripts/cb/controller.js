@@ -790,6 +790,7 @@ angular.module('cb')
                 CB.testCase = testCase;
                 CB.transport.setDomain(testCase.domain);
                 CB.transport.logs = {};
+                CB.transport.transactions = [];
                 $scope.testCase = testCase;
                 TestExecutionClock.stop();
                 $scope.testCase = testCase;
@@ -908,7 +909,9 @@ angular.module('cb')
             if (clear === undefined || clear === true) {
                 StorageService.remove(StorageService.CB_EDITOR_CONTENT_KEY);
             }
-            $rootScope.$broadcast('cb:testCaseLoaded', testCase, tab);
+            $timeout(function () {
+                $rootScope.$broadcast('cb:testCaseLoaded', testCase, tab);
+            });
         };
     }]);
 

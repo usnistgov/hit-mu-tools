@@ -1421,7 +1421,6 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
 //    };
 
     Transport.prototype.loadTaInitiatorConfig = function (protocol) {
-        this.transactions = [];
         var delay = $q.defer();
         var self = this;
         self.protocol = protocol;
@@ -1456,7 +1455,6 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
 
 
     Transport.prototype.loadSutInitiatorConfig = function (protocol) {
-        this.transactions = [];
         var delay = $q.defer();
         var self = this;
         self.protocol = protocol;
