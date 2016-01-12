@@ -1600,7 +1600,7 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
         var self = this;
         var delay = $q.defer();
         this.deleteTransaction(testStepId).then(function(result){
-            var data = angular.fromJson({"testStepId": testStepId, "userId": User.info.id, "config": sutInitiatorConfig});
+            var data = angular.fromJson({"testStepId": testStepId});
             $http.post('api/transport/'  + self.domain  + "/" +  self.protocol + '/stopListener',data).then(
                 function (response) {
                     self.running = true;
@@ -1632,7 +1632,7 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
         var self = this;
         var delay = $q.defer();
         this.deleteTransaction(testStepId).then(function(result){
-             var data = angular.fromJson({"testStepId": testStepId, "userId": User.info.id, "responseMessageId":responseMessageId, "config": sutInitiatorConfig});
+             var data = angular.fromJson({"testStepId": testStepId,"responseMessageId":responseMessageId});
             $http.post('api/transport/'  + self.domain  + "/" +  self.protocol + '/startListener', data).then(
                 function (response) {
                     self.running = true;
