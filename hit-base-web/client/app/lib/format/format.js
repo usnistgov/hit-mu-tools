@@ -1427,7 +1427,7 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
         self.protocol = protocol;
         self.config['taInitiator'] = null;
         if(User.info  && User.info != null && User.info.id != null) {
-            $http.post('api/transport/' + self.domain + "/" + self.protocol + '/user/' + User.info.id + '/taInitiator').then(
+            $http.post('api/transport/' + self.domain + "/" + self.protocol + '/taInitiator').then(
                 function (response) {
                     self.config['taInitiator'] = angular.fromJson(response.data);
                     StorageService.set(StorageService.USER_CONFIG_KEY, angular.toJson(self.config));
@@ -1462,7 +1462,7 @@ angular.module('format').factory('Transport', function ($q, $http,StorageService
         self.protocol = protocol;
         self.config['sutInitiator'] = null;
         if(User.info  && User.info != null && User.info.id != null) {
-            $http.post('api/transport/' + self.domain + "/" + self.protocol + '/user/' + User.info.id + '/sutInitiator').then(
+            $http.post('api/transport/' + self.domain + "/" + self.protocol + '/sutInitiator').then(
                 function (response) {
                     self.config['sutInitiator'] = angular.fromJson(response.data);
                     StorageService.set(StorageService.USER_CONFIG_KEY, angular.toJson(self.config));
