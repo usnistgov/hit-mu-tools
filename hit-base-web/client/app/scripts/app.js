@@ -65,9 +65,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/home', {
             templateUrl: 'views/home.html'
         })
-        .when('/testing', {
-            templateUrl: '../views/templates.html'
-        })
         .when('/doc', {
             templateUrl: 'views/doc.html'
         })
@@ -129,6 +126,7 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
 });
 
 app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle) {
+
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;

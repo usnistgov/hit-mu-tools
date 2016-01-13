@@ -9,7 +9,7 @@
         top.location = self.location;
     }
 </script>
-<div ng-controller="CBExecutionCtrl" ng-init="init()">
+<div ng-controller="CBExecutionCtrl" ng-init="initExecution()">
     <div class="" style="margin:10px">
         <div ng-show="!loading">
 
@@ -30,14 +30,6 @@
                             <li ng-show="testCase['nav'].testStep != null">{{testCase['nav'].testStep}}</li>
                         </ol>
                     </div>
-                    <!--<div class="col-md-2" ng-show="testCase.type === 'TestCase'">-->
-                    <!--<span class="pull-right">-->
-                    <!--<button type="button" ng-click="resetTestCase()"-->
-                    <!--title="Restart" class="btn btn-sm btn-danger">-->
-                    <!--<i class="fa fa-refresh"></i> Restart-->
-                    <!--</button>-->
-                    <!--</span>-->
-                    <!--</div>-->
                 </div>
 
                 <div class="row">
