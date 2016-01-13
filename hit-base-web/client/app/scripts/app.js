@@ -143,11 +143,11 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
             $rootScope.appInfo = appInfo;
             httpHeaders.common['csrfToken'] = appInfo.csrfToken;
             httpHeaders.common['dTime'] = appInfo.date;
-//        var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
-//        if(previousToken !== null && previousToken !== appInfo.date){
-//            $rootScope.openVersionChangeDlg();
-//        }
-//        StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.date);
+        var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
+        if(previousToken !== null && previousToken !== appInfo.date){
+            $rootScope.openVersionChangeDlg();
+        }
+        StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.date);
         }, function (error) {
             $rootScope.appInfo = {};
             $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");

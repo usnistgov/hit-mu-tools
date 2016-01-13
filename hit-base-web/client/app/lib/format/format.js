@@ -951,17 +951,17 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
     UserClass.prototype.load = function () {
         var delay = $q.defer();
         var user = this;
-//        $http.post('api/user/current').then(
-//            function (response) {
-//                var data =  angular.fromJson(response.data);
-//                user.setInfo(data);
-//                delay.resolve(data);
-//            },
-//            function (response) {
-//                user.setInfo(null);
-//                delay.reject(response.data);
-//            }
-//        );
+        $http.post('api/user/current').then(
+            function (response) {
+                var data =  angular.fromJson(response.data);
+                user.setInfo(data);
+                delay.resolve(data);
+            },
+            function (response) {
+                user.setInfo(null);
+                delay.reject(response.data);
+            }
+        );
 
 
 
