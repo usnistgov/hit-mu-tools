@@ -403,7 +403,6 @@ angular.module('format').factory('EditorClass', function ($http, $q) {
 
 
 
-
 angular.module('format').factory('ReportServiceClass', function ($http, $q, $filter) {
     this.format = null;
     var ReportServiceClass = function (format) {
@@ -414,31 +413,34 @@ angular.module('format').factory('ReportServiceClass', function ($http, $q, $fil
         this.format = format;
     };
 
-    ReportServiceClass.prototype.download = function (url, json,title) {
-        var form = document.createElement("form");
-        form.action = url;
-        form.method = "POST";
-        form.target = "_target";
-        var input = document.createElement("textarea");
-        input.name = "json";
-        input.value = json;
-        form.appendChild(input);
-        input = document.createElement("input");
-        input.name = "title";
-        input.value = title;
-        form.appendChild(input);
-
-        form.style.display = 'none';
-        document.body.appendChild(form);
-        form.submit();
+    ReportServiceClass.prototype.download = function (resultId, format) {
+        if (this.format && this.format != null) {
+            var form = document.createElement("form");
+            form.action = "api/" + this.format + "/report/" + resultId + "/download";
+            form.method = "POST";
+            form.target = "_target";
+            var input = document.createElement("input");
+            input.name = "format";
+            input.value = format;
+            form.appendChild(input);
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            form.submit();
+        }
+        return;
     };
 
-
-    ReportServiceClass.prototype.generate = function (url, json) {
+    /**
+     * TODO: remove
+     * @param url
+     * @param json
+     * @returns {*}
+     */
+    ReportServiceClass.prototype.generate = function (format, content) {
         var delay = $q.defer();
         $http({
-            url: url,
-            data: $.param({'json': json}),
+            url: "api/" + this.format + "/report/generate",
+            data: $.param({'content': json}),
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
             method: 'POST',
             timeout: 60000
@@ -451,27 +453,9 @@ angular.module('format').factory('ReportServiceClass', function ($http, $q, $fil
         return delay.promise;
     };
 
-    ReportServiceClass.prototype.generateByFormat = function (json, format) {
-        if (this.format && this.format != null) {
-            return this.generate("api/" + this.format + "/report/generateAs/" + format, json);
-        } else {
-            var delay = $q.defer();
-            $timeout(function () {
-                delay.reject("Unsupported format specified");
-            }, 100);
-            return delay.promise;
-        }
-    };
-
-    ReportServiceClass.prototype.downloadAs = function (json, format,title) {
-        if (this.format && this.format != null) {
-            return this.download("api/" + this.format + "/report/downloadAs/" + format, json,title);
-        }
-        return;
-    };
-
     return ReportServiceClass;
 });
+
 
 
 angular.module('format').factory('Tree', function () {
@@ -995,12 +979,24 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
     };
 
 
-//    UserClass.prototype.delete = function () {
-//        if(this.info && this.info != null && this.info.id != null){
-//            $http.post("api/user/" + this.info.id + "/delete");
-//        }
-//        //StorageService.remove(StorageService.USER_KEY);
-//    };
+    UserClass.prototype.delete = function () {
+        var delay = $q.defer();
+        var user = this;
+        $http.post('api/user/delete').then(
+            function (response) {
+                var data =  angular.fromJson(response.data);
+                user.setInfo(null);
+                delay.resolve(true);
+            },
+            function (response) {
+                user.setInfo(null);
+                delay.reject(response.data);
+            }
+        );
+        return delay.promise;
+    };
+
+
 
     return new UserClass();
 });
@@ -1033,9 +1029,9 @@ angular.module('format').factory('Session', function ($q, $http) {
         return delay.promise;
     };
 
-    SessionClass.prototype.destroy = function (data) {
+    SessionClass.prototype.delete = function (data) {
         var delay = $q.defer();
-        $http.post('api/session/destroy').then(
+        $http.post('api/session/delete').then(
             function (response) {
                 delay.resolve(response);
             },
