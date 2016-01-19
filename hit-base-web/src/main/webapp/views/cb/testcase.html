@@ -32,9 +32,7 @@
                                 <!--<tbody></tbody>-->
                                 <!--</table>-->
                                 <div ng-show="testCases != null && testCases.length > 0">
-                                    <testcase-tree tree-control="tree" icon-leaf=""
-                                                   is-selectable="isSelectable(branch)"
-                                                   on-select="selectTestCase(branch)"></testcase-tree>
+                                    <testcase-tree tree-control="tree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch)"></testcase-tree>
                                 </div>
                                 <div ng-show="testCases == null || testCases.length == 0">
                                     No TestCase Available
@@ -61,21 +59,15 @@
                                {{selectedTestCase.type}}: {{selectedTestCase.name}}
                             </span>
                             <span class="pull-right">
-                                <button title="Download Test Package" type="button" class="btn btn-xs btn-primary"
-                                        ng-show="selectedTestCase.testPackage && selectedTestCase.testPackage != null && selectedTestCase.testPackage.pdfPath != null"
-                                        ng-click="downloadArtifact(selectedTestCase.testPackage.pdfPath)">
+                                <button title="Download Test Package" type="button" class="btn btn-xs btn-primary" ng-show="selectedTestCase.testPackage && selectedTestCase.testPackage != null && selectedTestCase.testPackage.pdfPath != null" ng-click="downloadArtifact(selectedTestCase.testPackage.pdfPath)">
                                     <i class="fa fa-download"></i>
                                     Download Test Package
                                 </button>
-                                <button title="Load Selected Test Step" ng-show="(selectedTestCase.type == 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null)" type="button"
-                                        class="btn btn-xs btn-success"
-                                        ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
+                                <button title="Load Selected Test Step" ng-show="(selectedTestCase.type == 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null)" type="button" class="btn btn-xs btn-success" ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
                                     <i class="fa fa-play"></i>Load Test Step
                                 </button>
 
-                                <button title="Load Selected Test Case" ng-show="selectedTestCase.type === 'TestCase'" type="button"
-                                        class="btn btn-xs btn-success"
-                                        ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
+                                <button title="Load Selected Test Case" ng-show="selectedTestCase.type === 'TestCase'" type="button" class="btn btn-xs btn-success" ng-click="loadTestCase(selectedTestCase,'/cb_execution')">
                                     <i class="fa fa-play"></i>Load Test Case
                                 </button>
 
@@ -90,7 +82,7 @@
 
                                     <div class="">
                                         <div class="">
-                                            <div testcase-details type="cb"/>
+                                            <div testcase-details="" type="cb">
                                         </div>
                                     </div>
                                 </div>
@@ -104,4 +96,3 @@
         </div>
     </div>
 </div>
-
