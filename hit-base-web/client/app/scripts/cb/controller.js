@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cb')
-    .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', function ($scope, $window, $rootScope, CB, StorageService, $timeout) {
+    .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout','TestCaseService','TestStepService', function ($scope, $window, $rootScope, CB, StorageService, $timeout,TestCaseService,TestStepService) {
 
         $scope.testCase = null;
 
@@ -12,6 +12,13 @@ angular.module('cb')
             $scope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
                 $scope.testCase = testCase;
             });
+            $scope.$on("$destroy", function () {
+                var previousId = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
+                if (previousId != null)TestCaseService.clearRecords(previousId);
+                previousId = StorageService.get(StorageService.CB_LOADED_TESTSTEP_ID_KEY);
+                if (previousId != null)TestStepService.clearRecords(previousId);
+            });
+
         };
 
         $scope.setSubActive = function (tab) {
@@ -25,7 +32,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User','ReportService', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User,ReportService) {
 
         $scope.loading = false;
         $scope.error = null;
@@ -203,11 +210,12 @@ angular.module('cb')
 
 
         $scope.executeTestStep = function (testStep) {
+            CB.testStep = testStep;
             $scope.warning = null;
             var log = $scope.transport.logs[testStep.id];
             $scope.logger.content = log && log != null ? log : '';
             if (testStep != null) {
-                if (!$scope.isManualStep(testStep)) {
+                if ($scope.testCase.transport === true && !$scope.isManualStep(testStep)) {
                     if ($scope.isSutInitiator(testStep) || $scope.isTaInitiator(testStep)) {
                         if ($scope.isSutInitiator(testStep)) {
                             $scope.transport.loadSutInitiatorConfig(testStep.protocol);
@@ -637,12 +645,17 @@ angular.module('cb')
             }
         };
 
+        $scope.downloadTestCaseReports = function () {
+            if ($scope.testCase != null) {
+                ReportService.downloadTestCaseReports($scope.testCase.id);
+            }
+        };
 
     }]);
 
 
 angular.module('cb')
-    .controller('CBTestCaseCtrl', ['$scope', '$window', '$filter', '$rootScope', 'CB', '$timeout', 'CBTestCaseListLoader', '$sce', 'StorageService', 'TestCaseService', function ($scope, $window, $filter, $rootScope, CB, $timeout, CBTestCaseListLoader, $sce, StorageService, TestCaseService) {
+    .controller('CBTestCaseCtrl', ['$scope', '$window', '$filter', '$rootScope', 'CB', '$timeout', 'CBTestCaseListLoader', '$sce', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $window, $filter, $rootScope, CB, $timeout, CBTestCaseListLoader, $sce, StorageService, TestCaseService,TestStepService) {
         $scope.selectedTestCase = CB.selectedTestCase;
         $scope.testCase = CB.testCase;
         $scope.testCases = [];
@@ -730,6 +743,11 @@ angular.module('cb')
         };
 
         $scope.loadTestCase = function (testCase, tab, clear) {
+            var previousId = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
+            if(previousId != null)TestCaseService.clearRecords(previousId);
+            previousId = StorageService.get(StorageService.CB_LOADED_TESTSTEP_ID_KEY);
+            if(previousId != null)TestStepService.clearRecords(previousId);
+
             var id = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
             var type = StorageService.get(StorageService.CB_LOADED_TESTCASE_TYPE_KEY);
             StorageService.set(StorageService.CB_LOADED_TESTCASE_ID_KEY, testCase.id);
@@ -769,6 +787,24 @@ angular.module('cb')
         $scope.activeTab = 0;
         $scope.tError = null;
         $scope.tLoading = false;
+        $scope.dqaCodes = StorageService.get(StorageService.DQA_OPTIONS_KEY) != null ? angular.fromJson(StorageService.get(StorageService.DQA_OPTIONS_KEY)) : [];
+
+        $scope.showDQAOptions = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'DQAConfig.html',
+                controller: 'DQAConfigCtrl',
+                windowClass: 'dq-modal',
+                animation: true,
+                keyboard: false,
+                backdrop: false
+            });
+            modalInstance.result.then(function (selectedCodes) {
+                $scope.dqaCodes = selectedCodes;
+            }, function () {
+            });
+        };
+
+
         $scope.isTestCase = function () {
             return CB.testCase != null && CB.testCase.type === 'TestCase';
         };
@@ -909,7 +945,7 @@ angular.module('cb')
                 if (mvResult != null) {
                     TestExecutionService.setExecutionStatus($scope.testStep, 'COMPLETE');
                 }
-                $rootScope.$broadcast('cb:validationResultLoaded', mvResult, $scope.testStep.name);
+                $rootScope.$broadcast('cb:validationResultLoaded', mvResult, $scope.testStep.id);
             }
         };
 

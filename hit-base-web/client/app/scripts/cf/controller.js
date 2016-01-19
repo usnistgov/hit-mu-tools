@@ -2,7 +2,7 @@
 
 
 angular.module('cf')
-    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, $timeout, StorageService, TestCaseService) {
+    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, $timeout, StorageService, TestCaseService,TestStepService) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -32,6 +32,8 @@ angular.module('cf')
         $scope.selectTestCase = function (testCase) {
             $scope.loadingTC = true;
             $timeout(function () {
+                var previousId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
+                if (previousId != null)TestStepService.clearRecords(previousId);
                 if (testCase.testContext && testCase.testContext != null) {
                     CF.testCase = testCase;
                     $scope.testCase = CF.testCase;
@@ -84,6 +86,11 @@ angular.module('cf')
             }, function (error) {
                 $scope.error = "Something went wrong, Please refresh your page.";
                 $scope.loading = false;
+            });
+
+            $scope.$on("$destroy", function () {
+                var testStepId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
+                if(testStepId != null) TestStepService.clearRecords(testStepId);
             });
         };
 
@@ -305,7 +312,7 @@ angular.module('cf')
 
         $scope.loadValidationResult = function (mvResult) {
             $timeout(function () {
-                $scope.$broadcast('cf:validationResultLoaded', mvResult,$scope.cf.testCase.name);
+                $scope.$broadcast('cf:validationResultLoaded', mvResult,$scope.cf.testCase.id);
             });
         };
 

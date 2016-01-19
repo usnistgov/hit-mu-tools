@@ -42,7 +42,7 @@ var app = angular.module('hit-tool', [
     'hit-validation-result',
     'hit-vocab-search',
     'hit-report-viewer',
-    'hit-testcase-viewer',
+    'hit-testcase-details',
     'hit-testcase-tree',
     'hit-doc',
     'hit-settings',
@@ -126,6 +126,9 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
+    $rootScope.vcModalInstance = null;
+    $rootScope.sessionExpiredModalInstance = null;
+    $rootScope.errorModalInstance = null;
 
     Session.create().then(function (response) {
         // load current user
@@ -330,73 +333,78 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
 
     $rootScope.openVersionChangeDlg = function () {
         StorageService.clearAll();
-        var vcModalInstance = $modal.open({
-            templateUrl: 'VersionChanged.html',
-            size: 'lg',
-            backdrop: 'static',
-            keyboard: 'false',
-            'controller': 'FailureCtrl',
-            resolve: {
-                error: function () {
-                    return "";
+        if(!$rootScope.vcModalInstance || $rootScope.vcModalInstance === null || !$rootScope.vcModalInstance.opened) {
+            $rootScope.vcModalInstance = $modal.open({
+                templateUrl: 'VersionChanged.html',
+                size: 'lg',
+                backdrop: 'static',
+                keyboard: 'false',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
                 }
-            }
-        });
-        vcModalInstance.result.then(function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        }, function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        });
+            });
+            $rootScope.vcModalInstance.result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
     };
 
     $rootScope.openCriticalErrorDlg = function (errorMessage) {
-        
+
         StorageService.clearAll();
-        var vcModalInstance = $modal.open({
-            templateUrl: 'CriticalError.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'FailureCtrl',
-            resolve: {
-                error: function () {
-                    return errorMessage;
-                }
-            }
-        });
-        vcModalInstance.result.then(function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        }, function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        });
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                     templateUrl: 'CriticalError.html',
+                    size: 'lg',
+                    backdrop: true,
+                    keyboard: 'false',
+                    'controller': 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return errorMessage;
+                        }
+                    }
+                });
+            $rootScope.errorModalInstance .result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
     };
 
     $rootScope.openSessionExpiredDlg = function () {
-        
         StorageService.clearAll();
-        var vcModalInstance = $modal.open({
-            templateUrl: 'timedout-dialog.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'FailureCtrl',
-            resolve: {
-                error: function () {
-                    return "";
+        if(!$rootScope.sessionExpiredModalInstance || $rootScope.sessionExpiredModalInstance === null || !$rootScope.sessionExpiredModalInstance.opened) {
+            $rootScope.sessionExpiredModalInstance = $modal.open({
+                templateUrl: 'timedout-dialog.html',
+                size: 'lg',
+                backdrop: true,
+                keyboard: 'true',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
                 }
-            }
-        });
-        vcModalInstance.result.then(function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        }, function () {
-            $rootScope.clearTemplate();
-            $rootScope.reloadPage();
-        });
+            });
+            $rootScope.sessionExpiredModalInstance.result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
     };
 
     $rootScope.clearTemplate = function () {
@@ -425,46 +433,48 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
     };
 
     $rootScope.openInvalidReqDlg = function () {
-        
-        var irModalInstance = $modal.open({
-            templateUrl: 'InvalidReqCtrl.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'FailureCtrl',
-            resolve: {
-                error: function () {
-                    return "";
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                templateUrl: 'InvalidReqCtrl.html',
+                size: 'lg',
+                backdrop: true,
+                keyboard: 'false',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
                 }
-            }
-        });
-        irModalInstance.result.then(function () {
-            $rootScope.reloadPage();
-        }, function () {
-            $rootScope.reloadPage();
-        });
+            });
+            $rootScope.errorModalInstance.result.then(function () {
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.reloadPage();
+            });
+        }
     };
 
     $rootScope.openNotFoundDlg = function () {
-        
-        var nfModalInstance = $modal.open({
-            templateUrl: 'NotFoundCtrl.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'FailureCtrl',
-            resolve: {
-                error: function () {
-                    return "";
-                }
-            }
-        });
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                     templateUrl: 'NotFoundCtrl.html',
+                    size: 'lg',
+                    backdrop: true,
+                    keyboard: 'false',
+                    'controller': 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return "";
+                        }
+                    }
+                });
 
-        nfModalInstance.result.then(function () {
-            $rootScope.reloadPage();
-        }, function () {
-            $rootScope.reloadPage();
-        });
+            $rootScope.errorModalInstance.result.then(function () {
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.reloadPage();
+            });
+        }
     };
 
 

@@ -548,11 +548,44 @@ angular.module('format').factory('Report', function ($http, $q) {
     return Report;
 });
 
+angular.module('format').factory('TestStepService', function ($filter) {
+    var TestStepService = function () {
 
+    };
+
+    TestStepService.prototype.clearRecords = function (id) {
+        var delay = $q.defer();
+        $http.post('api/teststep/' + id + '/clearRecords').then(
+            function (object) {
+                delay.resolve(angular.fromJson(object.data));
+            },
+            function (response) {
+                delay.reject(response.data);
+            }
+        );
+        return delay.promise;
+    };
+
+    return TestStepService;
+
+});
 
 angular.module('format').factory('TestCaseService', function ($filter) {
     var TestCaseService = function () {
 
+    };
+
+    TestCaseService.prototype.clearRecords = function (id) {
+        var delay = $q.defer();
+        $http.post('api/testcase/' + id + '/clearRecords').then(
+            function (object) {
+                delay.resolve(angular.fromJson(object.data));
+            },
+            function (response) {
+                delay.reject(response.data);
+            }
+        );
+        return delay.promise;
     };
 
     TestCaseService.prototype.findOneById = function (id, testCase) {
@@ -597,30 +630,32 @@ angular.module('format').factory('TestCaseService', function ($filter) {
             node.label = node.name;
         }
 
-        if(!node['nav']) node['nav'] = {};
+        if (!node['nav']) node['nav'] = {};
 
         var that = this;
         if (node.testCases) {
             if (!node["children"]) {
                 node["children"] = node.testCases;
                 angular.forEach(node.children, function (testCase) {
+                    testCase['transport'] = node['transport'];
                     testCase['nav'] = {};
                     testCase['nav']['testStep'] = null;
                     testCase['nav'] = {};
                     testCase['nav']['testCase'] = testCase.name;
                     testCase['nav']['testPlan'] = node.type === 'TestPlan' ? node.name : node['nav'].testPlan;
                     testCase['nav']['testGroup'] = node.type === 'TestCaseGroup' ? node.name : node['nav'].testGroup;
-                    that.buildTree(testCase );
+                    that.buildTree(testCase);
                 });
             } else {
                 angular.forEach(node.testCases, function (testCase) {
+                    testCase['transport'] = node['transport'];
                     node["children"].push(testCase);
                     testCase['nav'] = {};
                     testCase['nav']['testStep'] = null;
                     testCase['nav']['testCase'] = testCase.name;
                     testCase['nav']['testPlan'] = node.type === 'TestPlan' ? node.name : node['nav'].testPlan;
                     testCase['nav']['testGroup'] = node.type === 'TestCaseGroup' ? node.name : node['nav'].testGroup;
-                    that.buildTree(testCase );
+                    that.buildTree(testCase);
                 });
             }
             node["children"] = $filter('orderBy')(node["children"], 'position');
@@ -631,6 +666,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
             if (!node["children"]) {
                 node["children"] = node.testCaseGroups;
                 angular.forEach(node.children, function (testCaseGroup) {
+                    testCaseGroup['transport'] = node['transport'];
                     testCaseGroup['nav'] = {};
                     //node["children"].push(testCaseGroup);
                     testCaseGroup['nav']['testCase'] = null;
@@ -641,6 +677,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                 });
             } else {
                 angular.forEach(node.testCaseGroups, function (testCaseGroup) {
+                    testCaseGroup['transport'] = node['transport'];
                     node["children"].push(testCaseGroup);
                     testCaseGroup['nav'] = {};
                     testCaseGroup['nav']['testCase'] = null;
@@ -664,7 +701,6 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                     testStep['nav']['testStep'] = testStep.name;
                     testStep['nav']['testPlan'] = node['nav'].testPlan;
                     testStep['nav']['testGroup'] = node['nav'].testGroup;
-                    testStep.domain = node.domain;
                     that.buildTree(testStep);
                 });
             } else {
@@ -675,7 +711,6 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                     testStep['nav']['testStep'] = testStep.name;
                     testStep['nav']['testPlan'] = node['nav'].testPlan;
                     testStep['nav']['testGroup'] = node['nav'].testGroup;
-                    testStep.domain = node.domain;
                     that.buildTree(testStep);
                 });
             }
@@ -683,7 +718,6 @@ angular.module('format').factory('TestCaseService', function ($filter) {
             delete node.testSteps;
         }
     };
-
 
     TestCaseService.prototype.buildCFTestCases = function (obj) {
         obj.label = !obj.children ? obj.position + "." + obj.name: obj.name;
@@ -1636,7 +1670,7 @@ angular.module('format').factory('TestExecutionClock', function ($interval, Cloc
 
 
 
-angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValidator, EDIMessageValidator, XMLMessageValidator, HL7V2MessageParser, EDIMessageParser, XMLMessageParser, HL7V2CursorService, HL7V2EditorService, HL7V2TreeService, EDICursorService, EDIEditorService, EDITreeService, XMLCursorService, XMLEditorService, XMLTreeService, DefaultMessageValidator, DefaultMessageParser, DefaultCursorService, DefaultEditorService, DefaultTreeService, HL7V2ReportService, EDIReportService, XMLReportService, DefaultReportService,XMLCursor,EDICursor,HL7V2Cursor,DefaultCursor,  XMLEditor,EDIEditor,HL7V2Editor,DefaultEditor) {
+angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValidator, EDIMessageValidator, XMLMessageValidator, HL7V2MessageParser, EDIMessageParser, XMLMessageParser, HL7V2CursorService, HL7V2EditorService, HL7V2TreeService, EDICursorService, EDIEditorService, EDITreeService, XMLCursorService, XMLEditorService, XMLTreeService, DefaultMessageValidator, DefaultMessageParser, DefaultCursorService, DefaultEditorService, DefaultTreeService,XMLCursor,EDICursor,HL7V2Cursor,DefaultCursor,  XMLEditor,EDIEditor,HL7V2Editor,DefaultEditor) {
     return {
         getMessageValidator: function (format) {
             if (format === 'hl7v2') {
@@ -1707,16 +1741,6 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
                 return  EDITreeService;
             }
             return DefaultTreeService;
-        },
-        getReportService: function (format) {
-            if (format === 'hl7v2') {
-                return  HL7V2ReportService;
-            } else if (format === 'xml') {
-                return  XMLReportService;
-            } else if (format === 'edi') {
-                return  EDIReportService;
-            }
-            return DefaultReportService;
         },
         getCursor: function (format) {
             if (format === 'hl7v2') {
