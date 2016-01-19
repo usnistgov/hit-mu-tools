@@ -570,14 +570,14 @@ angular.module('format').factory('TestStepService', function ($filter) {
 
 });
 
-angular.module('format').factory('TestCaseService', function ($filter) {
-    var TestCaseService = function () {
+angular.module('format').factory('TestStepService', function ($filter,$q,$http) {
+    var TestStepService = function () {
 
     };
 
-    TestCaseService.prototype.clearRecords = function (id) {
+    TestStepService.clearRecords = function (id) {
         var delay = $q.defer();
-        $http.post('api/testcase/' + id + '/clearRecords').then(
+        $http.post('api/teststeps/' + id + '/clearRecords').then(
             function (object) {
                 delay.resolve(angular.fromJson(object.data));
             },
@@ -587,6 +587,28 @@ angular.module('format').factory('TestCaseService', function ($filter) {
         );
         return delay.promise;
     };
+    return TestStepService;
+
+});
+
+angular.module('format').factory('TestCaseService', function ($filter,$q,$http) {
+    var TestCaseService = function () {
+
+    };
+
+    TestCaseService.clearRecords = function (id) {
+        var delay = $q.defer();
+        $http.post('api/testcases/' + id + '/clearRecords').then(
+            function (object) {
+                delay.resolve(angular.fromJson(object.data));
+            },
+            function (response) {
+                delay.reject(response.data);
+            }
+        );
+        return delay.promise;
+    };
+
 
     TestCaseService.prototype.findOneById = function (id, testCase) {
         if (testCase) {
@@ -719,13 +741,14 @@ angular.module('format').factory('TestCaseService', function ($filter) {
         }
     };
 
+
     TestCaseService.prototype.buildCFTestCases = function (obj) {
-        obj.label = !obj.children ? obj.position + "." + obj.name: obj.name;
+        obj.label = !obj.children ? obj.position + "." + obj.name : obj.name;
         obj['nav'] = {};
         obj['nav']['testStep'] = obj.name;
         obj['nav']['testCase'] = null;
-        obj['nav']['testPlan'] =null;
-        obj['nav']['testGroup'] =null;
+        obj['nav']['testPlan'] = null;
+        obj['nav']['testGroup'] = null;
 
         if (obj.children) {
             var that = this;
@@ -735,12 +758,11 @@ angular.module('format').factory('TestCaseService', function ($filter) {
                 child['nav']['testStep'] = child.name;
                 child['nav']['testCase'] = obj.name;
                 child['nav']['testPlan'] = obj['nav'].testPlan;
-                child['nav']['testGroup'] =null;
+                child['nav']['testGroup'] = null;
                 that.buildCFTestCases(child);
             });
         }
     };
-
 
 
     TestCaseService.prototype.findNode = function (tree, node, id, type) {
@@ -750,7 +772,7 @@ angular.module('format').factory('TestCaseService', function ($filter) {
         var children = tree.get_children(node);
         if (children && children.length > 0) {
             for (var i = 0; i < children.length; i++) {
-                var found = this.findNode(tree, children[i],  id, type);
+                var found = this.findNode(tree, children[i], id, type);
                 if (found != null) {
                     return found;
                 }

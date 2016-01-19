@@ -10,11 +10,14 @@
 <div class="panel panel-info">
     <div class="panel-heading">
         <div>Test Result  <span class="pull-right">
-                           <button type="button" ng-click="downloadTestCaseReports()" ng-disabled="testCase.executionStatus !== 'COMPLETE'" title="Download All Results" class="btn btn-xs btn-primary">
+                           <button type="button" ng-click="downloadTestCaseReports()"
+                                   ng-disabled="testCase.executionStatus !== 'COMPLETE'"
+                                   title="Download All Results" class="btn btn-xs btn-primary">
                                <i class="fa fa-download"></i> Download Validation Reports (.zip)
                            </button>
 
-             <button type="button" ng-click="resetTestCase()" title="Reset the TestCase" class="btn btn-xs btn-danger">
+             <button type="button" ng-click="resetTestCase()"
+                     title="Reset the TestCase" class="btn btn-xs btn-danger">
                  <i class="fa fa-times"></i> Reset
              </button>
                         </span>
@@ -31,10 +34,12 @@
                 <td>
                 <span ng-show="testCase.executionStatus === 'COMPLETE'">
                     <span ng-show="isTestCaseSuccessful()">
-                         <i title="Complete" class="glyphicon glyphicon-ok green"></i> Passed
+                         <i title="Complete"
+                            class="glyphicon glyphicon-ok green"></i> Passed
                     </span>
                     <span ng-show="!isTestCaseSuccessful()">
-                             <i title="Message is Invalid" class="glyphicon glyphicon-remove red"></i>Failed
+                             <i title="Message is Invalid"
+                                class="glyphicon glyphicon-remove red"></i>Failed
                     </span>
                 </span>
                 <span ng-show="testCase.executionStatus !== 'COMPLETE'">
