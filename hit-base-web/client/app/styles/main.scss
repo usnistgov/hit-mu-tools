@@ -1957,3 +1957,29 @@ ul.base-menu, ul.base-menu > li {
   width: 90%;
   height: 90%;
 }
+
+.initiator-config-modal .modal-dialog {
+  width: 50%;
+  height: 50%;
+}
+
+.info-dlg {
+  font-size: 20px;
+  line-height: 1.4;
+  color: #000000;
+  background: #efefef;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  margin: 0 auto;
+}
+
+
+.error-dlg {
+  font-size: 20px;
+  line-height: 1.4;
+  color: #737373;
+  background: #f2aaaa;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  margin: 0 auto;
+}
