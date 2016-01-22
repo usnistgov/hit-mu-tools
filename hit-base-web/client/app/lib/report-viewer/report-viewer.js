@@ -81,6 +81,7 @@
         };
 
         ReportService.downloadTestCaseReports = function (testCaseId) {
+            console.log("calling downloadTestCaseReports");
             var form = document.createElement("form");
             form.action = "api/report/testcase/" + testCaseId + "/download";
             form.method = "POST";

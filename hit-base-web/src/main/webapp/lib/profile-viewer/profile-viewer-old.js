@@ -36,7 +36,6 @@
             $scope.predWidth = null;
             $scope.tableWidth = null;
             $scope.parentsMap = {};
-            $scope.componentsParentMap = {};
             $scope.options = {
                 concise: true,
                 relevance: true,
@@ -72,13 +71,13 @@
                     }
             };
 
-            $scope.isRelevant = function (node) {
+            $scope.isRelevant = function (node, predicate) {
                 if (node === undefined || !$scope.options.relevance)
                     return true;
 
                 if (node.hide === false) {
-                    if (node.predicate && node.predicate != null) {
-                        return node.predicate.trueUsage === "R" || node.predicate.trueUsage === "RE" || node.predicate.falseUsage === "R" || node.predicate.falseUsage === "RE";
+                    if (predicate && predicate != null) {
+                        return predicate.trueUsage === "R" || predicate.trueUsage === "RE" || predicate.falseUsage === "R" || predicate.falseUsage === "RE";
                     }
                     return node.usage == null || !node.usage || node.usage === "R" || node.usage === "RE";
                 } else {
@@ -97,19 +96,19 @@
 //                return true;
             };
 
-//            $scope.getNodePredicate = function (node, predicates) {
-//                var predicate = $scope.filterConstraints(node, predicates);
-//                if (predicate != null) {
-//                    if (predicate.constructor === Array) {
-//                        if (predicate.length > 0) {
-//                            predicate = predicate[0];
-//                        } else {
-//                            predicate = null;
-//                        }
-//                    }
-//                }
-//                return predicate;
-//            };
+            $scope.getNodePredicate = function (node, predicates) {
+                var predicate = $scope.filterConstraints(node, predicates);
+                if (predicate != null) {
+                    if (predicate.constructor === Array) {
+                        if (predicate.length > 0) {
+                            predicate = predicate[0];
+                        } else {
+                            predicate = null;
+                        }
+                    }
+                }
+                return predicate;
+            };
 
             $scope.collapseAll = function (collapse) {
                 $scope.options.collapse = collapse;
@@ -150,8 +149,8 @@
             $scope.isSegmentVisible = function (segment) {
                 if (segment.referencers) {
                     for (var i = 0; i < segment.referencers.length; i++) {
-                        var segRef = segment.referencers[i];
-                        if (!$scope.visible(segRef)) {
+                        var referencer = segment.referencers[i];
+                        if (!$scope.visible(referencer, referencer.predicates)) {
                             return false;
                         }
                     }
@@ -174,6 +173,7 @@
 
             $scope.processElement = function (element, parent) {
                 try {
+                    $scope.processConstraints(element, parent);
                     if (element.type === "GROUP") {
                         $scope.processGroup(element, parent);
                     } else if (element.type === "SEGMENT_REF") {
@@ -209,27 +209,24 @@
                 }
             };
 
-            $scope.processDatatype = function (datatype, fieldOrComponent) {
-                $scope.processConstraints(datatype, fieldOrComponent);
+            $scope.processDatatype = function (datatype, parent) {
                 angular.forEach(datatype.children, function (component) {
-                    $scope.processComponent(component, datatype, fieldOrComponent);
+                    $scope.processComponent(component, datatype);
                 });
                 datatype.children = $filter('orderBy')(datatype.children, 'position');
             };
 
             $scope.processSegRef = function (segRef, parent) {
-                $scope.processConstraints(segRef, parent);
                 segRef.position = parseInt(segRef.position);
                 if (parent) {
                     $scope.parentsMap[segRef.id] = parent;
                 }
-                var segment = $scope.model.segments[segRef.ref];
-                $scope.processSegment(segment, segRef);
+                var ref = $scope.model.segments[segRef.ref];
+                $scope.processSegment(ref, segRef);
             };
 
 
             $scope.processGroup = function (group, parent) {
-                $scope.processConstraints(group, parent);
                 group.position = parseInt(group.position);
                 $scope.parentsMap[group.id] = parent;
                 if (group.children) {
@@ -242,7 +239,6 @@
 
 
             $scope.processSegment = function (segment, parent) {
-                $scope.processConstraints(segment, parent);
                 if (!segment.referencers)
                     segment.referencers = [];
                 if (segment.referencers.indexOf(parent) === -1) {
@@ -260,7 +256,6 @@
 
 
             $scope.processField = function (field, parent) {
-                $scope.processConstraints(field, parent);
                 field.position = parseInt(field.position);
                 $scope.parentsMap[field.id] = parent;
                 field["path"] = parent.path + "." + field.position;
@@ -284,26 +279,11 @@
             };
 
 
-            $scope.processComponent = function (component, datatype, fieldOrComponent) {
-                $scope.processConstraints(component, parent);
+            $scope.processComponent = function (component, parent) {
                 component.position = parseInt(component.position);
-                $scope.parentsMap[component.id] = datatype;
+                $scope.parentsMap[component.id] = parent;
+//                component["path"] = parent.path + "." + component.position;
                 $scope.processDatatype($scope.model.datatypes[component.datatype], component);
-            };
-
-
-            $scope.initAll = function () {
-                $scope.nodeData = [];
-                $scope.predicates = [];
-                $scope.confStatements = [];
-                $scope.predicates = [];
-                $scope.segments = [];
-                $scope.datatypes = [];
-                $scope.parentsMap = [];
-                $scope.componentsParentMap = [];
-                $rootScope.pvNodesMap = {};
-                $scope.tmpConfStatements = [].concat($scope.confStatements);
-
             };
 
 
@@ -315,7 +295,14 @@
                     $scope.profile = profile;
                     $scope.model = null;
                     $scope.profileService.getJson($scope.profile.id).then(function (jsonObject) {
-                        $scope.initAll();
+                        $scope.nodeData = [];
+                        $scope.predicates = [];
+                        $scope.confStatements = [];
+                        $scope.predicates = [];
+                        $scope.segments = [];
+                        $scope.datatypes = [];
+                        $scope.parentsMap = [];
+                        $rootScope.pvNodesMap = {};
                         $scope.model = angular.fromJson(jsonObject);
                         angular.forEach($scope.model.message.children, function (segmentRefOrGroup) {
                             $scope.processElement(segmentRefOrGroup);
@@ -329,13 +316,30 @@
                     }, function (error) {
                         $scope.error = "Sorry, Cannot load the profile.";
                         $scope.loading = false;
-                        $scope.initAll();
+                        $scope.nodeData = [];
+                        $scope.predicates = [];
+                        $scope.confStatements = [];
+                        $scope.predicates = [];
+                        $scope.segments = [];
+                        $scope.datatypes = [];
+                        $scope.parentsMap = [];
+                        $scope.confStatements = [];
+                        $scope.tmpConfStatements = [].concat($scope.confStatements);
                         $scope.refresh();
                     });
                 } else {
                     $scope.loading = false;
-                    $scope.initAll();
+                    $scope.nodeData = [];
+                    $scope.predicates = [];
+                    $scope.confStatements = [];
+                    $scope.predicates = [];
+                    $scope.segments = [];
+                    $scope.datatypes = [];
+                    $scope.parentsMap = [];
                     $scope.refresh();
+                    $scope.confStatements = [];
+                    $scope.tmpConfStatements = [].concat($scope.confStatements);
+
                 }
             });
 
@@ -354,96 +358,50 @@
 
 
             $scope.getNodes = function (parent) {
-                var children = [];
-                if (!parent || parent == null) {
-                    if ($scope.nodeData.type === 'SEGMENT' || $scope.nodeData.type === 'MESSAGE') {
-                        children = $scope.nodeData.children;
-                        if ($scope.nodeData.type === 'SEGMENT') {
-                            angular.forEach(children, function (field) {
-                                field.conformanceStatements = $scope.getSegmentLevelConfStatements(field);
-                                field.predicates = $scope.getSegmentLevelPredicates(field);
-                            });
-                        } else if ($scope.nodeData.type === 'MESSAGE') {
-                            angular.forEach(children, function (element) {
-                                element.conformanceStatements = $scope.getMessageLevelConfStatements(element);
-                                element.predicates = $scope.getMessageLevelConfStatements(element);
-                            });
-                        }
-                    } else if ($scope.nodeData.type === 'DATATYPE') {
-                        children = $scope.datatypes;
-                    }
-                } else {
-                    children = $scope.children(parent);
-                    if (parent.type === 'FIELD') {
-                        children = angular.copy(children);
-                        angular.forEach(children, function (child) {
-                            child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'COMPONENT';
-                            child.path = parent.path + "." + child.position;
-                            child.nodeParent = parent;
-                            if ($scope.nodeData.type === 'MESSAGE') {
-                                child.conformanceStatements = $scope.getSegmentLevelConfStatements(child);
-                                child.predicates = $scope.getSegmentLevelPredicates(child);
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getMessageLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getMessageLevelPredicates(child));
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getGroupLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getGroupLevelPredicates(child));
-                            } else {
-                                child.conformanceStatements = $scope.getSegmentLevelConfStatements(child);
-                                child.predicates = $scope.getSegmentLevelPredicates(child);
-                            }
-                        });
-                    } else if (parent.type === 'COMPONENT') {
-                        children = angular.copy(children);
-                        angular.forEach(children, function (child) {
-                            child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'SUBCOMPONENT';
-                            child.path = parent.path + "." + child.position;
-                            child.nodeParent = parent;
-                            if ($scope.nodeData.type === 'DATATYPE') {
-                                child.conformanceStatements = $scope.getDatatypeLevelConfStatements(child);
-                                child.predicates = $scope.getDatatypeLevelPredicates(child);
-                            } else if ($scope.nodeData.type === 'SEGMENT') {
-                                child.conformanceStatements = $scope.getDatatypeLevelConfStatements(child);
-                                child.predicates = $scope.getDatatypeLevelPredicates(child);
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getSegmentLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getSegmentLevelPredicates(child));
-                            } else if ($scope.nodeData.type === 'MESSAGE') {
-                                child.conformanceStatements = $scope.getDatatypeLevelConfStatements(child);
-                                child.predicates = $scope.getDatatypeLevelPredicates(child);
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getSegmentLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getSegmentLevelPredicates(child));
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getMessageLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getMessageLevelPredicates(child));
-                                child.conformanceStatements = child.conformanceStatements.concat($scope.getGroupLevelConfStatements(child));
-                                child.predicates = child.predicates.concat($scope.getGroupLevelPredicates(child));
-                            }
-                        });
-                    } else if (parent.type === 'DATATYPE') {
-                        children = angular.copy(children);
-                        angular.forEach(children, function (child) {
-                            child.type = 'COMPONENT';
-                            child.path = child.position;
-                            child.conformanceStatements = $scope.getDatatypeLevelConfStatements(child);
-                            child.predicates = $scope.getDatatypeLevelPredicates(child);
-                        });
-                    } else if (parent.type === 'SEGMENT_REF' || parent.type === 'GROUP') {
-                        children = angular.copy(children);
-                        angular.forEach(children, function (child) {
-                            child.nodeParent = parent;
-                            child.conformanceStatements = $scope.getMessageLevelConfStatements(child);
-                            child.predicates = $scope.getMessageLevelPredicates(child);
-                            child.conformanceStatements = child.conformanceStatements.concat($scope.getGroupLevelConfStatements(child));
-                            child.predicates =  child.predicates.concat($scope.getGroupLevelPredicates(child));
-                            child.conformanceStatements = child.conformanceStatements.concat($scope.getSegmentLevelConfStatements(child));
-                            child.predicates = child.predicates.concat($scope.getSegmentLevelPredicates(child));
-                        });
-                    }
+                var children = $scope.children(parent);
+                if (parent.type === 'FIELD') {
+                    children = angular.copy(children);
+                    angular.forEach(children, function (child) {
+                        child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'COMPONENT';
+                        child.path = parent.path + "." + child.position;
+                    });
+                } else if (parent.type === 'COMPONENT') {
+                    children = angular.copy(children);
+                    angular.forEach(children, function (child) {
+                        child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'SUBCOMPONENT';
+                        child.path = parent.path + "." + child.position;
+                    });
+                } else if (parent.type === 'DATATYPE') {
+                    children = angular.copy(children);
+                    angular.forEach(children, function (child) {
+                        child.type = 'COMPONENT';
+                        child.path = child.position;
+                    });
                 }
                 return children;
             };
 
             $scope.params = new PvTreetableParams({
                 getNodes: function (parent) {
-                    return $scope.getNodes(parent);
+                    if ($scope.nodeData.type === 'MESSAGE') {
+                        if (!parent || parent == null) {
+                            return $scope.nodeData.children;
+                        } else {
+                            return $scope.getNodes(parent);
+                        }
+                    } else if ($scope.nodeData.type === 'SEGMENT') {
+                        if (!parent || parent == null) {
+                            return $scope.nodeData.children;
+                        } else {
+                            return $scope.getNodes(parent);
+                        }
+                    } else if ($scope.nodeData.type === 'DATATYPE') {
+                        if (parent && parent != null) {
+                            return $scope.getNodes(parent);
+                        } else {
+                            return $scope.datatypes;
+                        }
+                    }
                 },
                 shouldExpand: function (node) {
                     return $scope.nodeData.type === 'MESSAGE' && (node && node !== null && (node.type === 'SEGMENT_REF' || node.type === 'GROUP'));
@@ -504,8 +462,8 @@
                 return false;
             };
 
-            $scope.visible = function (node) {
-                return  node ? $scope.isRelevant(node) && $scope.visible($scope.parentsMap[node.id]) : true;
+            $scope.visible = function (node, predicates) {
+                return  node ? $scope.isRelevant(node, $scope.getNodePredicate(node, predicates)) && $scope.visible($scope.parentsMap[node.id]) : true;
             };
 
             $scope.getNodeContent = function (selectedNode) {
@@ -608,8 +566,8 @@
                 $scope.confStatementsActive = true;
             };
 
-            $scope.getPredicatesAsMultipleLinesString = function (node) {
-                var predicates = node.predicates;
+            $scope.getPredicatesAsMultipleLinesString = function (node, constraints) {
+                var predicates = constraints ? $scope.filterConstraints(node, constraints) : node.predicates;
                 var html = "";
                 if (predicates && predicates != null && predicates.length > 0) {
                     angular.forEach(predicates, function (predicate) {
@@ -619,8 +577,8 @@
                 return html;
             };
 
-            $scope.getPredicatesAsOneLineString = function (node) {
-                var predicates = node.predicates;
+            $scope.getPredicatesAsOneLineString = function (node, constraints) {
+                var predicates = constraints ? $scope.filterConstraints(node, constraints) : node.predicates;
                 var html = "";
                 if (predicates && predicates != null && predicates.length > 0) {
                     angular.forEach(predicates, function (predicate) {
@@ -637,227 +595,23 @@
                 return null;
             };
 
-            $scope.getMessageChildTargetPath = function (element) {
-                if (element == null || element.type === "MESSAGE")
+            $scope.getTargetPath = function (element) {
+                if (element == null || element.type.equals("MESSAGE"))
                     return "";
-                var parent = element.type === 'COMPONENT' ? element.nodeParent : element.parent;
-                var pTarget = $scope.getMessageChildTargetPath(parent);
-                return pTarget === "" ? element.position + "[1]" : pTarget + "."
-                    + element.position + "[1]";
-            };
-
-            $scope.getSegmentChildTargetPath = function (element) {
-                if (element == null || element.type === "SEGMENT")
-                    return "";
-                var parent = element.type === 'COMPONENT' ? element.nodeParent : element.parent;
-                var pTarget = $scope.getSegmentChildTargetPath(parent);
-                return pTarget === "" ? element.position + "[1]" : pTarget + "."
-                    + element.position + "[1]";
-            };
-
-            $scope.getDatatypeChildTargetPath = function (element) {
-                if (element == null || element.type === "DATATYPE")
-                    return "";
-                var parent = element.parent;
-                var pTarget = $scope.getDatatypeChildTargetPath(parent);
-                return pTarget === "" ? element.position + "[1]" : pTarget + "."
-                    + element.position + "[1]";
-            };
-
-            $scope.getGroupChildTargetPath = function (element, group) {
-                if (element == null || (element.type === "GROUP" && element.id === group.id))
-                    return "";
-                var parent = element.parent;
-                var pTarget = $scope.getGroupChildTargetPath(parent);
+                var pTarget = $scope.getTargetPath(element.parent);
                 return pTarget === "" ? element.position + "[1]" : pTarget + "."
                     + element.position + "[1]";
             };
 
 
-            $scope.getGroupLevelConfStatements = function (element) {
-                if (element.type === 'MESSAGE')
-                    return [];
-                var group = $scope.getGroup(element) ; // element direct group
-                var conformanceStatements = $scope.getGroupLevelConfStatementsByGroup(element, group);
-                while ((group = $scope.getGroup(group)) != null) { // go through all the grand parent groups
-                    conformanceStatements.concat($scope.getGroupLevelConfStatementsByGroup(element, group));
-                }
-                return conformanceStatements;
-            };
+            $scope.addMessageConstraints = function (node) {
 
-            $scope.getGroupLevelConfStatementsByGroup = function (element, group) {
-                var conformanceStatements = [];
-                if (group != null) {
-                    if (group.conformanceStatements != null && group.conformanceStatements.length > 0) {
-                        var targetPath = $scope.getGroupChildTargetPath(element, group);
-                        if (targetPath !== "") {
-                            angular.forEach(group.conformanceStatements, function (cs) {
-                                if (cs.constraintTarget === targetPath) {
-                                    conformanceStatements.push(cs);
-                                }
-                            });
-                        }
-                    }
-                }
-                return conformanceStatements;
-            };
 
-            $scope.getGroupLevelPredicates = function (element) {
-                if (element.type === 'MESSAGE')
-                    return [];
-                var group = $scope.getGroup(element) ; // element direct group
-                if(group != null){
-                    var predicates = $scope.getGroupLevelPredicatesByGroup(element, group);
-                    while ((group = $scope.getGroup(group)) != null) { // go through all the grand parent groups
-                        predicates.concat($scope.getGroupLevelPredicatesByGroup(element, group));
-                    }
-                    return predicates;
-                }
-                return [];
-            };
-
-            $scope.getGroupLevelPredicatesByGroup = function (element, group) {
-                var predicates = [];
-                if (group != null) {
-                    if (group.predicates != null && group.predicates.length > 0) {
-                        var targetPath = $scope.getGroupChildTargetPath(element, group);
-                        if (targetPath !== "") {
-                            angular.forEach(group.predicates, function (predicate) {
-                                if (predicate.constraintTarget === targetPath) {
-                                    predicates.push(predicate);
-                                }
-                            });
-                        }
-                    }
-                }
-                return predicates;
             };
 
 
-
-            $scope.getMessageLevelConfStatements = function (element) {
-                var conformanceStatements = [];
-                if ($scope.model.message.conformanceStatements != null && $scope.model.message.conformanceStatements.length > 0) {
-                    var targetPath = $scope.getMessageChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach($scope.model.message.conformanceStatements, function (cs) {
-                            if (cs.constraintTarget === targetPath) {
-                                conformanceStatements.push(cs);
-                            }
-                        });
-                    }
-                }
-                return conformanceStatements;
-            };
-
-            $scope.getMessageLevelPredicates = function (element) {
-                var predicates = [];
-                if ($scope.model.message.predicates != null && $scope.model.message.predicates.length > 0) {
-                    var targetPath = $scope.getMessageChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach($scope.model.message.predicates, function (pred) {
-                            if (p.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
-                    }
-                }
-                return predicates;
-            };
-
-            $scope.getSegment = function (element) {
-                if (element.type === 'COMPONENT') {
-                     return $scope.getSegment(element.nodeParent);
-                } else if (element.type === 'FIELD') { // find the segment
-                   return $scope.parentsMap[element.id];
-                }
-                return null;
-             };
-
-            $scope.getGroup = function (element) {
-                if(element != null) {
-                    if (element.type === 'FIELD') {
-                        return $scope.getGroup(element.nodeParent);
-                    } else if (element.type === 'COMPONENT') {
-                        return $scope.getGroup(element.nodeParent);
-                    } else if (element.type === 'SEGMENT_REF') { // find the segment
-                        return element.parent;
-                    } else if (element.type === 'GROUP') { // find the segment
-                        return element.parent;
-                    }
-                }
-                return null;
-             };
-
-
-            $scope.getSegmentLevelPredicates = function (element) {
-                var segment = $scope.getSegment(element); // segment
-                var predicates = [];
-                if (segment != null && segment.predicates && segment.predicates != null && segment.predicates.length > 0) {
-                    var targetPath = $scope.getSegmentChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach(segment.predicates, function (pred) {
-                            if (pred.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
-                    }
-                }
-                return predicates;
-            };
-
-
-            $scope.getSegmentLevelConfStatements = function (element) {
-                var segment = $scope.getSegment(element); // segment
-                var confStatements = [];
-                if (segment != null && segment.conformanceStatements && segment.conformanceStatements != null && segment.conformanceStatements.length > 0) {
-                    var targetPath = $scope.getSegmentChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach(segment.conformanceStatements, function (confStat) {
-                            if (confStat.constraintTarget === targetPath) {
-                                confStatements.push(confStat);
-                            }
-                        });
-                    }
-                }
-                return confStatements;
-            };
-
-            $scope.getDatatypeLevelPredicates = function (element) {
-                var datatype = $scope.parentsMap[element.id];
-                var predicates = [];
-                if (datatype && datatype != null && datatype.predicates.length > 0) {
-                    var targetPath = $scope.getDatatypeChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach(datatype.predicates, function (pred) {
-                            if (pred.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
-                    }
-                }
-                return predicates;
-            };
-
-            $scope.getDatatypeLevelConfStatements = function (element) {
-                var datatype = $scope.parentsMap[element.id];
-                var confStatements = [];
-                if (datatype && datatype != null && datatype.conformanceStatements.length > 0) {
-                    var targetPath = $scope.getDatatypeChildTargetPath(element);
-                    if (targetPath !== "") {
-                        angular.forEach(datatype.conformanceStatements, function (confStat) {
-                            if (confStat.constraintTarget === targetPath) {
-                                confStatements.push(confStat);
-                            }
-                        });
-                    }
-                }
-                return confStatements;
-            };
-
-
-            $scope.getConfStatementsAsMultipleLinesString = function (node) {
-                var confStatements = node.conformanceStatements;
+            $scope.getConfStatementsAsMultipleLinesString = function (node, constraints) {
+                var confStatements = constraints ? $scope.filterConstraints(node, constraints) : node.conformanceStatements;
                 var html = "";
                 if (confStatements && confStatements != null && confStatements.length > 0) {
                     angular.forEach(confStatements, function (conStatement) {
@@ -868,7 +622,7 @@
             };
 
             $scope.getConfStatementsAsOneLineString = function (node, constraints) {
-                var confStatements = node.conformanceStatements;
+                var confStatements = constraints ? $scope.filterConstraints(node, constraints) : node.conformanceStatements;
                 var html = "";
                 if (confStatements && confStatements != null && confStatements.length > 0) {
                     angular.forEach(confStatements, function (conStatement) {
