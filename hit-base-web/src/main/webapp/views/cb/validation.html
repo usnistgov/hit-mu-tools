@@ -7,7 +7,7 @@
         top.location = self.location;
     }
 </script>
-<div ng-controller="CBValidatorCtrl" ng-init="init()">
+<div ng-controller="CBValidatorCtrl" ng-init="initValidation()">
     <div class="panel panel-info">
         <div class="panel-body">
             <div ng-show="cb.testStep != null">
@@ -118,12 +118,15 @@
                                                 <i class="fa fa-check-square-o"></i>
                                                 Message Validation Result
 
-                                                <a title="View Result Categories" ng-click="openValidationResultInfo()">
-                                                    <i class="point fa fa-info-circle"></i>
-                                                </a>
+                                                <button title="View Result Categories" class="btn btn-xs btn-primary" ng-click="openValidationResultInfo()">
+                                                    <i class="fa fa-info-circle"></i>&nbsp;Help
+                                                </button>
      <span class="pull-right">
 
-
+                                <button title="Remove Duplicates" type="button" class="btn btn-xs btn-warning" ng-click="removeDuplicates()">
+                                    <i class="fa fa-times"></i>
+                                    Remove Duplicates
+                                </button>
 
                                 <button title="View Report" type="button" class="btn btn-xs btn-primary" ng-click="setActiveTab(1)">
                                     <i class="fa fa-eye"></i>

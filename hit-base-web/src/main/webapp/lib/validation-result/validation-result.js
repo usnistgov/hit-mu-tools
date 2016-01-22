@@ -42,7 +42,7 @@
             $scope.validationTabs = new Array();
             $scope.currentType = null;
             $scope.settings = Settings;
-
+            $scope.validationResultOriginal = null;
             $scope.activeTab = 0;
             $scope.validationResult = null;
             $scope.loadingCategory = false;
@@ -102,30 +102,6 @@
              $scope.currentCategory = null;
             $scope.currentType =null;
             $scope.tmpData = [];
-//            $scope.gridOptions = {};
-//            $scope.gridOptions.columnDefs = [
-//                { name:'path',width:40},
-//                { name:'description'},
-//                { name:'column',width:20},
-//                { name:'stackTrace',width:40,cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">StackTrace</a></div>'},
-//                { name:'metaData',width:40, cellTemplate: '<div class="ui-grid-cell-contents"><a ng-show="COL_FIELD != null" class="point" ng-click="grid.appScope.showDetails(COL_FIELD)">MetaData</a></div>'}
-//            ];
-//            $scope.gridOptions.data = 'data';
-//            $scope.gridOptions.enableColumnResizing = true;
-//            $scope.gridOptions.enableGridMenu = true;
-//            $scope.gridOptions.showColumnFooter = true;
-//            $scope.gridOptions.fastWatch = true;
-//
-//            $scope.gridOptions.rowIdentity = function(row) {
-//                return row.id;
-//            };
-//            $scope.gridOptions.getRowIdentity = function(row) {
-//                return row.id;
-//            };
-//
-//            $scope.gridOptions.onRegisterApi = function(gridApi){
-//                $scope.gridApi = gridApi;
-//            };
 
             $scope.showDetails = function (element) {
                 var modalInstance = $modal.open({
@@ -143,12 +119,7 @@
                 });
             };
 
-//            $scope.initValidationData = function (data) {
-//                $scope.loadingCategory = true;
-//                $scope.data = data;
-//                $scope.tmpData = [].concat($scope.data);
-//                $scope.loadingCategory = false;
-//            };
+
 
             $scope.showValidationTable = function (currentCategory, currentType) {
                 $scope.loadingCategory = true;
@@ -161,14 +132,25 @@
                 $scope.loadingCategory = false;
             };
 
+
+            $scope.generateItemHashCode = function (item) {
+               return item.path  + item.category + item['classification'] + item.description;
+            };
+
+
             $scope.select = function (element) {
+                var coordinate = null;
                 if (element != undefined && element.path != null && element.line != -1) {
                     var node = $scope.treeService.selectNodeByPath($scope.tree.root, element.line, element.path);
                     if(node != null) {
                         var endIndex = $scope.treeService.getEndIndex(node, $scope.editor.instance.getValue());
                         node.data.endIndex = endIndex;
-                        var coordinate = angular.copy(node.data);
+                        coordinate = angular.copy(node.data);
                         coordinate.lineNumber = element.line;
+                    }else{
+                       coordinate = $scope.cursorService != null ? $scope.cursorService.createCoordinate(element.line,element.column +1,element.column +1,element.column +1,false): null;
+                    }
+                    if(coordinate != null) {
                         $scope.cursor.init(coordinate, false);
                         if ($scope.editorService != null) {
                             $scope.editorService.select($scope.editor.instance, $scope.cursor);
@@ -177,7 +159,17 @@
                 }
             };
 
-            $scope.$on($scope.type + ':validationResultLoaded', function (event, mvResult) {
+            $scope.$on($scope.type + ':removeDuplicates', function (event) {
+                if( $scope.validationResult  != null && !$scope.validationResult.duplicatesRemoved){
+                    $scope.validationResultOriginal = angular.copy($scope.validationResult);
+                    $scope.validationResult.removeAllDuplicates();
+                }
+                $timeout(function () {
+                    $scope.$emit($scope.type + ':duplicatesRemoved');
+                });
+            });
+
+            $scope.$on($scope.type + ':validationResultLoaded', function (event, mvResult,testStepId) {
 
                 if($scope.format != null) {
                     $scope.editorService = ServiceDelegator.getEditorService($scope.format);
@@ -186,6 +178,7 @@
                 }
                 var report = null;
                 var validationResult = null;
+                var validationResultId = null;
                 if (mvResult !== null) {
                     if (!mvResult.result) {
                         validationResult = new NewValidationResult();
@@ -196,7 +189,7 @@
                     }
                 }
                 $timeout(function () {
-                    $scope.$emit($scope.type + ':reportLoaded', mvResult);
+                    $scope.$emit($scope.type + ':reportLoaded', mvResult,testStepId);
                 });
 
                 $scope.validationResult = validationResult;
@@ -411,6 +404,7 @@
         var NewValidationResult = function (key) {
             ValidationResult.apply(this, arguments);
             this.json = null;
+            this.duplicatesRemoved = false;
         };
 
         var Entry = function () {
@@ -476,6 +470,8 @@
         };
 
 
+
+
         NewValidationResult.prototype.addItem = function (entry) {
             try {
                 entry['id'] = guid();
@@ -507,8 +503,35 @@
             }
         };
 
-        NewValidationResult.prototype.init = function (result) {
+        NewValidationResult.prototype.removeInstanceNumber= function (path) {
+            return path.replace(/\[[^\]]*?\]/g, '');
+        };
+
+
+        NewValidationResult.prototype.removeCategoryDuplicates = function (classificationObj) {
+            var ins = this;
+            for (var i = 0; i < classificationObj.categories.length; i++) {
+                var category = classificationObj.categories[i];
+                var filtered = _.uniq(category.data, function(item){
+                    var path = ins.removeInstanceNumber(item.path);
+                    return item.classification + "/" + item.category + "/"  + path + "/" + item.description;
+                });
+                category.data = filtered;
+            }
+        };
+
+        NewValidationResult.prototype.removeAllDuplicates = function () {
+            this.removeCategoryDuplicates(this.errors);
+            this.removeCategoryDuplicates(this.warnings);
+            this.removeCategoryDuplicates(this.alerts);
+            this.removeCategoryDuplicates(this.affirmatives);
+            this.removeCategoryDuplicates(this.informationals);
+            this.duplicatesRemoved = true;
+        };
+
+        NewValidationResult.prototype.init = function (result, noDuplicates) {
             ValidationResult.prototype.clear.call(this);
+            this.duplicatesRemoved = false;
             if (result) {
                 this.json = angular.fromJson(result);
                 this.loadDetection(this.json.detections['Error']);

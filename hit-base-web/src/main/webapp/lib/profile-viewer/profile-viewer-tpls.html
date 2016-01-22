@@ -16,7 +16,7 @@
             <div class="alert alert-danger" role="alert" ng-bind="error"></div>
         </div>
         <div ng-show="error === null">
-            <div ng-show="profile != null">
+            <div ng-show="profile != null && model != null">
                 <div class="" style="margin-bottom: 10px;">
 
                     <div class="btn-group btn-group-sm" data-toggle="buttons" style="margin-right: 10px;">
@@ -32,7 +32,7 @@
 
                     <div class="btn-group btn-group-sm" data-toggle="buttons" style="margin-right: 10px;">
                         <label class="btn   btn-cf-outline" ng-click="setAllConcise(true)"
-                               ng-class="{'active': options.concise}">constraintId
+                               ng-class="{'active': options.concise}">
                             <input type="radio" ng-model="options.concise" autocomplete="off" checked>Concise View
                         </label>
                         <label class="btn btn-cf-outline" ng-click="setAllConcise(false)"
@@ -184,13 +184,12 @@
         <td class="col-xs-2 col-fixed-450">
             <span class="label label-field label-icon">F</span>
             <span
-                    ng-bind-html="getFieldNodeName(node)"
-                    ></span>
+                     >{{node.path}}: {{node.name}}</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -223,12 +222,12 @@
         </td>
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)"
+            <span ng-repeat="predicate in node.predicates"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
@@ -237,12 +236,12 @@
         </td>
         <td class="col-xs-3 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -253,20 +252,20 @@
 </script>
 
 <script type="text/ng-template" id="MessageComponentViewTree.html">
-    <tr pv-node ng-show="visible(node,parentsMap[node.id].predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-450">
         	<span>
                 <span class="label label-sub-component label-icon" ng-show="node.type === 'SUBCOMPONENT'">S</span>
                 <span class="label label-component label-icon" ng-show="node.type === 'COMPONENT'">C</span>
 
-                <span ng-bind-html="getComponentNodeName(node)"
-                        ></span>
+                <span
+                        >{{node.path}}:{{node.name}}</span>
             </span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -296,12 +295,12 @@
         </td>
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)"
+            <span ng-repeat="predicate in node.predicates"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
@@ -310,12 +309,12 @@
         </td>
         <td class="col-xs-3 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -331,8 +330,7 @@
         	<span>
                  <span class="label label-datatype label-icon">D</span>
                  <span
-                         ng-bind-html="getDatatypeNodeName2(node)"
-                         ></span>
+                          >{{node.id}}</span>
             </span>
         </td>
         <td class="col-xs-1 col-fixed-80 nodata">
@@ -402,8 +400,9 @@
             <span class="label label-segment label-icon">S</span>
             <a class="point"
                     ng-click="showRefSegment(node.ref)"
-                    ng-bind-html="getSegmentRefNodeName(node)"
-                    ></a>
+                     >
+                {{node.position}}.{{model.segments[node.ref].name}}:{{model.segments[node.ref].description}}
+                    </a>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <span ng-bind="node.usage"></span>
@@ -433,7 +432,6 @@
         <td class="col-xs-3 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
                   tooltip-html="getConfStatementsAsMultipleLinesString(node)" tooltip-append-to-body="true"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node)" tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip" ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
             <span ng-repeat="confStatement in node.conformanceStatements" ng-if="!options.concise">
@@ -450,9 +448,7 @@
         <td class="col-xs-2 col-fixed-450">
             <span class="label label-success label-icon">G</span>
                                               <span
-
-                                                      ng-bind-html="getGroupNodeName(node)"
-                                                      ></span>
+                                                       >{{node.position}}.{{node.name}}</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
                  <span ng-bind="node.usage"></span>
@@ -524,18 +520,16 @@
 </script>
 
 <script type="text/ng-template" id="DatatypeComponentReadTree.html">
-    <tr pv-node ng-show="visible(node,parentsMap[node.id].predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-450">
-
             <span class="label label-component label-icon">C</span>
-
-             <span ng-bind-html="getComponentNodeName(node)"
-                     ></span>
+             <span
+                     >{{node.position}}.{{node.name}}</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -565,12 +559,12 @@
 
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)"
+            <span ng-repeat="predicate in node.predicates"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
@@ -579,12 +573,12 @@
         </td>
         <td class="col-xs-4 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -595,21 +589,19 @@
 </script>
 
 <script type="text/ng-template" id="DatatypeSubComponentReadTree.html">
-    <tr pv-node ng-show="visible(node,parentsMap[node.id].predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-450">
                                         <span>
              <span class="label label-sub-component label-icon">S</span>
                                               <span
-
-                                                      ng-bind-html="getComponentNodeName(node)"
-                                                      ></span>
+                                                      >{{node.position}}.{{node.name}}</span>
 
                                         </span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -639,12 +631,12 @@
 
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)"
+            <span ng-repeat="predicate in node.predicates"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
@@ -653,12 +645,12 @@
         </td>
         <td class="col-xs-4 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -695,7 +687,7 @@
     </tr>
 </script>
 <script type="text/ng-template" id="SegmentFieldReadTree.html">
-    <tr pv-node ng-show="visible(node,parentsMap[node.id].predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
 
         <td class="col-xs-2 col-fixed-450">
             <span class="label label-field label-icon">F</span>
@@ -707,7 +699,7 @@
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -732,12 +724,12 @@
         </td>
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)" ng-if="!options.concise">
+            <span ng-repeat="predicate in node.predicates" ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
                 </span>
@@ -745,12 +737,12 @@
         </td>
         <td class="col-xs-3 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -761,20 +753,18 @@
 </script>
 
 <script type="text/ng-template" id="SegmentComponentReadTree.html">
-    <tr pv-node ng-show="visible(node,parentsMap[node.id].predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-450">
             <span class="label label-component label-icon" ng-show="node.type === 'COMPONENT'">C</span>
             <span class="label label-sub-component label-icon" ng-show="node.type === 'SUBCOMPONENT'">S</span>
 
                                    <span
-                                           ng-bind-html="getComponentNodeName(node)"
-
-                                           ></span>
+                                           >{{node.path}}:{{node.name}}</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             <div>
                 <span>{{node.usage}}</span>
-				<span ng-repeat="p in parentsMap[node.id].predicates | filter:{constraintTarget:node.position + '[1]'}:true">
+				<span ng-repeat="p in node.predicates">
 					({{p.trueUsage}}/{{p.falseUsage}})
 				</span>
             </div>
@@ -801,12 +791,12 @@
 
         <td class="col-xs-2 col-predicate" ng-style="predWidth">
             <span class="predicate-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getPredicatesAsMultipleLinesString(node, parentsMap[node.id].predicates)"
+                  tooltip-html="getPredicatesAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getPredicatesAsOneLineString(node,parentsMap[node.id].predicates)" tooltip-trigger
+                  ng-bind-html="getPredicatesAsOneLineString(node)" tooltip-trigger
                   tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="predicate in filterConstraints(node, parentsMap[node.id].predicates)"
+            <span ng-repeat="predicate in node.predicates"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                     {{::predicate.description}}
@@ -815,12 +805,12 @@
         </td>
         <td class="col-xs-3 col-cs" ng-style="csWidth">
             <span class="cs-concise-view concise-view" ng-if="options.concise"
-                  tooltip-html="getConfStatementsAsMultipleLinesString(node,parentsMap[node.id].conformanceStatements)"
+                  tooltip-html="getConfStatementsAsMultipleLinesString(node)"
                   tooltip-append-to-body="true"
                   tooltip-class="constraints-tooltip"
-                  ng-bind-html="getConfStatementsAsOneLineString(node,parentsMap[node.id].conformanceStatements)"
+                  ng-bind-html="getConfStatementsAsOneLineString(node)"
                   tooltip-trigger tooltip-animation="false" tooltip-placement="left"/>
-            <span ng-repeat="confStatement in filterConstraints(node,parentsMap[node.id].conformanceStatements)"
+            <span ng-repeat="confStatement in node.conformanceStatements"
                   ng-if="!options.concise">
                 <span class="expanded-view">
                    {{::confStatement.constraintId}} : {{::confStatement.description}}
@@ -838,9 +828,7 @@
                              <span>
                                           <span class="label label-datatype label-icon">D</span>
                                    <span
-                                           ng-bind-html="getDatatypeNodeName2(node)"
-
-                                           ></span>
+                                           >{{node.id}}</span>
                                  </span>
         </td>
         <td class="col-xs-1 col-fixed-80 nodata">

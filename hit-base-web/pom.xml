@@ -70,11 +70,21 @@
 
 	</build>
 	<dependencies>
+<<<<<<< HEAD
 		<dependency>
 			<groupId>ss-r2-config</groupId>
 			<artifactId>ss-r2-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+=======
+ <dependency>
+			<groupId>gov.nist.hit.example</groupId>
+  <artifactId>hit-example-tool</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+		</dependency>  
+
+	
+>>>>>>> 71b95708f44df3ed473647826f352020b7d055a8
 	</dependencies>
 	<repositories>
 		<repository>
