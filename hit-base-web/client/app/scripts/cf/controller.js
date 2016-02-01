@@ -429,6 +429,16 @@ angular.module('cf')
 
         };
 
+        $scope.expandAll = function () {
+            if($scope.cf.tree.root != null)
+                $scope.cf.tree.root.expand_all();
+        };
+
+        $scope.collapseAll = function () {
+            if($scope.cf.tree.root!= null)
+                $scope.cf.tree.root.collapse_all();
+        };
+
     }])
 ;
 
