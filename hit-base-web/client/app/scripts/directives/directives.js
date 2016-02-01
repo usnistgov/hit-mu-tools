@@ -79,7 +79,7 @@ angular.module('hit-tool-directives').directive('mypopover', function ($compile,
 });
 
 
-angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache) {
+angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache,User) {
     return {
         restrict: 'AE',
         //performance will be improved in compile
@@ -88,6 +88,7 @@ angular.module('hit-tool-directives').directive('windowExit', function($window, 
                 chkevent = $window.attachEvent ? 'onbeforeunload' : 'beforeunload'; /// make IE7, IE8 compatable
 
             myEvent(chkevent, function (e) { // For >=IE7, Chrome, Firefox
+//                User.delete();
                 $templateCache.removeAll();
             });
         }
@@ -95,6 +96,28 @@ angular.module('hit-tool-directives').directive('windowExit', function($window, 
 });
 
 
+
+angular.module('hit-tool-directives').directive('initiatorConfigForm', function ($compile) {
+    return function(scope, element, attrs) {
+        scope.$watch(
+            function(scope) {
+                // watch the 'compile' expression for changes
+                return scope.$eval(attrs.htmlForm);
+            },
+            function(value) {
+                // when the 'compile' expression changes
+                // assign it into the current DOM
+                element.html(value);
+
+                // compile the new DOM and link it to the current
+                // scope.
+                // NOTE: we only compile .childNodes so that
+                // we don't get into infinite loop compiling ourselves
+                $compile(element.contents())(scope);
+            }
+        );
+    };
+});
 
 
 
