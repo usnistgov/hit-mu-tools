@@ -114,6 +114,15 @@ angular.module('cf')
             return node.testContext && node.testContext != null;
         };
 
+        $scope.expandAll = function () {
+            if($scope.tree != null)
+                $scope.tree.expand_all();
+        };
+
+        $scope.collapseAll = function () {
+            if($scope.tree != null)
+                $scope.tree.collapse_all();
+        };
 
     }]);
 
