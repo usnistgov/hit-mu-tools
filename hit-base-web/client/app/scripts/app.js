@@ -92,7 +92,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     $httpProvider.interceptors.push('ErrorInterceptor');
 
 
-    IdleProvider.idle(3600);
+    IdleProvider.idle(7200);
     IdleProvider.timeout(30);
     KeepaliveProvider.interval(10);
 
@@ -237,7 +237,7 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
 
     $rootScope.downloadArtifact = function (path) {
         var form = document.createElement("form");
-        form.action = "api/testartifact/download";
+        form.action = "api/artifact/download";
         form.method = "POST";
         form.target = "_target";
         var input = document.createElement("input");

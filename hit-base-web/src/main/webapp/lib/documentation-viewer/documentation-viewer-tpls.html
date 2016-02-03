@@ -278,7 +278,7 @@
                                 <th>Test Data Specification</th>
                                 <th>Juror Document</th>
                                 <th>Test Package</th>
-                                <th>Quick Test Case Reference Guide</th>
+                                <th>Test Plan Summary</th>
                                 <th>Example Message</th>
                                 <th>Conformance Profile</th>
                                 <th>Constraints</th>
@@ -328,8 +328,8 @@
         </td>
 
         <td>
-            <span ng-if="!node.qtrgPath || node.qtrgPath === null">-</span>
-            <a ng-if="node.qtrgPath != null" class="point" ng-click="downloadArtifact(node.qtrgPath,node.title)">Quick Test Case Reference Guide.pdf</a>
+            <span ng-if="!node.tpsPath || node.tpsPath === null">-</span>
+            <a ng-if="node.tpsPath != null" class="point" ng-click="downloadArtifact(node.tpsPath,node.title)">Test Plan Summary.pdf</a>
         </td>
 
         <td  >
