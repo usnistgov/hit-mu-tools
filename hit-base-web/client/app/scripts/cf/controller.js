@@ -78,6 +78,8 @@ angular.module('cf')
                     if(testCase != null) {
                         $scope.selectNode(testCase.id, testCase.type);
                     }
+
+                    $scope.expandAll();
                     $scope.error = null;
                 } else {
                     $scope.error = "Something went wrong, Please refresh your page.";
