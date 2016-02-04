@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>gov.nist.hit.base</groupId>
 		<artifactId>ss-r2</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<build>
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>ss-r2-config</groupId>
 			<artifactId>ss-r2-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${config.version}</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -83,4 +83,7 @@
 		</repository>
 	</repositories>
 	
+	<properties>
+		<config.version>0.0.1-SNAPSHOT</config.version>
+	</properties>
 </project>
