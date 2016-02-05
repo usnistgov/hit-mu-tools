@@ -10,9 +10,13 @@
 <div class="panel panel-info">
     <div class="panel-heading">
         <div>Test Result  <span class="pull-right">
-                            <button type="button" ng-click="resetTestCase()" title="Restart" class="btn btn-xs btn-danger">
-                                <i class="fa fa-refresh"></i> Restart
-                            </button>
+                           <button type="button" ng-click="downloadTestCaseReports()" ng-disabled="testCase.executionStatus !== 'COMPLETE'" title="Download All Results" class="btn btn-xs btn-info">
+                               <i class="fa fa-download"></i> Download Reports
+                           </button>
+
+             <button type="button" ng-click="resetTestCase()" title="Reset the TestCase" class="btn btn-xs btn-danger">
+                 <i class="fa fa-times"></i> Reset
+             </button>
                         </span>
         </div>
     </div>

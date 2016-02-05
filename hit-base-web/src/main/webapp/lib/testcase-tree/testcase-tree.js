@@ -105,7 +105,7 @@
                     };
                     scope.user_clicks_branch = function (branch) {
                         //if (branch !== selected_branch) {
-                            return select_branch(branch);
+                        return select_branch(branch);
                         //}
                     };
 
@@ -118,7 +118,7 @@
                     scope.get_icon_type = function (branch) {
                         if (branch.type === 'TestObject' || branch.type === 'TestStep') {
                             var connType = branch['testingType'];
-                            return  connType === 'TA_MANUAL' || connType === 'SUT_MANUAL' ? 'fa fa-wrench' : connType === 'SUT_RESPONDER' || connType === 'SUT_INITIATOR' ? 'fa fa-arrow-right' : connType === 'TA_RESPONDER' || connType === 'TA_INITIATOR' ? 'fa fa-arrow-left' : 'fa fa-check-square-o';
+                            return  connType === 'TA_MANUAL' || connType === 'SUT_MANUAL' ? 'fa fa-wrench' : connType === 'SUT_RESPONDER' || connType === 'SUT_INITIATOR' ? 'fa fa-arrow-left' : connType === 'TA_RESPONDER' || connType === 'TA_INITIATOR' ? 'fa fa-arrow-right' : 'fa fa-check-square-o';
                         } else {
                             return '';
                         }
@@ -276,14 +276,16 @@
                             };
 
                             tree.expand_all = function () {
-                                return for_each_branch(function (b, level) {
+                                for_each_branch(function (b, level) {
                                     return b.expanded = true;
                                 });
+                                on_treeData_change();
                             };
                             tree.collapse_all = function () {
-                                return for_each_branch(function (b, level) {
+                                for_each_branch(function (b, level) {
                                     return b.expanded = false;
                                 });
+                                on_treeData_change();
                             };
                             tree.get_first_branch = function () {
                                 n = scope.treeData.length;

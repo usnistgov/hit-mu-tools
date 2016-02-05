@@ -24,7 +24,7 @@
             </accordion-heading>
             <!--<div testcase-doc stage="CF"></div>-->
             <div testcase-doc stage="CB"></div>
-            <div testcase-doc stage="ISOLATED"></div>
+            <!--<div testcase-doc stage="ISOLATED"></div>-->
         </accordion-group>
 
 
@@ -88,8 +88,8 @@
                         <thead>
                         <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
                             <th st-ratio="40">Document Title</th>
-                            <th st-ratio="35">File Name/Link</th>
-                            <th st-ratio="25">Date</th>
+                            <th st-ratio="35">File Name/Link/Description</th>
+                            <th st-ratio="25">Date Posted</th>
                             <!--<th st-ratio="25">Version</th>-->
                         </tr>
                         </thead>
@@ -97,9 +97,15 @@
                         <tr ng-repeat="doc in docs">
                             <td st-ratio="40"> {{doc.title}}</td>
                             <td st-ratio="35">
-                                <span ng-if="doc.name == null">-</span>
-                                <a ng-if="doc.name != null && doc.path != null" class="point"
-                                   ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
+                                <div ng-show="doc.name != null">
+                                    <a class="point"
+                                       ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
+                                </div>
+
+                                <div ng-show="doc.name == null && doc.comments !== null">
+                                    <span>{{doc.comments}}</span>
+                                </div>
+
                             </td>
                             <td st-ratio="25">
                                 <span ng-if="doc.date == null">-</span>
@@ -138,8 +144,8 @@
                         <thead>
                         <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
                             <th st-ratio="40">Document Title</th>
-                            <th st-ratio="35">File Name/Link</th>
-                            <th st-ratio="25">Date</th>
+                            <th st-ratio="35">File Name/Link/Description</th>
+                            <th st-ratio="25">Date Posted</th>
                             <!--<th st-ratio="20">Version</th>-->
                             <!--<th st-ratio="20">Comments</th>-->
                         </tr>
@@ -148,9 +154,13 @@
                         <tr ng-repeat="doc in docs">
                             <td st-ratio="40">{{doc.title}}</td>
                             <td st-ratio="35">
-                                <span ng-if="doc.name == null">-</span>
-                                <a ng-if="doc.name != null && doc.path != null" class="point"
-                                   ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
+                                <div ng-show="doc.name != null">
+                                    <a class="point"
+                                       ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
+                                </div>
+                                <div ng-show="doc.name == null && doc.comments !== null">
+                                    <span>{{doc.comments}}</span>
+                                </div>
                             </td>
                             <td st-ratio="25">
                                 <span ng-if="doc.date == null">-</span>
@@ -189,7 +199,7 @@
                         {{name}}
                     </accordion-heading>
 
-                    <button title="Download All" type="button" class="btn btn-sm btn-primary"
+                    <button title="Download All" type="button" class="btn btn-sm btn-info"
                             ng-click="downloadResourceDocs()">
                         <i class="fa fa-download"></i>
                         Download All {{name}} (.zip)
@@ -233,24 +243,24 @@
 <script type="text/ng-template" id="TestCaseDoc.html">
     <div ng-show="error === null">
         <div ng-show="data != null" class="" style="margin:10px">
-            <accordion close-others="true">
-                <accordion-group panel-class="panel-info" is-open="status[data.stage]">
-                    <accordion-heading>
-                        <i class="fa"
-                           ng-class="{'fa-caret-down': status[data.stage], 'fa-caret-right': !status[data.stage]}"></i>
-                        {{data.title}}
-                    </accordion-heading>
+            <!--<accordion close-others="true">-->
+                <!--<accordion-group panel-class="panel-info" is-open="status[data.stage]">-->
+                    <!--<accordion-heading>-->
+                        <!--<i class="fa"-->
+                           <!--ng-class="{'fa-caret-down': status[data.stage], 'fa-caret-right': !status[data.stage]}"></i>-->
+                        <!--{{data.title}}-->
+                    <!--</accordion-heading>-->
 
 
                     <button ng-show="data.stage != 'CF'" title="Download Complete TestCase" type="button"
-                            class="btn btn-sm btn-primary"
-                            ng-click="downloadCompleteTestPackage(data.stage)">
+                            class="btn btn-sm btn-info"
+                            ng-click="downloadCompleteTestPackage('CB')">
                         <i class="fa fa-download"></i>
                         Download Complete TestPackage (.zip)
                     </button>
 
-                    <button title="Download Example Messages" type="button" class="btn btn-sm btn-primary"
-                            ng-click="downloadExampleMessages(data.stage)">
+                    <button title="Download Example Messages" type="button" class="btn btn-sm btn-info"
+                            ng-click="downloadExampleMessages('CB')">
                         <i class="fa fa-download"></i>
                         Download Example Messages (.zip)
                     </button>
@@ -268,16 +278,18 @@
                                 <th>Test Data Specification</th>
                                 <th>Juror Document</th>
                                 <th>Test Package</th>
+                                <th>Test Plan Summary</th>
                                 <th>Example Message</th>
                                 <th>Conformance Profile</th>
+                                <th>Constraints</th>
                                 <th>ValueSet Library</th>
                             </tr>
                             </thead>
                             <tbody class=""></tbody>
                         </table>
                     </div>
-                </accordion-group>
-            </accordion>
+                <!--</accordion-group>-->
+            <!--</accordion>-->
         </div>
     </div>
     <div ng-show="error !== null">
@@ -294,25 +306,30 @@
         </td>
         <td >
             <span ng-if="!node.tsPath ||node.tsPath === null">-</span>
-            <a ng-if="node.tsPath != null" ng-click="downloadArtifact(node.tsPath,node.title)">Test_Story.pdf</a>
+            <a class="point" ng-if="node.tsPath != null" ng-click="downloadArtifact(node.tsPath,node.title)">Test Story.pdf</a>
         </td>
 
         <td >
             <span ng-if="!node.mcPath || node.mcPath === null">-</span>
-            <a ng-if="node.mcPath != null" class="point" ng-click="downloadArtifact(node.mcPath,node.title)">Message_Content.pdf</a>
+            <a ng-if="node.mcPath != null" class="point" ng-click="downloadArtifact(node.mcPath,node.title)">Message Content.pdf</a>
         </td>
         <td>
             <span ng-if="!node.tdsPath ||node.tdsPath === null">-</span>
-            <a ng-if="node.tdsPath != null" class="point" ng-click="downloadArtifact(node.tdsPath,node.title)">Test_Data_Specification.pdf</a>
+            <a ng-if="node.tdsPath != null" class="point" ng-click="downloadArtifact(node.tdsPath,node.title)">Test Data Specification.pdf</a>
         </td>
         <td  >
             <span ng-if="!node.jdPath ||node.jdPath === null">-</span>
-            <a ng-if="node.jdPath != null" class="point" ng-click="downloadArtifact(node.jdPath,node.title)">Juror_Document.pdf</a>
+            <a ng-if="node.jdPath != null" class="point" ng-click="downloadArtifact(node.jdPath,node.title)">Juror Document.pdf</a>
         </td>
 
         <td  >
             <span ng-if="!node.tpPath || node.tpPath === null">-</span>
-            <a ng-if="node.tpPath != null" class="point" ng-click="downloadArtifact(node.tpPath,node.title)">Test_Package.pdf</a>
+            <a ng-if="node.tpPath != null" class="point" ng-click="downloadArtifact(node.tpPath,node.title)">Test Package.pdf</a>
+        </td>
+
+        <td>
+            <span ng-if="!node.tpsPath || node.tpsPath === null">-</span>
+            <a ng-if="node.tpsPath != null" class="point" ng-click="downloadArtifact(node.tpsPath,node.title)">Test Plan Summary.pdf</a>
         </td>
 
         <td  >
@@ -325,11 +342,20 @@
             <a ng-if="node.xmlConfProfilePresent" class="point"
                ng-click="downloadProfile(node)">Profile.json</a>
         </td>
+
+        <td>
+            <span ng-if="!node.xmlConstraintPresent">-</span>
+            <a ng-if="node.xmlConstraintPresent"
+               class="point" ng-click="downloadConstraints(node)">Constraints.xml</a>
+        </td>
+
         <td>
             <span ng-if="!node.xmlValueSetLibraryPresent">-</span>
             <a ng-if="node.xmlValueSetLibraryPresent"
                class="point" ng-click="downloadValueSetLib(node)">ValueSetLibrary.json</a>
         </td>
+
+
 
     </tr>
 </script>
@@ -357,7 +383,7 @@
                             <td st-ratio="35">
                                 <span ng-if="doc.path == null">-</span>
                     <span ng-if="doc.path != null">
-                    <a class="point" ng-if="isLink(doc.path)" target="_blank" ng-href="{{doc.path}}">{{doc.path}}</a>
+                    <a class="point" ng-if="isLink(doc.path)" target="_blank" ng-href="{{doc.path}}">{{doc.title}}</a>
                     <a class="point" ng-if="!isLink(doc.path)" ng-click="downloadDocument(doc.path)">{{doc.name}}</a>
                     </span>
                             </td>

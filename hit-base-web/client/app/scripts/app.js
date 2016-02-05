@@ -18,6 +18,7 @@ var app = angular.module('hit-tool', [
     'LocalStorageModule',
     'ngResource',
     'ngSanitize',
+    'ngIdle',
     'ngAnimate',
     'ui.bootstrap',
     'angularBootstrapNavTree',
@@ -41,7 +42,7 @@ var app = angular.module('hit-tool', [
     'hit-validation-result',
     'hit-vocab-search',
     'hit-report-viewer',
-    'hit-testcase-viewer',
+    'hit-testcase-details',
     'hit-testcase-tree',
     'hit-doc',
     'hit-settings',
@@ -50,7 +51,7 @@ var app = angular.module('hit-tool', [
 //    'ngMockE2E'
 ]);
 
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
 
 
     localStorageServiceProvider
@@ -63,9 +64,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
         })
         .when('/home', {
             templateUrl: 'views/home.html'
-        })
-        .when('/testing', {
-            templateUrl: '../views/templates.html'
         })
         .when('/doc', {
             templateUrl: 'views/doc.html'
@@ -93,26 +91,26 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider)
 
     $httpProvider.interceptors.push('ErrorInterceptor');
 
-    httpHeaders = $httpProvider.defaults.headers;
 
+    IdleProvider.idle(7200);
+    IdleProvider.timeout(30);
+    KeepaliveProvider.interval(10);
+
+    httpHeaders = $httpProvider.defaults.headers;
 
 });
 
 
 app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
-        if (response.status === 403) {
-            //$location.path("/a");
-//            $location.url("/ir.html");
-//            $window.location="/ir.html";
+        if (response.status === 440) {
+            response.data = "Session timeout";
+            $rootScope.openSessionExpiredDlg();
+        } else if (response.status === 498) {
+            response.data = "Invalid Application State";
             $rootScope.openVersionChangeDlg();
         } else if (response.status === 401) {
-//            $location.path("/b");
-//            $location.url("/sc.html");
-//            $window.location="/sc.html";
             $rootScope.openInvalidReqDlg();
-        } else if (response.status === 404) {
-            //$rootScope.openNotFoundDlg();
         }
     };
     return {
@@ -121,37 +119,48 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
             return $q.reject(response);
         }
     };
-
 });
 
-app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window,$sce,$templateCache) {
+app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle) {
+
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
     $rootScope.scrollbarWidth = null;
+    $rootScope.vcModalInstance = null;
+    $rootScope.sessionExpiredModalInstance = null;
+    $rootScope.errorModalInstance = null;
 
-
-    new AppInfo().then(function (appInfo) {
-        $rootScope.appInfo = appInfo;
-        httpHeaders.common['csrfToken'] = appInfo.csrfToken;
-        httpHeaders.common['dTime'] = appInfo.date;
+    Session.create().then(function (response) {
+        // load current user
+        User.load().then(function (response) {
+        }, function (error) {
+            $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
+        });
+        // load app info
+        AppInfo.get().then(function (appInfo) {
+            $rootScope.appInfo = appInfo;
+            httpHeaders.common['rsbVersion'] = appInfo.rsbVersion;
+            var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
+            if (previousToken != null && previousToken !== appInfo.rsbVersion) {
+                $rootScope.openVersionChangeDlg();
+            }
+            StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.rsbVersion);
+        }, function (error) {
+            $rootScope.appInfo = {};
+            $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");
+        });
     }, function (error) {
-        $rootScope.appInfo = {};
-        $rootScope.openErrorDlg();
+        $rootScope.openCriticalErrorDlg("Sorry we could not start your session. Please refresh the page and try again.");
     });
-
 
     $rootScope.$watch(function () {
         return $location.path();
     }, function (newLocation, oldLocation) {
-
         //true only for onPopState
         if ($rootScope.activePath === newLocation) {
-
             var back,
                 historyState = $window.history.state;
-
             back = !!(historyState && historyState.position <= $rootScope.stackPosition);
-
             if (back) {
                 //back button
                 $rootScope.stackPosition--;
@@ -159,27 +168,15 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
                 //forward button
                 $rootScope.stackPosition++;
             }
-
         } else {
             //normal-way change of page (via link click)
-
             if ($route.current) {
-
                 $window.history.replaceState({
                     position: $rootScope.stackPosition
                 }, '');
-
                 $rootScope.stackPosition++;
-
             }
-//
-//            if (newLocation != null) {
-//                $rootScope.setActive(newLocation);
-//            }
-
         }
-
-
     });
 
     $rootScope.isActive = function (path) {
@@ -240,7 +237,7 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 
     $rootScope.downloadArtifact = function (path) {
         var form = document.createElement("form");
-        form.action = "api/testartifact/download";
+        form.action = "api/artifact/download";
         form.method = "POST";
         form.target = "_target";
         var input = document.createElement("input");
@@ -328,39 +325,95 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
     $rootScope.showSettings = function () {
         var modalInstance = $modal.open({
             templateUrl: 'SettingsCtrl.html',
-            size:'lg',
-            keyboard:'false',
+            size: 'lg',
+            keyboard: 'false',
             controller: 'SettingsCtrl'
         });
     };
 
     $rootScope.openVersionChangeDlg = function () {
-        $rootScope.blankPage();
-        var vcModalInstance = $modal.open({
-            templateUrl: 'VersionChangeCtrl.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'VersionChangeCtrl'
-        });
-        vcModalInstance.result.then(function () {
-            $rootScope.clearSession();
-             $rootScope.index();
-        }, function () {
-            $rootScope.clearSession();
-             $rootScope.index();
-        });
+        StorageService.clearAll();
+        if(!$rootScope.vcModalInstance || $rootScope.vcModalInstance === null || !$rootScope.vcModalInstance.opened) {
+            $rootScope.vcModalInstance = $modal.open({
+                templateUrl: 'VersionChanged.html',
+                size: 'lg',
+                backdrop: 'static',
+                keyboard: 'false',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
+                }
+            });
+            $rootScope.vcModalInstance.result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
     };
 
-    $rootScope.clearSession = function () {
+    $rootScope.openCriticalErrorDlg = function (errorMessage) {
+
         StorageService.clearAll();
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                     templateUrl: 'CriticalError.html',
+                    size: 'lg',
+                    backdrop: true,
+                    keyboard: 'false',
+                    'controller': 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return errorMessage;
+                        }
+                    }
+                });
+            $rootScope.errorModalInstance .result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
+    };
+
+    $rootScope.openSessionExpiredDlg = function () {
+        StorageService.clearAll();
+        if(!$rootScope.sessionExpiredModalInstance || $rootScope.sessionExpiredModalInstance === null || !$rootScope.sessionExpiredModalInstance.opened) {
+            $rootScope.sessionExpiredModalInstance = $modal.open({
+                templateUrl: 'timedout-dialog.html',
+                size: 'lg',
+                backdrop: true,
+                keyboard: 'true',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
+                }
+            });
+            $rootScope.sessionExpiredModalInstance.result.then(function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.clearTemplate();
+                $rootScope.reloadPage();
+            });
+        }
+    };
+
+    $rootScope.clearTemplate = function () {
         $templateCache.removeAll();
     };
 
-
     $rootScope.openErrorDlg = function () {
         $location.path('/error');
-//        $rootScope.blankPage();
+//        
 //        var errorModalInstance = $modal.open({
 //            templateUrl: 'ErrorCtrl.html',
 //            size: 'lg',
@@ -369,57 +422,61 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 //            'controller': 'ErrorCtrl'
 //        });
 //        errorModalInstance.result.then(function () {
-//            $rootScope.index();
+//            $rootScope.reloadPage();
 //        }, function () {
-//            $rootScope.index();
+//            $rootScope.reloadPage();
 //        });
     };
 
-    $rootScope.blankPage = function () {
-        //$location.path('/blank');
-    };
-
-    $rootScope.index = function () {
-        //$location.path('/home');
-        $('#appcontainer').html('');
-        $window.location.reload();
+    $rootScope.reloadPage = function () {
+         $window.location.reload();
     };
 
     $rootScope.openInvalidReqDlg = function () {
-        $rootScope.blankPage();
-
-         var irModalInstance = $modal.open({
-            templateUrl: 'InvalidReqCtrl.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'InvalidReqCtrl'
-        });
-
-        irModalInstance.result.then(function () {
-            $rootScope.index();
-
-        }, function () {
-            $rootScope.index();
-        });
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                templateUrl: 'InvalidReqCtrl.html',
+                size: 'lg',
+                backdrop: true,
+                keyboard: 'false',
+                'controller': 'FailureCtrl',
+                resolve: {
+                    error: function () {
+                        return "";
+                    }
+                }
+            });
+            $rootScope.errorModalInstance.result.then(function () {
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.reloadPage();
+            });
+        }
     };
 
     $rootScope.openNotFoundDlg = function () {
-        $rootScope.blankPage();
-         var nfModalInstance = $modal.open({
-            templateUrl: 'NotFoundCtrl.html',
-            size: 'lg',
-            backdrop:true,
-            keyboard: 'false',
-            'controller': 'NotFoundCtrl'
-        });
+        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
+            $rootScope.errorModalInstance = $modal.open({
+                     templateUrl: 'NotFoundCtrl.html',
+                    size: 'lg',
+                    backdrop: true,
+                    keyboard: 'false',
+                    'controller': 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return "";
+                        }
+                    }
+                });
 
-        nfModalInstance.result.then(function () {
-            $rootScope.index();
-        }, function () {
-            $rootScope.index();
-        });
+            $rootScope.errorModalInstance.result.then(function () {
+                $rootScope.reloadPage();
+            }, function () {
+                $rootScope.reloadPage();
+            });
+        }
     };
+
 
 //    $rootScope.$on('$routeChangeStart', function(event, next, current) {
 //        if (typeof(current) !== 'undefined'){
@@ -428,7 +485,75 @@ app.run(function ($rootScope, $location, $modal, TestingSettings, AppInfo, Stora
 //    });
 
     $rootScope.pettyPrintType = function (type) {
-        return type === 'TestStep' ? 'Test Step': type === 'TestCase'? 'Test Case':type;
+        return type === 'TestStep' ? 'Test Step' : type === 'TestCase' ? 'Test Case' : type;
+    };
+
+    $rootScope.started = false;
+
+    Idle.watch();
+
+    $rootScope.$on('IdleStart', function() {
+        closeModals();
+        $rootScope.warning = $modal.open({
+            templateUrl: 'warning-dialog.html',
+            windowClass: 'modal-danger'
+        });
+    });
+
+    $rootScope.$on('IdleEnd', function() {
+        closeModals();
+    });
+
+    $rootScope.$on('IdleTimeout', function() {
+        closeModals();
+        StorageService.clearAll();
+        Session.delete().then(
+            function (response) {
+                $rootScope.timedout = $modal.open({
+                    templateUrl: 'timedout-dialog.html',
+                    windowClass: 'modal-danger',
+                    backdrop:true,
+                    keyboard: 'false',
+                    controller: 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return "";
+                        }
+                    }
+                });
+                $rootScope.timedout.result.then(function () {
+                    $rootScope.clearTemplate();
+                    $rootScope.reloadPage();
+                }, function () {
+                    $rootScope.clearTemplate();
+                    $rootScope.reloadPage();
+                });
+            }
+        );
+    });
+
+    function closeModals() {
+        if ($rootScope.warning) {
+            $rootScope.warning.close();
+            $rootScope.warning = null;
+        }
+
+        if ($rootScope.timedout) {
+            $rootScope.timedout.close();
+            $rootScope.timedout = null;
+        }
+    };
+
+    $rootScope.start = function() {
+        closeModals();
+        Idle.watch();
+        $rootScope.started = true;
+    };
+
+    $rootScope.stop = function() {
+        closeModals();
+        Idle.unwatch();
+        $rootScope.started = false;
     };
 
 
@@ -500,34 +625,6 @@ app.directive('stRatio', function () {
 
 });
 
-
-angular.module('hit-tool-services').factory('AppInfo', ['$http', '$q', function ($http, $q) {
-    return function () {
-        var delay = $q.defer();
-        $http.get('api/appInfo').then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
-
-
-//        $http.get('../../resources/appInfo.json').then(
-//            function (object) {
-//                delay.resolve(angular.fromJson(object.data));
-//            },
-//            function (response) {
-//                delay.reject(response.data);
-//            }
-//        );
-
-        return delay.promise;
-    };
-}]);
-
-
 app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
     $scope.table = table;
     $scope.tmpTableElements = [].concat(table != null ? table.valueSetElements : []);
@@ -535,7 +632,6 @@ app.controller('TableFoundCtrl', function ($scope, $modalInstance, table) {
         $modalInstance.dismiss('cancel');
     };
 });
-
 
 
 app.controller('ValidationResultInfoCtrl', [ '$scope', '$modalInstance',
@@ -546,8 +642,8 @@ app.controller('ValidationResultInfoCtrl', [ '$scope', '$modalInstance',
     }
 ]);
 
-app.filter('capitalize', function() {
-    return function(input) {
+app.filter('capitalize', function () {
+    return function (input) {
         return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
     }
 });
@@ -564,15 +660,6 @@ app.directive('stRatio', function () {
 });
 
 
-app.controller('InvalidReqCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
-    function ($scope, $modalInstance, StorageService, $window) {
-        $scope.close = function () {
-            $modalInstance.close();
-        };
-    }
-]);
-
-
 app.controller('ErrorCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
     function ($scope, $modalInstance, StorageService, $window) {
         $scope.refresh = function () {
@@ -581,24 +668,12 @@ app.controller('ErrorCtrl', [ '$scope', '$modalInstance', 'StorageService', '$wi
     }
 ]);
 
-app.controller('VersionChangeCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
-    function ($scope, $modalInstance, StorageService, $window) {
+app.controller('FailureCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window','error',
+    function ($scope, $modalInstance, StorageService, $window, error) {
+        $scope.error = error;
         $scope.close = function () {
             $modalInstance.close();
         };
     }
 ]);
-
-app.controller('NotFoundCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
-    function ($scope, $modalInstance, StorageService, $window) {
-        $scope.close = function () {
-            $modalInstance.close();
-        };
-    }
-]);
-
-
-
-
-
 
