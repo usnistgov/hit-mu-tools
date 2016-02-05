@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.ss-r2</groupId>
 	<artifactId>ss-r2</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>ss-r2</name>
 	<description>Syndromic Surveillance tool</description>
 	<packaging>pom</packaging>
@@ -87,7 +87,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
 		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>ss-r2-1.0.0</tag>
   </scm>
 	<distributionManagement>
 		<repository>
