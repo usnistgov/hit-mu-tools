@@ -563,7 +563,7 @@ angular.module('cb')
             var content = $("#" + jurorDocId).html();
             if (content && content != '') {
                 var form = document.createElement("form");
-                form.action = 'api/testartifact/generateJurorDoc/pdf';
+                form.action = 'api/artifact/generateJurorDoc/pdf';
                 form.method = "POST";
                 form.target = "_target";
                 var input = document.createElement("textarea");
@@ -594,7 +594,7 @@ angular.module('cb')
         $scope.downloadTestArtifact = function (path) {
             if ($scope.testCase != null) {
                 var form = document.createElement("form");
-                form.action = "api/testartifact/download";
+                form.action = "api/artifact/download";
                 form.method = "POST";
                 form.target = "_target";
                 var input = document.createElement("input");
@@ -758,6 +758,16 @@ angular.module('cb')
             $timeout(function () {
                 $rootScope.$broadcast('cb:testCaseLoaded', testCase, tab);
             });
+        };
+
+        $scope.expandAll = function () {
+            if($scope.tree != null)
+                $scope.tree.expand_all();
+        };
+
+        $scope.collapseAll = function () {
+            if($scope.tree != null)
+                $scope.tree.collapse_all();
         };
 
 
@@ -1112,6 +1122,16 @@ angular.module('cb')
                 $scope.vLoading = false;
             });
 
+        };
+
+        $scope.expandAll = function () {
+            if($scope.cb.tree.root != null)
+                $scope.cb.tree.root.expand_all();
+        };
+
+        $scope.collapseAll = function () {
+            if($scope.cb.tree.root!= null)
+                $scope.cb.tree.root.collapse_all();
         };
 
     }]);
