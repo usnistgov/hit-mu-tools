@@ -1,18 +1,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>loi-r2-web</artifactId>
-	<name>loi-r2-web</name>
+	<artifactId>loi-r1-web</artifactId>
+	<name>loi-r1-web</name>
 	<description>Laboratory Orders Interface tool</description>
 	<packaging>war</packaging>
 	<parent>
-		<groupId>gov.nist.hit.base</groupId>
-		<artifactId>loi-r2</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<groupId>gov.nist.healthcare.mu.loi-r1</groupId>
+		<artifactId>loi-r1</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>	
 
 	<build>
-		<finalName>loi-r2</finalName>
+		<finalName>loi-r1</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -80,9 +92,12 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>loi-r2-config</groupId>
-			<artifactId>loi-r2-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>gov.nist.healthcare.mu.loi-r1</groupId>
+			<artifactId>loi-r1-config</artifactId>
+			<version>${config.version}</version>
 		</dependency>
 	</dependencies>
+	<properties>
+		<config.version>0.1.0-SNAPSHOT</config.version>
+	</properties>
 </project>

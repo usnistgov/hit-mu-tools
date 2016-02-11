@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>gov.nist.hit.base</groupId>
-	<artifactId>loi-r2</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<name>loi-r2</name>
+	<groupId>gov.nist.healthcare.mu.loi-r1</groupId>
+	<artifactId>loi-r1</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>loi-r1</name>
 	<description>Laboratory Orders Interface tool</description>
 	<packaging>pom</packaging>
 	<modules>
