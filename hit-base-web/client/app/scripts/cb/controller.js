@@ -33,7 +33,7 @@ angular.module('cb')
 
 angular.module('cb')
     .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User','ReportService','TestCaseDetailsService','$compile','Transport', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User,ReportService,TestCaseDetailsService,$compile,Transport) {
-        $scope.target = "cb-executed-test-step";
+        $scope.targ= "cb-executed-test-step";
         $scope.loading = false;
         $scope.error = null;
         $scope.tabs = new Array();
@@ -138,7 +138,7 @@ angular.module('cb')
             $scope.$broadcast(mcId, testStep['messageContent'], testStep.name + "-MessageContent");
             $scope.$broadcast(tdsId, testStep['testDataSpecification'], testStep.name + "-TestDataSpecification");
             if ($scope.isManualStep(testStep)) {
-                $scope.setTestStepExecutionTab(4);
+                $scope.setTestStepExecutionTab(10);
             }
         };
 
@@ -1249,4 +1249,9 @@ angular.module('cb')
 
     });
 
+
+angular.module('cb')
+    .controller('CBManualCtrl', ['$scope', 'CB', function ($scope, CB) {
+        $scope.cb = CB;
+    }]);
 
