@@ -591,7 +591,7 @@ angular.module('format').factory('TestStepService', function ($filter,$q,$http) 
 
 });
 
-angular.module('format').factory('TestCaseService', function ($filter,$q,$http) {
+angular.module('format').factory('TestCaseService', function ($filter, $q, $http) {
     var TestCaseService = function () {
 
     };
@@ -660,6 +660,7 @@ angular.module('format').factory('TestCaseService', function ($filter,$q,$http) 
                 node["children"] = node.testCases;
                 angular.forEach(node.children, function (testCase) {
                     testCase['transport'] = node['transport'];
+                    testCase['domain'] = node['domain'];
                     testCase['nav'] = {};
                     testCase['nav']['testStep'] = null;
                     testCase['nav'] = {};
@@ -671,6 +672,7 @@ angular.module('format').factory('TestCaseService', function ($filter,$q,$http) 
             } else {
                 angular.forEach(node.testCases, function (testCase) {
                     testCase['transport'] = node['transport'];
+                    testCase['domain'] = node['domain'];
                     node["children"].push(testCase);
                     testCase['nav'] = {};
                     testCase['nav']['testStep'] = null;
@@ -689,6 +691,7 @@ angular.module('format').factory('TestCaseService', function ($filter,$q,$http) 
                 node["children"] = node.testCaseGroups;
                 angular.forEach(node.children, function (testCaseGroup) {
                     testCaseGroup['transport'] = node['transport'];
+                    testCaseGroup['domain'] = node['domain'];
                     testCaseGroup['nav'] = {};
                     //node["children"].push(testCaseGroup);
                     testCaseGroup['nav']['testCase'] = null;
@@ -700,6 +703,7 @@ angular.module('format').factory('TestCaseService', function ($filter,$q,$http) 
             } else {
                 angular.forEach(node.testCaseGroups, function (testCaseGroup) {
                     testCaseGroup['transport'] = node['transport'];
+                    testCaseGroup['domain'] = node['domain'];
                     node["children"].push(testCaseGroup);
                     testCaseGroup['nav'] = {};
                     testCaseGroup['nav']['testCase'] = null;
@@ -806,6 +810,7 @@ angular.module('format').factory('TestCaseService', function ($filter,$q,$http) 
 
     return TestCaseService;
 });
+
 
 
 angular.module('format').factory('DataInstanceReport', function ($http, NewValidationReport) {
@@ -1607,39 +1612,43 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
             init: function () {
                 this.error = null;
                 var delay = $q.defer();
-                var self = Transport;
+                var self = this;
+                self.configs = {};
                 this.getAllConfigForms().then(function (transportForms) {
-                    angular.forEach(transportForms, function (transportForm) {
-                        var domain = transportForm.domain;
-                        var protocol = transportForm.protocol;
-                        if (!self.configs[domain]) {
-                            self.configs[domain] = {};
-                        }
-                        if (!self.configs[domain][protocol]) {
-                            self.configs[domain][protocol] = {};
-                        }
-                        if (!self.configs[domain][protocol]['forms']) {
-                            self.configs[domain][protocol]['forms'] = {};
-                        }
-                        self.configs[domain][protocol]['forms'] = transportForm;
+                    $rootScope.transportSupported = transportForms != null && transportForms.length > 0;
+                    if ($rootScope.transportSupported) {
+                        angular.forEach(transportForms, function (transportForm) {
+                            var domain = transportForm.domain;
+                            var protocol = transportForm.protocol;
+                            if (!self.configs[domain]) {
+                                self.configs[domain] = {};
+                            }
+                            if (!self.configs[domain][protocol]) {
+                                self.configs[domain][protocol] = {};
+                            }
+                            if (!self.configs[domain][protocol]['forms']) {
+                                self.configs[domain][protocol]['forms'] = {};
+                            }
+                            self.configs[domain][protocol]['forms'] = transportForm;
 
-                        if (!self.configs[domain][protocol]['data'] || self.configs[domain][protocol]['data'] == null) {
-                            $timeout(function () {
-                                self.getConfigData(domain, protocol).then(function (data) {
-                                    self.configs[domain][protocol]['data'] = data;
-                                    self.configs[domain][protocol]['open']={
-                                        ta:true,
-                                        sut:false
-                                    };
-                                    $rootScope.$emit(domain + "-" + protocol + "-data-loaded");
-                                }, function (error) {
-                                    self.configs[domain][protocol]['error'] = error.data;
+                            if (!self.configs[domain][protocol]['data'] || self.configs[domain][protocol]['data'] == null) {
+                                $timeout(function () {
+                                    self.getConfigData(domain, protocol).then(function (data) {
+                                        self.configs[domain][protocol]['data'] = data;
+                                        self.configs[domain][protocol]['open'] = {
+                                            ta: true,
+                                            sut: false
+                                        };
+                                        $rootScope.$emit(domain + "-" + protocol + "-data-loaded");
+                                    }, function (error) {
+                                        self.configs[domain][protocol]['error'] = error.data;
+                                    });
                                 });
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
                 }, function (error) {
-                    self.error = "Sorry, failed to load the transport settings";
+                    self.error = "No transport configs found.";
                 });
             }
         };
