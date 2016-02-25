@@ -82,7 +82,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         })
         .when('/cb', {
             templateUrl: 'views/cb/cb.html'
-        }).when('/error', {
+        })
+        .when('/transport-settings', {
+            templateUrl: 'views/transport-settings.html'
+        })
+        .when('/error', {
             templateUrl: 'error.html'
         })
         .otherwise({
@@ -121,7 +125,7 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
     };
 });
 
-app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle) {
+app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle,Transport) {
 
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
@@ -133,6 +137,7 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
     Session.create().then(function (response) {
         // load current user
         User.load().then(function (response) {
+            Transport.init();
         }, function (error) {
             $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
         });
