@@ -1,0 +1,41 @@
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+    if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+    } else {
+        top.location = self.location;
+    }
+</script>
+<!-- <!-- Fixed navbar -->
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="brand" id="appheader">
+        <a style="display: inline-block; text-shadow:none" href="#">
+            <div id="apptitle">NIST <span style="color:white">{{appInfo.name}}</span><span style="color:red; font-size:12px"> {{appInfo.version}}</span></div>
+            <div id="appsubtitle">{{appInfo.domain}}</div>
+        </a>
+    </div>
+    <div class="navbar-collapse collapse" id="appnavi">
+        <ul class="nav navbar-nav">
+            <li ng-class="{'active':isActive('/home')}"><a href="#/home"><i class="fa fa-home"></i> Home</a></li>
+            <!--<li ng-class="{'active':isActive('/testing')}"><a href="#/testing"><i class="fa fa-cog"></i>Testing</a></li>-->
+            <li ng-class="{'active':isActive('/cf')}"><a href="#/cf">
+                <i class="fa fa-check-square-o"></i>
+                Context-free</a></li>
+            <li ng-class="{'active':isActive('/cb')}"><a href="#/cb">
+                <i class="fa fa-check-square-o"></i>
+                Context-based</a></li>
+            <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a href="#/transport-settings">
+                <span title="Transport Configuration" class="label label-danger label-icon">T</span>
+                <i class="fa fa-exchange"></i>
+                Transport Settings</a></li>
+            <li ng-class="{'active':isActive('/doc')}"><a href="#/doc"><i class="fa fa-book"></i>Documentation</a></li>
+            <li ng-class="{'active':isActive('/about')}"><a href="#/about"><i class="fa fa-question-circle"></i>About</a></li>
+            <!--<li ng-class="{'active':isActive('/contact')}"><a href="#/contact"><i class="fa fa-phone-square"></i>Contact Us</a></li>-->
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right" style="margin-right: 5px">
+            <li class="pull-right"><a ng-click="showSettings()"><i class="fa fa-cog"></i>Preferences</a></li>
+        </ul>
+    </div>
+</div>
