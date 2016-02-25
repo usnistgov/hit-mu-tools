@@ -28,6 +28,7 @@
                         <i class="point fa fa-expand"></i>
                     </button>
 
+
                 </div>
                 <div class="panel-body">
                     <div ng-show="!loading">
@@ -43,12 +44,14 @@
                                 <!--<tbody></tbody>-->
                                 <!--</table>-->
                                 <div ng-show="testCases != null && testCases.length > 0">
+
+
                                     <testcase-tree tree-control="tree" icon-leaf=""
                                                     is-selectable="isSelectable(branch)"
                                                    on-select="selectTestCase(branch)"></testcase-tree>
                                 </div>
                                 <div ng-show="testCases == null || testCases.length == 0">
-                                    No Test Case Available
+                                    No TestCase Available
                                 </div>
 
                             </div>
@@ -79,12 +82,12 @@
                                     Download Test Package
                                 </button>
 
-                                 <button title="Download Test Plan Summary" type="button" class="btn btn-xs btn-info"
-                                         ng-show="selectedTestCase.testPlanSummary && selectedTestCase.testPlanSummary != null && selectedTestCase.testPlanSummary.pdfPath != null"
-                                         ng-click="downloadArtifact(selectedTestCase.testPlanSummary.pdfPath)">
-                                     <i class="fa fa-download"></i>
-                                     Download Test Plan Summary
-                                 </button>
+                                <button title="Download Test Plan Summary" type="button" class="btn btn-xs btn-info"
+                                        ng-show="selectedTestCase.testPlanSummary && selectedTestCase.testPlanSummary != null && selectedTestCase.testPlanSummary.pdfPath != null"
+                                        ng-click="downloadArtifact(selectedTestCase.testPlanSummary.pdfPath)">
+                                    <i class="fa fa-download"></i>
+                                    Download Test Plan Summary
+                                </button>
 
                                 <button title="Load Selected Test Step" ng-show="(selectedTestCase.type == 'TestStep' && selectedTestCase.testContext != null && selectedTestCase.testContext.format != null)" type="button"
                                         class="btn btn-xs btn-success"

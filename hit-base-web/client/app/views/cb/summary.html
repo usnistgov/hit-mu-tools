@@ -1,4 +1,6 @@
-<style id="antiClickjack">body{display:none !important;}</style>
+<style id="antiClickjack">body {
+    display: none !important;
+}</style>
 <script type="text/javascript">
     if (self === top) {
         var antiClickjack = document.getElementById("antiClickjack");
@@ -12,8 +14,8 @@
         <div>Test Result  <span class="pull-right">
                            <button type="button" ng-click="downloadTestCaseReports()"
                                    ng-disabled="testCase.executionStatus !== 'COMPLETE'"
-                                   title="Download All Results" class="btn btn-xs btn-info">
-                               <i class="fa fa-download"></i> Download Reports
+                                   title="Download All Reports" class="btn btn-xs btn-info">
+                               <i class="fa fa-download"></i>Download Reports
                            </button>
 
              <button type="button" ng-click="resetTestCase()"
@@ -24,10 +26,16 @@
         </div>
     </div>
     <div class="panel-body">
-        <table class="table table-bordered">
+        <table class="table table-bordered" style="margin-bottom: 0px">
             <tr>
                 <td><b>Test Status</b></td>
                 <td>{{testCase.executionStatus === 'COMPLETE' ? 'Completed':'In Progress'}}</td>
+            </tr>
+            <tr ng-show="!transport.disabled && testCase.transport === true">
+                <td><b>Protocol</b></td>
+                <td>
+                    {{testCase.protocol | uppercase}}
+                </td>
             </tr>
             <tr>
                 <td><b>Test Result</b></td>
@@ -43,7 +51,7 @@
                     </span>
                 </span>
                 <span ng-show="testCase.executionStatus !== 'COMPLETE'">
-                 </span>
+                  </span>
                 </td>
             </tr>
         </table>
