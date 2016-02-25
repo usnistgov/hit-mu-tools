@@ -133,6 +133,7 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
     $rootScope.vcModalInstance = null;
     $rootScope.sessionExpiredModalInstance = null;
     $rootScope.errorModalInstance = null;
+    $rootScope.transportSupported = false;
 
     Session.create().then(function (response) {
         // load current user

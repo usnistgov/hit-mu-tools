@@ -62,28 +62,7 @@ angular.module('cf')
                     testCaseService.buildCFTestCases(testPlan);
                 });
                 $scope.testCases = $filter('orderBy')(testCases, 'position');
-                if (typeof $scope.tree.build_all == 'function') {
-                    $scope.tree.build_all($scope.testCases);
-                    var testCase = null;
-                    var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
-                    if (id != null) {
-                        for (var i = 0; i < $scope.testCases.length; i++) {
-                            var found = testCaseService.findOneById(id, $scope.testCases[i]);
-                            if (found != null) {
-                                testCase = found;
-                                break;
-                            }
-                        }
-                    }
-                    if(testCase != null) {
-                        $scope.selectNode(testCase.id, testCase.type);
-                    }
-
-                    $scope.expandAll();
-                    $scope.error = null;
-                } else {
-                    $scope.error = "Something went wrong, Please refresh your page.";
-                }
+                $scope.refreshTree();
                 $scope.loading = false;
             }, function (error) {
                 $scope.error = "Something went wrong, Please refresh your page.";
@@ -94,6 +73,36 @@ angular.module('cf')
                 var testStepId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                 if(testStepId != null) TestStepService.clearRecords(testStepId);
             });
+        };
+
+        $scope.refreshTree = function () {
+            $timeout(function () {
+                if ($scope.testCases != null) {
+                    if (typeof $scope.tree.build_all == 'function') {
+                        $scope.tree.build_all($scope.testCases);
+                        var testCase = null;
+                        var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
+                        if (id != null) {
+                            for (var i = 0; i < $scope.testCases.length; i++) {
+                                var found = testCaseService.findOneById(id, $scope.testCases[i]);
+                                if (found != null) {
+                                    testCase = found;
+                                    break;
+                                }
+                            }
+                        }
+                        if(testCase != null) {
+                            $scope.selectNode(testCase.id, testCase.type);
+                        }
+
+                        $scope.expandAll();
+                        $scope.error = null;
+                    } else {
+                        $scope.error = "Something went wrong, Please refresh your page.";
+                    }
+                }
+                $scope.loading = false;
+            },1000);
         };
 
 
