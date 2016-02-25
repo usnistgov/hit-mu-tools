@@ -138,7 +138,7 @@ angular.module('cb')
             $scope.$broadcast(mcId, testStep['messageContent'], testStep.name + "-MessageContent");
             $scope.$broadcast(tdsId, testStep['testDataSpecification'], testStep.name + "-TestDataSpecification");
             if ($scope.isManualStep(testStep)) {
-                $scope.setTestStepExecutionTab(4);
+                $scope.setTestStepExecutionTab(10);
             }
         };
 
