@@ -1221,3 +1221,32 @@ angular.module('cb')
         $scope.cb = CB;
     }]);
 
+angular.module('cb')
+    .controller('PastTestStepConsoleCtrl', function ($scope, $modalInstance, title, log) {
+        $scope.title = title;
+        $scope.log = log;
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+        $scope.close = function () {
+            $modalInstance.close();
+        };
+    });
+
+angular.module('cb')
+    .controller('CurrentTestStepConsoleCtrl', function ($scope, $modalInstance, title, logger) {
+        $scope.title = title;
+        $scope.logger = logger;
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+        $scope.close = function () {
+            $modalInstance.close();
+        };
+
+
+    });
+
+

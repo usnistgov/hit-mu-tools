@@ -202,7 +202,7 @@
     mod
         .controller('TestDataSpecificationCtrl', ['$scope', '$rootScope', '$sce', 'TestCaseDetailsService', '$compile', '$timeout', '$modal', function ($scope, $rootScope, $sce, TestCaseDetailsService, $compile, $timeout, $modal) {
             $scope.loading = false;
-            $scope.tds = null;
+            $scope.testDataSpecification = null;
             $scope.error = null;
             $scope.eId = $scope.target + "-testDataSpecification";
             $scope.$on($scope.eId, function (event, testDataSpecification, title) {
