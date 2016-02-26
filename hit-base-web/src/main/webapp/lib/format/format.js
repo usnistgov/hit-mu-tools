@@ -1650,6 +1650,31 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
                 }, function (error) {
                     self.error = "No transport configs found.";
                 });
+            },
+            populateMessage : function(testStepId, message,domain, protocol){
+                var delay = $q.defer();
+                var self = this;
+                var data = angular.fromJson({"testStepId": testStepId, "message": message});
+                $http.post('api/transport/' + domain + "/" + protocol + '/populateMessage', data).then(
+                    function (response) {
+                        delay.resolve(angular.fromJson(response.data));
+                    },
+                    function (response) {
+                        delay.reject(null);
+                    }
+                );
+
+//                $http.get('../../resources/cb/startListener.json').then(
+//                    function (response) {
+//                        self.running = true;
+//                        delay.resolve(true);
+//                    },
+//                    function (response) {
+//                        self.running = false;
+//                        delay.reject(null);
+//                    }
+//                );
+                return delay.promise;
             }
         };
 

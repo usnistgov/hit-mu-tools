@@ -204,15 +204,17 @@
             $scope.loading = false;
             $scope.testDataSpecification = null;
             $scope.error = null;
+            $scope.title = null;
             $scope.eId = $scope.target + "-testDataSpecification";
             $scope.$on($scope.eId, function (event, testDataSpecification, title) {
                 $scope.testDataSpecification = testDataSpecification;
                 $scope.loading = false;
                 $scope.error = null;
+                $scope.title = title;
             });
             $scope.download = function (path) {
                 if ($scope.testDataSpecification != null)
-                    TestCaseDetailsService.downloadByPath($scope.testDataSpecification.pdfPath);
+                    TestCaseDetailsService.downloadByPath($scope.testDataSpecification.pdfPath, $scope.title);
             };
         }]);
 
