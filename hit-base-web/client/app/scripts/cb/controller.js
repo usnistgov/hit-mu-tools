@@ -35,6 +35,7 @@ angular.module('cb')
     .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User','ReportService','TestCaseDetailsService','$compile','Transport', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User,ReportService,TestCaseDetailsService,$compile,Transport) {
         $scope.targ= "cb-executed-test-step";
         $scope.loading = false;
+        $scope.populatingMessage = false;
         $scope.error = null;
         $scope.tabs = new Array();
         $scope.testCase = null;
@@ -55,7 +56,8 @@ angular.module('cb')
         $scope.sutInititiatorForm = '';
         $scope.taInititiatorForm = '';
         $scope.user = User;
-
+        $scope.domain =null;
+        $scope.protocol = null;
         $scope.initExecution = function () {
             $scope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
                 $scope.executeTestCase(testCase, tab);
@@ -222,10 +224,20 @@ angular.module('cb')
                 StorageService.set(StorageService.CB_LOADED_TESTSTEP_ID_KEY, $scope.testStep.id);
                 if (!$scope.isManualStep(testStep)) {
                     if (testStep.executionMessage === undefined && testStep['testingType'] === 'TA_INITIATOR') {
-                        TestExecutionService.setExecutionMessage(testStep, testStep.testContext.message.content);
+                        var populateMessage = $scope.transport.populateMessage(testStep.id,testStep.testContext.message.content, $scope.domain,$scope.protocol);
+                        populateMessage.then(function(response){
+                            TestExecutionService.setExecutionMessage(testStep,response.outgoingMessage);
+                            $scope.loadTestStepExecutionPanel(testStep);
+                        },function(error){
+                            TestExecutionService.setExecutionMessage(testStep,testStep.testContext.message.content);
+                            $scope.loadTestStepExecutionPanel(testStep);
+                        });
+                    }else{
+                        $scope.loadTestStepExecutionPanel(testStep);
                     }
+                }else{
+                    $scope.loadTestStepExecutionPanel(testStep);
                 }
-                $scope.loadTestStepExecutionPanel(testStep);
             }
         };
 
