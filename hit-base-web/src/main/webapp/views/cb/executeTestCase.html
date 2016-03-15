@@ -10,17 +10,14 @@
     }
 </script>
 <div ng-controller="CBExecutionCtrl" ng-init="initExecution()">
-    <div class="" style="margin:10px">
+    <div class="" style="margin-left:10px; margin-right: 10px; margin-top: 0px">
         <div ng-show="!loading">
-
-            <div class="row" ng-show="testCase == null">
+            <div class="row" ng-if="testCase == null">
                 <div class="col-md-10">
                     No Test Case Loaded.
                 </div>
             </div>
-
             <div ng-show="testCase != null">
-
                 <div class="row">
                     <div class="col-md-12">
                         <ol class="breadcrumb" style="font-weight: bold">
@@ -29,43 +26,19 @@
                             <li ng-show="testCase['nav'].testCase != null">{{testCase['nav'].testCase}}</li>
                             <li ng-show="testCase['nav'].testStep != null">{{testCase['nav'].testStep}}</li>
                         </ol>
+                        <div class="alert alert-danger" role="alert" ng-bind="error" ng-if="error != null"></div>
                     </div>
-
-                    <div class="col-md-12" ng-if="error != null">
-                        <div>
-                            <div style="padding-top: 10px;padding-bottom:10px">
-                                <div class="alert alert-danger" role="alert" ng-bind="error"></div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-
                 <div class="row" ng-show="testCase.type === 'TestCase'">
                     <div class="col-md-9">
                         <div ng-include="'views/cb/teststeps.html'"></div>
-                        <div ng-show="testStep != null" style="margin:10px">
-                            <span class="pull-left">
-                                            <button type="button" ng-click="goBack(testStep)" ng-show="!isTestCaseCompleted() && !isFirstStep(testStep)" title="Execute Previous Step" class="btn btn-sm btn-info">
-                                                <span><i class="fa fa-arrow-left"></i> Back</span>
-                                            </button>
-                                 </span>
-
-                            <span class="pull-right">
-                                            <button type="button" ng-click="goNext(testStep)" ng-show="!isTestCaseCompleted() && isTestStepCompleted(testStep)" title="Execute Next Step" class="btn btn-sm btn-info">
-                                                <span ng-show="isLastStep(testStep)"><i class="fa fa-check-circle"></i> Complete</span>
-                                                <span ng-show="!isLastStep(testStep)"><i class="fa fa-arrow-right"></i> Next</span>
-                                            </button>
-                                 </span>
-
-                        </div>
-                        <div style="padding-top: 10px;padding-bottom:10px" ng-if="warning != null">
+                        <div ng-if="warning != null">
                                 <div class="alert alert-info" role="alert" ng-bind-html="toHTML(warning)"></div>
                         </div>
                      </div>
                     <div class="col-md-3">
                         <div ng-include="'views/cb/summary.html'"></div>
-                        <div ng-include="'views/cb/console.html'" ng-show="user.info != null && (testStep.testingType === 'TA_INITIATOR' || testStep.testingType === 'SUT_INITIATOR')"></div>
+                        <!--<div ng-include="'views/cb/console.html'" ng-show="user.info != null && (testStep.testingType === 'TA_INITIATOR' || testStep.testingType === 'SUT_INITIATOR')"></div>-->
                     </div>
                 </div>
 

@@ -105,7 +105,7 @@
                     };
                     scope.user_clicks_branch = function (branch) {
                         //if (branch !== selected_branch) {
-                        return select_branch(branch);
+                            return select_branch(branch);
                         //}
                     };
 
@@ -119,7 +119,7 @@
                         if (branch.type === 'TestObject' || branch.type === 'TestStep') {
                             var connType = branch['testingType'];
                             return  connType === 'TA_MANUAL' || connType === 'SUT_MANUAL' ? 'fa fa-wrench' : connType === 'SUT_RESPONDER' || connType === 'SUT_INITIATOR' ? 'fa fa-arrow-right' : connType === 'TA_RESPONDER' || connType === 'TA_INITIATOR' ? 'fa fa-arrow-left' : 'fa fa-check-square-o';
-                        } else{
+                        } else {
                             return '';
                         }
                     };
@@ -276,16 +276,14 @@
                             };
 
                             tree.expand_all = function () {
-                                for_each_branch(function (b, level) {
+                                return for_each_branch(function (b, level) {
                                     return b.expanded = true;
                                 });
-                                on_treeData_change();
-                            };
+                             };
                             tree.collapse_all = function () {
-                                for_each_branch(function (b, level) {
+                                return for_each_branch(function (b, level) {
                                     return b.expanded = false;
                                 });
-                                on_treeData_change();
                             };
                             tree.get_first_branch = function () {
                                 n = scope.treeData.length;
