@@ -8,9 +8,7 @@ angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
-
-var httpHeaders;
-
+angular.module('documentation', []);
 var app = angular.module('hit-tool', [
     'ngRoute',
     'ui.bootstrap',
@@ -47,10 +45,13 @@ var app = angular.module('hit-tool', [
     'hit-doc',
     'hit-settings',
     'doc'
+    ,
+    'hit-manual-report-viewer'
 //    ,
 //    'ngMockE2E'
 ]);
 
+var httpHeaders;
 app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
 
 

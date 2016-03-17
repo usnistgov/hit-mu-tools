@@ -9,6 +9,7 @@
 </script>
 <div ng-controller="CFTestingCtrl" ng-init="initTesting()" class="" style="margin-top:10px;margin-left: 10px;margin-right: 10px">
     <div class="row" style="">
+
         <div class="col-md-1 col-1-percent" ng-show="collapsed">
             <button title="Show Profiles" class="btn btn-xs btn-info" ng-click="collapsed = !collapsed">
                 <i class="fa fa-caret-right"></i>
@@ -17,8 +18,8 @@
         <div ng-show="!collapsed" class="col-md-2">
             <div class="panel panel-info">
                 <!-- Default panel contents -->
-                <div class="panel-heading">
-                    <i class="fa fa-list"></i>Profiles
+                <div class="panel-heading panel-heading-collapsable">
+                     <i class="fa fa-list"></i>Profiles
                     <button title="View Profiles Information" class="btn btn-xs btn-info" ng-click="openProfileInfo()">
                         <i class="point fa fa-info-circle"></i>Help
                     </button>
@@ -35,6 +36,7 @@
                     </button>
 
                 </div>
+
                 <div class="panel-body">
                     <div ng-show="!loading">
                         <div ng-show="error === null">
@@ -124,7 +126,7 @@
                     Profile Information
                 </span>
                 <span class="pull-right">
-                   <button class="btn btn-xs btn-primary" ng-click="close()"><i class="fa fa-times"></i>Close</button>
+                    <button class="btn btn-xs btn-primary" ng-click="close()"><i class="fa fa-times"></i>Close</button>
                 </span>
     </div>
     <div class="modal-body">
