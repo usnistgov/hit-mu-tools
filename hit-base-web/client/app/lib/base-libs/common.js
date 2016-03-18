@@ -1804,6 +1804,16 @@ angular.module('format').factory('ServiceDelegator', function (HL7V2MessageValid
     }
 });
 
+angular.module('format').factory('IdleService',
+    function ($http) {
+        var IdleService = {
+            keepAlive: function () {
+                return $http.get(
+                    'api/session/keepAlive');
+            }
+        };
+        return IdleService;
+    });
 
 
 

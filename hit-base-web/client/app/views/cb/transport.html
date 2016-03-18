@@ -11,9 +11,23 @@
 </script>
 <div class="panel panel-info" ng-show="testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0">
     <div class="panel-heading">
-        <span title="Transport" class="label label-danger label-icon">T</span> Transport
-     </div>
+        <span class="pull=left"><span title="Transport" class="label label-danger label-icon">T</span> Transport
+        </span>
+        <span class="pull-right">
+             <div class="btn-group btn-group-xs" data-toggle="buttons" style="margin-right: 10px;">
+                 <label class="btn   btn-cf-outline" ng-click="toggleTransport(false)"
+                        ng-class="{'active': !transport.disabled}">
+                     <input type="radio" ng-model="transport.disabled" autocomplete="off" checked>Enabled
+                 </label>
+                 <label class="btn  btn-cf-outline" ng-click="toggleTransport(true)"
+                        ng-class="{'active': transport.disabled}">
+                     <input type="radio" ng-model="options.disabled" autocomplete="off">Disabled
+                 </label>
+             </div>
+        </span>
+    </div>
     <div class="panel-body">
+        <div ng-show="!transport.disabled">
         <form name="transportButtonForm" id="transportButtonForm" novalidate>
             <table class="table table-bordered" style="margin-bottom: 0px">
                 <tr>
@@ -41,7 +55,7 @@
                                         <i class="fa fa-play fa-fw"></i>Listen
                                     </button>
                                     <button type="button" title="Stop Listening"
-                                            ng-disabled="!connecting || !transportButtonForm.protocolSelect.$valid" ng-click="stopListener()"
+                                            ng-disabled="!connecting || !transportButtonForm.protocolSelect.$valid" ng-click="abortListening()"
                                             class="btn btn-xs btn-warning"><i class="fa fa-stop fa-fw"></i>Stop
                                     </button>
                                 </span>
@@ -81,5 +95,9 @@
                 </tr>
             </table>
         </form>
+            </div>
+        <div style="text-align: center; color:red; font-weight: bold" ng-show="transport.disabled">
+            Transport is disabled
+        </div>
     </div>
 </div>
