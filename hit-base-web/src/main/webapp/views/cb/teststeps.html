@@ -63,19 +63,22 @@
                                     <span ng-show="row.testingType === 'TA_INITIATOR'">
                                         Waiting to send...
                                     </span>
+                                    <span ng-show="row.testingType === 'TA_RESPONDER'">
+                                        Sending ...
+                                    </span>
                                     <span ng-show="row.testingType === 'SUT_INITIATOR'">
                                        Waiting to listen...
+                                    </span>
+                                    <span ng-show="row.testingType === 'SUT_RESPONDER'">
+                                       Waiting to receive...
                                     </span>
                                 </div>
                                 <div ng-show="testCase.transport === false || user.info == null || transport.disabled">
                                         <span ng-show="row.testingType === 'TA_MANUAL' || row.testingType === 'SUT_MANUAL'">
-                                            Waiting for input...
+                                            Waiting for user's input...
                                         </span>
-                                        <span ng-show="row.testingType === 'TA_INITIATOR'">
+                                        <span ng-show="row.testingType === 'TA_INITIATOR' || row.testingType === 'SUT_INITIATOR' || row.testingType === 'SUT_RESPONDER' || row.testingType === 'TA_RESPONDER'">
                                             Waiting for message...
-                                        </span>
-                                        <span ng-show="row.testingType === 'SUT_INITIATOR'">
-                                        Waiting for message...
                                         </span>
                                 </div>
                             </div>
@@ -86,24 +89,20 @@
                                     <span ng-show="row.testingType === 'TA_MANUAL' || row.testingType === 'SUT_MANUAL'">
                                         Waiting for input...
                                     </span>
-                                    <span ng-show="row.testingType === 'TA_INITIATOR'">
+                                    <span ng-show="row.testingType === 'TA_INITIATOR' || row.testingType === 'TA_RESPONDER'">
                                        Sending...
                                     </span>
-                                    <span ng-show="row.testingType === 'SUT_INITIATOR'">
+                                    <span ng-show="row.testingType === 'SUT_INITIATOR' || row.testingType === 'SUT_RESPONDER'">
                                         Waiting to receive...
                                     </span>
                             </div>
                             <div ng-show="testCase.transport === false || user.info == null || transport.disabled">
- <span ng-show="row.testingType === 'TA_MANUAL' || row.testingType === 'SUT_MANUAL'">
+                                    <span ng-show="row.testingType === 'TA_MANUAL' || row.testingType === 'SUT_MANUAL'">
                                         Waiting for input...
                                     </span>
-                                    <span ng-show="row.testingType === 'TA_INITIATOR'">
-                                        Waiting for message...
+                                    <span ng-show="row.testingType === 'TA_INITIATOR' || row.testingType === 'SUT_INITIATOR' || row.testingType === 'SUT_RESPONDER' || row.testingType === 'TA_RESPONDER'">
+                                            Waiting for message...
                                     </span>
-                                    <span ng-show="row.testingType === 'SUT_INITIATOR'">
-                                         Waiting for message...
-                                    </span>
-
                             </div>
                     </div>
                     <div ng-show="getExecutionStatus(row) === 'COMPLETE'">
@@ -112,11 +111,14 @@
                                     <span ng-show="row.testingType === 'TA_MANUAL' || row.testingType === 'SUT_MANUAL'">
                                          Completed
                                     </span>
-                                    <span ng-show="row.testingType === 'TA_INITIATOR'">
-                                       Message sent
+                                    <span ng-show="row.testingType === 'TA_RESPONDER'">
+                                       Completed
                                     </span>
-                                    <span ng-show="row.testingType === 'SUT_INITIATOR'">
-                                      Message received
+                                    <span ng-show="row.testingType === 'TA_INITIATOR'">
+                                       Completed
+                                    </span>
+                                    <span ng-show="row.testingType === 'SUT_INITIATOR' || row.testingType === 'SUT_RESPONDER'">
+                                      Completed
                                     </span>
                         </div>
                         <div ng-show="testCase.transport === false || user.info == null || transport.disabled">
