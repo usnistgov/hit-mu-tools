@@ -8,9 +8,7 @@ angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
-
-var httpHeaders;
-
+angular.module('documentation', []);
 var app = angular.module('hit-tool', [
     'ngRoute',
     'ui.bootstrap',
@@ -47,10 +45,13 @@ var app = angular.module('hit-tool', [
     'hit-doc',
     'hit-settings',
     'doc'
+    ,
+    'hit-manual-report-viewer'
 //    ,
 //    'ngMockE2E'
 ]);
 
+var httpHeaders;
 app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
 
 
@@ -82,7 +83,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         })
         .when('/cb', {
             templateUrl: 'views/cb/cb.html'
-        }).when('/error', {
+        })
+        .when('/transport-settings', {
+            templateUrl: 'views/transport-settings.html'
+        })
+        .when('/error', {
             templateUrl: 'error.html'
         })
         .otherwise({
@@ -121,7 +126,7 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
     };
 });
 
-app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle) {
+app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle,Transport,IdleService) {
 
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
@@ -129,10 +134,12 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
     $rootScope.vcModalInstance = null;
     $rootScope.sessionExpiredModalInstance = null;
     $rootScope.errorModalInstance = null;
+    $rootScope.transportSupported = false;
 
     Session.create().then(function (response) {
         // load current user
         User.load().then(function (response) {
+            Transport.init();
         }, function (error) {
             $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
         });
@@ -530,6 +537,11 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
                 });
             }
         );
+    });
+
+
+    $rootScope.$on('Keepalive', function() {
+        IdleService.keepAlive();
     });
 
     function closeModals() {
