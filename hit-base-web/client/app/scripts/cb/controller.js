@@ -32,7 +32,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', 'ReportService', 'TestCaseDetailsService', '$compile', 'Transport', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User, ReportService, TestCaseDetailsService, $compile, Transport) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', 'ReportService', 'TestCaseDetailsService', '$compile', 'Transport', '$filter', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User, ReportService, TestCaseDetailsService, $compile, Transport,$filter) {
         $scope.targ = "cb-executed-test-step";
         $scope.loading = false;
         $scope.error = null;
@@ -327,7 +327,7 @@ angular.module('cb')
             CB.testStep = testStep;
             $scope.warning = null;
             if(testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0){
-                testStep['protocol'] = testStep.protocols[0];
+                testStep['protocol'] = $scope.getDefaultProtocol(testStep);
                 $scope.selectProtocol(testStep);
             }
             var log = $scope.transport.logs[testStep.id];
@@ -336,6 +336,20 @@ angular.module('cb')
                 $scope.selectTestStep(testStep);
             }
         };
+
+        $scope.getDefaultProtocol = function (testStep) {
+            if(testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0){
+                testStep.protocols = $filter('orderBy')(testStep.protocols, 'position');
+                for(var i=0; i < testStep.protocols.length; i++){
+                    if(testStep.protocols[i]['defaut'] != undefined && testStep.protocols[i]['defaut'] === true){
+                        return testStep.protocols[i].value;
+                    }
+                }
+                return testStep.protocols[0];
+            }
+            return null;
+        };
+
 
         $scope.completeTestCase = function () {
             $scope.testCase.executionStatus = 'COMPLETE';
