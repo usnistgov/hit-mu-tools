@@ -345,7 +345,7 @@ angular.module('cb')
                         return testStep.protocols[i].value;
                     }
                 }
-                return testStep.protocols[0];
+                return testStep.protocols[0].value;
             }
             return null;
         };
