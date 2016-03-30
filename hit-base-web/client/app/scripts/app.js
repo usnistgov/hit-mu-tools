@@ -8,9 +8,7 @@ angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
-
-var httpHeaders;
-
+angular.module('documentation', []);
 var app = angular.module('hit-tool', [
     'ngRoute',
     'ui.bootstrap',
@@ -47,10 +45,13 @@ var app = angular.module('hit-tool', [
     'hit-doc',
     'hit-settings',
     'doc'
+    ,
+    'hit-manual-report-viewer'
 //    ,
 //    'ngMockE2E'
 ]);
 
+var httpHeaders;
 app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
 
 
@@ -125,7 +126,7 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
     };
 });
 
-app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle,Transport) {
+app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle,Transport,IdleService) {
 
     $rootScope.appInfo = {};
     $rootScope.stackPosition = 0;
@@ -536,6 +537,11 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
                 });
             }
         );
+    });
+
+
+    $rootScope.$on('Keepalive', function() {
+        IdleService.keepAlive();
     });
 
     function closeModals() {

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.ss-r2</groupId>
 	<artifactId>ss-r2</artifactId>
@@ -13,46 +14,14 @@
 
 	<properties>
 		<spring.version>4.1.1.RELEASE</spring.version>
-		<hit-core.version>1.0.3</hit-core.version>
  	</properties> 
- 	<dependencies>
- 	
- 	<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-domain</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-repo</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-service</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-transport</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
- 		
- 		
- 		
+ 	<dependencies> 		
  	</dependencies>
  
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.2</version>
-				</plugin>
+
 
 				<!-- plugin to handle compile version -->
 				<plugin>
@@ -83,22 +52,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	
-	<scm>
-		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
-		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
-	<distributionManagement>
-		<repository>
-			<id>releases</id>
-			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Internal Snapshots</name>
-			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 </project>

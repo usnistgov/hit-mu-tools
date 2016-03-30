@@ -26,7 +26,6 @@
                                 <i class="point fa fa-expand"></i>
                             </button>
 
-
                         </div>
                         <div class="panel-body container-message-tree">
                             <div ng-show="!tLoading">
@@ -61,7 +60,7 @@
                                <span ng-show="loadRate == 10000000000000000">Disable</span>
                                <span class="caret"></span>
                            </button>
-                           <ul class="dropdown-menu base-menu" role="menu">
+                           <ul class="dropdown-menu point" role="menu">
                                <li><a class="point" ng-click="setLoadRate(10000000000000000)">Disable</a></li>
                                <li><a class="point" ng-click="setLoadRate(1000)">1 second</a></li>
                                <li><a class="point" ng-click="setLoadRate(2000)">2 seconds</a></li>
@@ -73,8 +72,16 @@
                                <li><a class="point" ng-click="setLoadRate(8000)">8 seconds</a></li>
                            </ul>
                        </div>
+
+
             </span>
                             <span class="row fileupload-buttonbar pull-right">
+                                <!--<button title="Validate" type="button" class="btn btn-xs btn-info" ng-show="cf.testCase.testContext.dqa === true"-->
+                                        <!--ng-click="showDQAOptions()">-->
+                                    <!--<i class="fa fa-cog"></i>-->
+                                    <!--DQA-->
+                                <!--</button>-->
+
                                 <button title="Validate" type="button" class="btn btn-xs btn-success" ng-click="execute()">
                                     <i class="fa fa-check-circle"></i>
                                     Validate
@@ -94,9 +101,12 @@
                                     <i class="fa fa-download"></i>Download
                                 </button>
 
+
+
                                  <button title="Clear" type="button" class="btn btn-xs btn-warning" ng-click="clearMessage()">
                                      <i class="fa fa-times"></i>Clear
                                  </button>
+
                                                             <span style="margin-right:10px"></span>
 
 
@@ -123,10 +133,11 @@
 
 
      <span class="pull-right">
-                                <button title="Remove Duplicates" type="button" class="btn btn-xs btn-warning" ng-click="removeDuplicates()">
-                                    <i class="fa fa-times"></i>
-                                    Remove Duplicates
-                                </button>
+
+          <button title="Remove Duplicates" type="button" class="btn btn-xs btn-warning" ng-click="removeDuplicates()">
+              <i class="fa fa-times"></i>
+              Remove Duplicates
+          </button>
                                 <button title="View Report" type="button" class="btn btn-xs btn-info" ng-click="setActiveTab(1)">
                                     <i class="fa fa-eye"></i>
                                     Report
