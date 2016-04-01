@@ -68,6 +68,7 @@ angular.module('cf')
                                 }
                             }
                         }
+
                         if (testCase != null) {
                             $scope.selectNode(testCase.id, testCase.type);
                         }
@@ -334,7 +335,7 @@ angular.module('cf')
 
         $scope.loadValidationResult = function (mvResult) {
             $timeout(function () {
-                $scope.$broadcast('cf:validationResultLoaded', mvResult, $scope.cf.testCase.id);
+                $rootScope.$emit('cf:validationResultLoaded', mvResult, $scope.cf.testCase);
             });
         };
 
