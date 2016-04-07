@@ -373,15 +373,14 @@ angular.module('cb')
                     if ($scope.isManualStep(testStep) || testStep.testingType === 'TA_RESPONDER') {
                         $scope.testExecutionService.setTestStepExecutionStatus(testStep, 'COMPLETE');
                     }
+                    testStep.protocol = null;
+                    $scope.protocol = null;
                     if (testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0) {
-                        testStep.protocol = null;
-                        var protocol = StorageService.get(StorageService.TRANSPORT_PROTOCOL) != null && StorageService.get(StorageService.TRANSPORT_PROTOCOL) != undefined ?StorageService.get(StorageService.TRANSPORT_PROTOCOL):null;
+                         var protocol = StorageService.get(StorageService.TRANSPORT_PROTOCOL) != null && StorageService.get(StorageService.TRANSPORT_PROTOCOL) != undefined ?StorageService.get(StorageService.TRANSPORT_PROTOCOL):null;
                         protocol = protocol != null && testStep.protocols.indexOf(protocol) > 0 ? protocol : null;
                         protocol = protocol != null ? protocol : $scope.getDefaultProtocol(testStep);
                         testStep['protocol'] = protocol;
                         $scope.selectProtocol(testStep);
-                    }else{
-                        $scope.protocol = null;
                     }
                     var log = $scope.transport.logs[testStep.id];
                     $scope.logger.content = log && log != null ? log : '';
