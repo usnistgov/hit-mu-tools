@@ -52,7 +52,7 @@ angular.module('hl7v2-edi').factory('HL7V2EDICursorServiceClass',
 
             }
         };
-        
+
         /**
          *
          * @param editor
