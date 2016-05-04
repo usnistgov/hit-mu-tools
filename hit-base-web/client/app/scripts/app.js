@@ -50,7 +50,9 @@ var app = angular.module('hit-tool', [
     'doc',
     'account',
     ,
-    'hit-manual-report-viewer'
+    'hit-manual-report-viewer',
+    'ngNotificationsBar'
+
 //    ,
 //    'ngMockE2E'
 ]);
@@ -68,7 +70,7 @@ var httpHeaders,
 
 //the message to be shown to the user
 var msg = {};
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,notificationsConfigProvider) {
 
 
     localStorageServiceProvider
@@ -139,6 +141,17 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     IdleProvider.idle(7200);
     IdleProvider.timeout(30);
     KeepaliveProvider.interval(10);
+
+
+    // auto hide
+    notificationsConfigProvider.setAutoHide(true);
+
+    // delay before hide
+    notificationsConfigProvider.setHideDelay(30000);
+
+    // delay between animation and removing the nofitication
+    notificationsConfigProvider.setAutoHideAnimationDelay(1200);
+
 
     httpHeaders = $httpProvider.defaults.headers;
 
