@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('tool').controller('MainCtrl', ['$scope', '$rootScope', 'i18n', '$location', 'userInfoService', '$modal', '$filter', 'base64', '$http', 'Idle', 'notifications', 'IdleService', 'StorageService', 'TestingSettings','Session','AppInfo','User','$templateCache','$window',
+angular.module('main').controller('MainCtrl', ['$scope', '$rootScope', 'i18n', '$location', 'userInfoService', '$modal', '$filter', 'base64', '$http', 'Idle', 'notifications', 'IdleService', 'StorageService', 'TestingSettings','Session','AppInfo','User','$templateCache','$window',
     function ($scope, $rootScope, i18n, $location, userInfoService, $modal, $filter, base64, $http, Idle, notifications, IdleService, StorageService, TestingSettings,Session,AppInfo,User,$templateCache,$window) {
         //This line fetches the info from the server if the user is currently logged in.
         //If success, the app is updated according to the role.

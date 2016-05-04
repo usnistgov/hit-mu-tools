@@ -7,6 +7,6 @@
  * # MainCtrl
  * Controller of the clientApp
  */
-angular.module('tool')
+angular.module('main')
     .controller('MainService', function ($scope) {
     });
