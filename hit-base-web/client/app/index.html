@@ -28,6 +28,7 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css" />
     <link rel="stylesheet" href="bower_components/sass-bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/ng-notifications-bar/dist/ngNotificationsBar.min.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- For project CSS files -->
@@ -74,7 +75,9 @@
         }
     </script>
 </head>
-<body ng-app="hit-tool" window-exit>
+<body ng-controller="MainCtrl" ng-app="tool" window-exit>
+<notifications-bar class="notifications" closeIcon="fa fa-times-circle"></notifications-bar>
+
 <div id="wrapper">
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
@@ -148,6 +151,7 @@
 
     <script src="bower_components/quick-ngrepeat/quick-ng-repeat.js"></script>
     <script src="bower_components/ng-idle/angular-idle.js"></script>
+    <script src="bower_components/ng-notifications-bar/dist/ngNotificationsBar.min.js"></script>
     <!--<script src="bower_components/angular-mocks/ngMockE2E.js"></script>&ndash;&gt;-->
 
     <!-- endbuild -->
@@ -201,6 +205,8 @@
     <script src="scripts/cb/service.js"></script>
     <script src="scripts/contact/service.js"></script>
     <script src="scripts/common.js"></script>
+    <script src="scripts/main/service.js"></script>
+    <script src="scripts/account/service.js"></script>
     <!--<script src="lib/mock-server.js"></script>-->
 
     <!-- Controllers-->
@@ -208,8 +214,10 @@
     <script src="scripts/cf/controller.js"></script>
     <script src="scripts/cb/controller.js"></script>
     <script src="scripts/contact/controller.js"></script>
+    <script src="scripts/account/controller.js"></script>
     <script src="scripts/about/controller/about.js"></script>
     <script src="scripts/directives/directives.js"></script>
+    <script src="scripts/account/directive.js"></script>
 
     <!-- endbuild -->
 

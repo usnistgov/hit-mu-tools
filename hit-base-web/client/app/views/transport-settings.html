@@ -106,6 +106,25 @@
                                                                                     <div compile="transport.configs[dom][proto]['forms']['sutInitiatorForm']"/>
                                                                                 </div>
 
+                                                                                <div class="col-md-12" ng-show="isAuthenticated()">
+                                                                                    <div class="form-group">
+                                                                                        <div class="col-md-offset-2 col-md-6">
+                                                                                            <button class="btn btn-sm btn-primary"
+                                                                                                    ng-click='saveSutInitiatorConfig(dom, proto)'
+                                                                                                    ng-disabled='sutInitiatorForm_{{dom}}_{{proto}}.$invalid || sutInitiatorForm_{{dom}}_{{proto}}.$pristine'>
+                                                                                                <i class="fa fa-check"></i>
+                                                                                                Save
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <div class="col-md-12">
+                                                                                        <div ng-show="saving" style="text-align:center">
+                                                                                            <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+                                                                                        </div>
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                </div>
+
                                                                                 <div class="col-md-12"
                                                                                      ng-show="error !== null">
                                                                                     <div class="alert alert-danger"

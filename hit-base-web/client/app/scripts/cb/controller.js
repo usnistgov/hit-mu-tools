@@ -32,7 +32,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', 'ReportService', 'TestCaseDetailsService', '$compile', 'Transport', '$filter', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User, ReportService, TestCaseDetailsService, $compile, Transport, $filter) {
+    .controller('CBExecutionCtrl', ['$scope', '$window', '$rootScope', 'CB', '$modal', 'TestExecutionClock', 'Endpoint', 'TestExecutionService', '$timeout', 'StorageService', 'User', 'ReportService',  'TestCaseDetailsService', '$compile', 'Transport', '$filter', function ($scope, $window, $rootScope, CB, $modal, TestExecutionClock, Endpoint, TestExecutionService, $timeout, StorageService, User, ReportService, TestCaseDetailsService, $compile, Transport, $filter) {
         $scope.targ = "cb-executed-test-step";
         $scope.loading = false;
         $scope.error = null;
@@ -47,7 +47,7 @@ angular.module('cb')
         $scope.sent = null;
         $scope.received = null;
         $scope.configCollapsed = true;
-        $scope.counterMax = 120;
+        $scope.counterMax = 120; // 2min
         $scope.counter = 0;
         $scope.listenerReady = false;
         $scope.testStepListCollapsed = false;
@@ -74,13 +74,11 @@ angular.module('cb')
         ];
 
         var parseRequest = function (incoming) {
-
             return incoming;
         };
 
         var parseResponse = function (outbound) {
-
-            return outbound;
+             return outbound;
         };
 
 
@@ -245,6 +243,7 @@ angular.module('cb')
             }
         };
 
+
         $scope.selectProtocol = function (testStep) {
             if (testStep != null) {
                 $scope.protocol = testStep.protocol;
@@ -367,29 +366,27 @@ angular.module('cb')
 //                $timeout(function () {
 //                    $rootScope.$emit($scope.type + ':initValidationReport', report, testStep);
 //                });
-                    TestExecutionService.setTestStepValidationReportObject(testStep, report);
-                    CB.testStep = testStep;
-                    $scope.warning = null;
-                    if ($scope.isManualStep(testStep) || testStep.testingType === 'TA_RESPONDER') {
-                        $scope.testExecutionService.setTestStepExecutionStatus(testStep, 'COMPLETE');
-                    }
-                    testStep.protocol = null;
-                    $scope.protocol = null;
-                    if (testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0) {
-                         var protocol = StorageService.get(StorageService.TRANSPORT_PROTOCOL) != null && StorageService.get(StorageService.TRANSPORT_PROTOCOL) != undefined ?StorageService.get(StorageService.TRANSPORT_PROTOCOL):null;
-                        protocol = protocol != null && testStep.protocols.indexOf(protocol) > 0 ? protocol : null;
-                        protocol = protocol != null ? protocol : $scope.getDefaultProtocol(testStep);
-                        testStep['protocol'] = protocol;
-                        $scope.selectProtocol(testStep);
-                    }
-                    var log = $scope.transport.logs[testStep.id];
-                    $scope.logger.content = log && log != null ? log : '';
-                    $scope.selectTestStep(testStep);
-                }, function (error) {
-                    $scope.error = "Failed to load the test step, please try again.";
+                TestExecutionService.setTestStepValidationReportObject(testStep, report);
+                CB.testStep = testStep;
+                $scope.warning = null;
+                if ($scope.isManualStep(testStep) || testStep.testingType === 'TA_RESPONDER') {
+                    $scope.testExecutionService.setTestStepExecutionStatus(testStep, 'COMPLETE');
                 }
-            )
-            ;
+                testStep.protocol = null;
+                $scope.protocol = null;
+                if (testStep.protocols != null && testStep.protocols && testStep.protocols.length > 0) {
+                    var protocol = StorageService.get(StorageService.TRANSPORT_PROTOCOL) != null && StorageService.get(StorageService.TRANSPORT_PROTOCOL) != undefined ?StorageService.get(StorageService.TRANSPORT_PROTOCOL):null;
+                    protocol = protocol != null && testStep.protocols.indexOf(protocol) > 0 ? protocol : null;
+                    protocol = protocol != null ? protocol : $scope.getDefaultProtocol(testStep);
+                    testStep['protocol'] = protocol;
+                    $scope.selectProtocol(testStep);
+                }
+                var log = $scope.transport.logs[testStep.id];
+                $scope.logger.content = log && log != null ? log : '';
+                $scope.selectTestStep(testStep);
+            }, function (error) {
+                $scope.error = "Failed to load the test step, please try again.";
+            });
 //            });
 
         };
@@ -746,7 +743,9 @@ angular.module('cb')
                                     $scope.abortListening();
                                 });
                             };
+
                             TestExecutionClock.start(execute);
+
                         } else {
                             $scope.logger.log("Failed to start listener");
                             $scope.logger.log("Transaction stopped");
@@ -836,7 +835,7 @@ angular.module('cb')
                 $scope.transport.transactions = [];
                 $scope.testCase = testCase;
                 TestExecutionClock.stop();
-                 if (CB.editor != null && CB.editor.instance != null) {
+                if (CB.editor != null && CB.editor.instance != null) {
                     CB.editor.instance.setOption("readOnly", false);
                 }
                 if (testCase.type === 'TestCase') {
@@ -874,13 +873,13 @@ angular.module('cb')
 
         $scope.toggleTransport = function (disabled) {
             $scope.transport.disabled = disabled;
+            StorageService.set(StorageService.TRANSPORT_DISABLED, disabled);
             if (CB.editor.instance != null) {
                 CB.editor.instance.setOption("readOnly", !disabled);
             }
         };
 
-    }])
-;
+    }]);
 
 
 angular.module('cb')
