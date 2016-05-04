@@ -135,8 +135,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     $httpProvider.interceptors.push('interceptor3');
     $httpProvider.interceptors.push('interceptor4');
 
-    $httpProvider.interceptors.push('ErrorInterceptor');
-
 
     IdleProvider.idle(7200);
     IdleProvider.timeout(30);
