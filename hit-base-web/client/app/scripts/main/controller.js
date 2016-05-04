@@ -663,7 +663,7 @@ angular.module('main').controller('MainCtrl', ['$scope', '$rootScope', 'i18n', '
 
     }]);
 
-angular.module('tool').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', function ($scope, $modalInstance, user) {
+angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', function ($scope, $modalInstance, user) {
     $scope.user = user;
 
     $scope.cancel = function () {
@@ -677,7 +677,7 @@ angular.module('tool').controller('LoginCtrl', ['$scope', '$modalInstance', 'use
 }]);
 
 
-angular.module('tool').controller('RichTextCtrl', ['$scope', '$modalInstance', 'editorTarget', function ($scope, $modalInstance, editorTarget) {
+angular.module('main').controller('RichTextCtrl', ['$scope', '$modalInstance', 'editorTarget', function ($scope, $modalInstance, editorTarget) {
     $scope.editorTarget = editorTarget;
 
     $scope.cancel = function () {
@@ -690,7 +690,7 @@ angular.module('tool').controller('RichTextCtrl', ['$scope', '$modalInstance', '
 }]);
 
 
-angular.module('tool').controller('InputTextCtrl', ['$scope', '$modalInstance', 'editorTarget', function ($scope, $modalInstance, editorTarget) {
+angular.module('main').controller('InputTextCtrl', ['$scope', '$modalInstance', 'editorTarget', function ($scope, $modalInstance, editorTarget) {
     $scope.editorTarget = editorTarget;
 
     $scope.cancel = function () {
@@ -702,7 +702,7 @@ angular.module('tool').controller('InputTextCtrl', ['$scope', '$modalInstance', 
     };
 }]);
 
-angular.module('tool').controller('ConfirmLogoutCtrl', ["$scope", "$modalInstance", "$rootScope", "$http", function ($scope, $modalInstance, $rootScope, $http) {
+angular.module('main').controller('ConfirmLogoutCtrl', ["$scope", "$modalInstance", "$rootScope", "$http", function ($scope, $modalInstance, $rootScope, $http) {
     $scope.logout = function () {
         $modalInstance.close();
     };

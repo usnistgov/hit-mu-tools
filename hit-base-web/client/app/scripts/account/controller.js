@@ -77,7 +77,7 @@ angular.module('account')
     ]);
 
 
-angular.module('tool')
+angular.module('account')
     .controller('UserAccountCtrl', ['$scope', '$resource', 'AccountLoader', 'Account', 'userInfoService', '$location', '$rootScope',
         function ($scope, $resource, AccountLoader, Account, userInfoService, $location,$rootScope) {
 
@@ -103,7 +103,7 @@ angular.module('tool')
 
 'use strict';
 
-angular.module('tool')
+angular.module('account')
     .controller('AccountsListCtrl', ['$scope', 'MultiAuthorsLoader', 'MultiSupervisorsLoader','Account', '$modal', '$resource','AccountLoader','userInfoService','$location',
         function ($scope, MultiAuthorsLoader, MultiSupervisorsLoader, Account, $modal, $resource, AccountLoader, userInfoService, $location) {
 
@@ -221,7 +221,7 @@ angular.module('tool')
 
 
 
-angular.module('tool').controller('ConfirmAccountDeleteCtrl', function ($scope, $modalInstance, accountToDelete,accountList,Account) {
+angular.module('account').controller('ConfirmAccountDeleteCtrl', function ($scope, $modalInstance, accountToDelete,accountList,Account) {
 
     $scope.accountToDelete = accountToDelete;
     $scope.accountList = accountList;

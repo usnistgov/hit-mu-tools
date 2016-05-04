@@ -1,24 +1,6 @@
 'use strict';
 
-angular.module('tool').factory('i18n', function() {
-    // AngularJS will instantiate a singleton by calling "new" on this function   
-    var language;
-    var setLanguage = function (theLanguage) {
-        $.i18n.properties({
-            name: 'messages',
-            path: 'lang/',
-            mode: 'map',
-            language: theLanguage,
-            callback: function () {
-                language = theLanguage;
-            }
-        });
-    };
-    setLanguage('en');
-    return {
-        setLanguage: setLanguage
-    };
-});
+
 
 /*angular.module('ehrRandomizerApp')
   .service('i18n', function i18n() {
