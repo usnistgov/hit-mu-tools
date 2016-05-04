@@ -2,8 +2,9 @@
 
 angular.module('commonServices', []);
 angular.module('hit-util', []);
-angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi', 'hit-util']);
+angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi', 'hit-util']);
 angular.module('main', ['common']);
+angular.module('account', ['common']);
 angular.module('cf', ['common']);
 angular.module('base-tool', ['common']);
 angular.module('doc', ['common']);
