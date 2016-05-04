@@ -97,16 +97,35 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/cb', {
             templateUrl: 'views/cb/cb.html'
         })
-        .when('/transport-settings', {
-            templateUrl: 'views/transport-settings.html'
-        })
         .when('/error', {
             templateUrl: 'error.html'
+        })
+        .when('/transport-settings', {
+            templateUrl: 'views/transport-settings.html'
+        }).when('/forgotten', {
+            templateUrl: 'views/account/forgotten.html',
+            controller: 'ForgottenCtrl'
+        }).when('/registration', {
+            templateUrl: 'views/account/registration.html',
+            controller: 'RegistrationCtrl'
+        }).when('/useraccount', {
+            templateUrl: 'views/account/userAccount.html'
+        }).when('/glossary', {
+            templateUrl: 'views/glossary.html'
+        }).when('/resetPassword', {
+            templateUrl: 'views/account/registerResetPassword.html',
+            controller: 'RegisterResetPasswordCtrl',
+            resolve: {
+                isFirstSetup: function () {
+                    return false;
+                }
+            }
+        }).when('/registrationSubmitted', {
+            templateUrl: 'views/account/registrationSubmitted.html'
         })
         .otherwise({
             redirectTo: '/'
         });
-
 
     $httpProvider.interceptors.push('interceptor1');
     $httpProvider.interceptors.push('interceptor2');
