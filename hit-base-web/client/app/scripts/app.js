@@ -49,7 +49,7 @@ var app = angular.module('hit-tool', [
     'hit-settings',
     'doc',
     'account',
-    ,
+    'main',
     'hit-manual-report-viewer',
     'ngNotificationsBar'
 
