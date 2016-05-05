@@ -1580,7 +1580,7 @@ angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $
 
 });
 
-angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope) {
+angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope,User) {
     $scope.transport = Transport;
     $scope.config = null;
     $scope.loading = false;

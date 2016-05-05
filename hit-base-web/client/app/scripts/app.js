@@ -598,6 +598,11 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
         $rootScope.createGuestIfNotExist();
     });
 
+
+    $rootScope.getAppInfo = function(){
+        return $rootScope.appInfo;
+    };
+
 });
 
 

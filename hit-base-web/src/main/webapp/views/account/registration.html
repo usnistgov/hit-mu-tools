@@ -200,18 +200,18 @@
 <div class="form-group control-group">
     <div class="col-md-offset-3 col-md-5">
         <label class="control-label">
-            <div msg="" key="registration.agreement.title"></div>
+            <div>{{getAppInfo().registrationTitle}}</div>
         </label>
 
         <div class="controls">
             <div>
-                <textarea msg="" key="registration.agreement.content" disabled="disabled" rows="9" style="text-align:left;width:700px;border:1px; border-color: black">
+                <textarea disabled="disabled" rows="9" style="text-align:left;width:700px;border:1px; border-color: black">{{getAppInfo().registrationAgreement}}
                 </textarea>
                 <br>
                 <br>
                 <label>
                     <input type="checkbox" ng-model="agreed" required="">
-                    <span msg="" key="registration.agreement.acceptanceTitle"></span>
+                    <span>{{getAppInfo().registrationAcceptanceTitle}}</span>
                 </label>
             </div>
         </div>
