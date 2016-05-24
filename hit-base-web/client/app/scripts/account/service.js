@@ -93,14 +93,6 @@ angular.module('account').factory('MultiSupervisorsLoader', ['Supervisors', '$q'
 ]);
 
 
-'use strict';
-
-angular.module('account').factory('userInfo', ['$resource',
-    function ($resource) {
-        return $resource('api/accounts/cuser');
-    }
-]);
-
 angular.module('account').factory('userLoaderService', ['userInfo', '$q',
     function (userInfo, $q) {
         var load = function() {

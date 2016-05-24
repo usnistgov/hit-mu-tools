@@ -320,6 +320,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     }
 
     var initUser = function(user){
+        console.log("guest user created with:\n" + angular.toJson(user));
         userInfoService.setCurrentUser(user);
         User.initUser(user);
         Transport.init();
@@ -426,8 +427,11 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.createGuestIfNotExist = function(){
+        console.log("creating guest user");
         User.createGuestIfNotExist().then(function (guest) {
             initUser(guest);
+            console.log("guest user created");
+
         }, function (error) {
             $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
         });
@@ -589,7 +593,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
         console.log("currentUser=" + angular.toJson(currentUser));
-        if(currentUser != null) {
+        if(currentUser !== null && currentUser.id != null && currentUser.id != undefined) {
             initUser(currentUser);
         }else{
             $rootScope.createGuestIfNotExist();
