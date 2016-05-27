@@ -39,7 +39,7 @@
                 ng-class="isActive('/useraccount') || isActive('/transport-settings')">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                    aria-expanded="false"><i
-                        class="fa fa-user"></i>&nbsp;My Account <span class="caret"></span></a>
+                        class="fa fa-user"></i>&nbsp;Hello {{getUsername()}}<span class="caret"></span></a>
                 <ul class="dropdown-menu" >
                     <li ng-class="isActive('/useraccount')"><a class="point" href="#/useraccount"><i
                             class="fa fa-user"></i>&nbsp;My Profile</a></li>
