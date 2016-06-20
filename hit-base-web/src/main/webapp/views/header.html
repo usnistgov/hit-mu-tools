@@ -36,7 +36,7 @@
 
         <ul class="nav navbar-nav navbar-right" style="margin-right: 15px">
             <li class="dropdown clear-fix" ng-show="isAuthenticated()" ng-class="isActive('/useraccount') || isActive('/transport-settings')">
-                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i>&nbsp;My Account <span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i>&nbsp;Hello {{getUsername()}}<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li ng-class="isActive('/useraccount')"><a class="point" href="#/useraccount"><i class="fa fa-user"></i>&nbsp;My Profile</a></li>
                     <li role="separator" class="divider"></li>
