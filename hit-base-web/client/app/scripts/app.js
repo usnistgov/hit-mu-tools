@@ -51,7 +51,9 @@ var app = angular.module('hit-tool', [
     'account',
     'main',
     'hit-manual-report-viewer',
-    'ngNotificationsBar'
+    'blockUI',
+    'ui-notification'
+
 
 //    ,
 //    'ngMockE2E'
@@ -70,7 +72,7 @@ var httpHeaders,
 
 //the message to be shown to the user
 var msg = {};
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,notificationsConfigProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider,blockUIConfig) {
 
 
     localStorageServiceProvider
@@ -144,13 +146,13 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 
     // auto hide
-    notificationsConfigProvider.setAutoHide(true);
+    NotificationProvider.setOptions({
+        delay: 30000,
+        maxCount:1
+    });
 
-    // delay before hide
-    notificationsConfigProvider.setHideDelay(30000);
-
-    // delay between animation and removing the nofitication
-    notificationsConfigProvider.setAutoHideAnimationDelay(1200);
+    blockUIConfig.message = 'Please wait...';
+    blockUIConfig.blockBrowserNavigation = true;
 
 
     httpHeaders = $httpProvider.defaults.headers;
@@ -541,17 +543,16 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.showNotification = function (m) {
-        if (m != undefined && m.show && m.text != null && m.text) {
+        if(m != undefined && m.show && m.text != null) {
             var msg = angular.copy(m);
             var message = $.i18n.prop(msg.text);
             var type = msg.type;
-            notifications.closeAll();
             if (type === "danger") {
-                notifications.showError({message: message});
+                Notification.error({message: message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay:10000});
             } else if (type === 'warning') {
-                notifications.showWarning({message: message});
+                Notification.warning({message: message, templateUrl: "NotificationWarningTemplate.html", scope: $rootScope, delay:5000});
             } else if (type === 'success') {
-                notifications.showSuccess({message: message});
+                Notification.success({message: message, templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay:5000});
             }
             //reset
             m.text = null;
