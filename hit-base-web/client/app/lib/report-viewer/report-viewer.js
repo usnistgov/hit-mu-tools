@@ -272,12 +272,12 @@
             var delay = $q.defer();
 //            var data = $.param(;
             var data = {xml: xmlMessageValidationReport, testStep: {id: testStepId}, result: result, comments: comments};
-             var config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-                }
-            };
-            $http.post("api/testStepValidationReport/update", data, config).then(
+//             var config = {
+//                headers: {
+//                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+//                }
+//            };
+            $http.post("api/testStepValidationReport/update", data).then(
                 function (object) {
                     delay.resolve(angular.fromJson(object.data));
                 },
