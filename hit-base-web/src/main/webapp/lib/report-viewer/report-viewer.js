@@ -270,8 +270,9 @@
 
         ReportService.updateTestStepValidationReport = function (xmlMessageValidationReport, testStepId, result, comments) {
             var delay = $q.defer();
-            var data = $.param({xmlMessageValidationReport: xmlMessageValidationReport, testStepId: testStepId, result: result, comments: comments});
-            var config = {
+//            var data = $.param(;
+            var data = {xml: xmlMessageValidationReport, testStep: {id: testStepId}, result: result, comments: comments};
+             var config = {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
                 }
