@@ -1974,7 +1974,9 @@ angular.module('format').factory('TestExecutionService',
             result = result != undefined ? result : null;
             var comments = TestExecutionService.getTestStepComments(testStep);
             comments = comments != undefined ? comments : null;
-            return ReportService.updateTestStepValidationReport(testStep, result, comments);
+            var report = TestExecutionService.getTestStepValidationReport(testStep);
+            var xmlMessageOrManualValidation = report != null ? report.xml:null;
+            return ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments);
         };
 
         return TestExecutionService;
