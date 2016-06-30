@@ -1382,6 +1382,26 @@ angular.module('cb')
                 $scope.cb.tree.root.collapse_all();
         };
 
+
+        $scope.showMessageWithHexadecimal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'MessageWithHexadecimal.html',
+                controller: 'MessageWithHexadecimalCtrl',
+                windowClass: 'valueset-modal',
+                animation:false,
+                keyboard:true,
+                backdrop:true,
+                resolve: {
+                    messageWithHexadecimal: function () {
+                        return
+                    }
+                }
+            });
+        };
+
+
+
+
     }]);
 
 

@@ -450,6 +450,24 @@ module.exports = function (grunt) {
         'htmlmin'
     ]);
 
+
+    grunt.registerTask('build-quick', [
+        'clean:dist',
+        'bower-install',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
+        'ngmin',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'rev',
+        'usemin',
+        'htmlmin'
+    ]);
+
+
     grunt.registerTask('default', [
         'newer:jshint',
         'test',

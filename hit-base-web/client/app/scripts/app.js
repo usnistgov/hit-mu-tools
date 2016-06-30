@@ -22,6 +22,7 @@ var app = angular.module('hit-tool', [
     'ngIdle',
     'ngAnimate',
     'ui.bootstrap',
+    'ui-notification',
     'angularBootstrapNavTree',
     'QuickList',
     'hit-util',
@@ -51,8 +52,7 @@ var app = angular.module('hit-tool', [
     'account',
     'main',
     'hit-manual-report-viewer',
-    'blockUI',
-    'ui-notification'
+    'blockUI'
 //    ,
 //    'ngMockE2E'
 ]);
