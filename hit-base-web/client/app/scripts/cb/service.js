@@ -28,7 +28,17 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q', '$http',
     function ($q, $http) {
         return function () {
             var delay = $q.defer();
-            $http.get("api/cb/testcases", {timeout: 180000}).then(
+//            $http.get("api/cb/testcases", {timeout: 180000}).then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
+
+
+            $http.get("../../resources/cb/testPlans.json").then(
                 function (object) {
                     delay.resolve(angular.fromJson(object.data));
                 },
@@ -36,6 +46,7 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q', '$http',
                     delay.reject(response.data);
                 }
             );
+
             return delay.promise;
         };
     }

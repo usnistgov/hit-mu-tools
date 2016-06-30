@@ -59,14 +59,20 @@
                                             Protocols
                                         </div>
                                         <div class="panel-body">
-
-                                            <label class="radio-inline" ng-repeat="proto in getProtocols(dom)">
+                                            <div class="radio" ng-repeat="proto in getProtocols(dom)">
+                                            <label>
                                                 <input type="radio" ng-click="selectPane(dom, proto)"
-                                                       ng-checked="isActivePane(dom,proto)">
+                                                       class="form-control"
+                                                       ng-checked="isActivePane(dom,proto)"
+                                                       tooltip-html="getProtoDescription(dom, proto)"
+                                                       tooltip-append-to-body="true"
+                                                       tooltip-class="constraints-tooltip"
+                                                       tooltip-trigger
+                                                       tooltip-animation="false" tooltip-placement="left"
+                                                        >
                                                 {{proto | uppercase}}
-
-                                                <br />
                                             </label>
+                                             </div>
                                         </div>
                                     </div>
                                 </div>

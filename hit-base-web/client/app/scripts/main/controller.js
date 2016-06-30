@@ -713,3 +713,18 @@ angular.module('main').controller('ConfirmLogoutCtrl', ["$scope", "$modalInstanc
 }]);
 
 
+angular.module('main').controller('MessageWithHexadecimalDlgCtrl',  function ($scope, $modalInstance,original,MessageUtil) {
+    $scope.showHex = true;
+    var messageWithHexadecimal = MessageUtil.toHexadecimal(original);
+    $scope.message = messageWithHexadecimal;
+
+    $scope.toggleHexadecimal = function(){
+        $scope.showHex = !$scope.showHex;
+        $scope.message = $scope.showHex ? messageWithHexadecimal: original;
+    };
+
+    $scope.close = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+});
