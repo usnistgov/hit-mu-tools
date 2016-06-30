@@ -53,8 +53,6 @@ var app = angular.module('hit-tool', [
     'hit-manual-report-viewer',
     'blockUI',
     'ui-notification'
-
-
 //    ,
 //    'ngMockE2E'
 ]);
