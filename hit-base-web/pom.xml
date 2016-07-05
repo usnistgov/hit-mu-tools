@@ -6,9 +6,9 @@
 	<description>Laboratory Results Interface tool</description>
 	<packaging>war</packaging>
 	<parent>
-		<groupId>gov.nist.hit.base</groupId>
+		<groupId>gov.nist.healthcare.mu.lri-r2</groupId>
 		<artifactId>lri-r2</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<build>
@@ -71,7 +71,7 @@
 	</build>
 	<dependencies>
  <dependency>
-			<groupId>lri-r2-config</groupId>
+			<groupId>gov.nist.healthcare.mu.lri-r2</groupId>
 			<artifactId>lri-r2-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
