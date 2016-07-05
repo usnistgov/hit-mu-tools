@@ -14,36 +14,8 @@
 
 	<properties>
 		<spring.version>4.1.1.RELEASE</spring.version>
-		<hit-core.version>1.0.2</hit-core.version>
  	</properties> 
- 	<dependencies>
- 	
- 	<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-domain</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-repo</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-service</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>gov.nist.hit.core</groupId>
-			<artifactId>hit-core-transport</artifactId>
-			<version>${hit-core.version}</version>
-		</dependency>
- 		
- 		
- 		
+ 	<dependencies> 		
  	</dependencies>
  
 	<build>

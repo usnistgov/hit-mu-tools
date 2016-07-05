@@ -75,7 +75,7 @@
             $scope.isRelevant = function (node) {
                 if (node === undefined || !$scope.options.relevance)
                     return true;
-                if (node.hide === false) {
+                if (node.hide == undefined || !node.hide || node.hide === false) {
                     if (node.predicates && node.predicates != null && node.predicates.length > 0 ) {
                         return  node.predicates[0].trueUsage === "R" || node.predicates[0].trueUsage === "RE" || node.predicates[0].falseUsage === "R" || node.predicates[0].falseUsage === "RE";
                     }else {
@@ -294,13 +294,13 @@
 
             $scope.initAll = function () {
                 $scope.nodeData = [];
-                $scope.predicates = [];
                 $scope.confStatements = [];
                 $scope.predicates = [];
                 $scope.segments = [];
                 $scope.datatypes = [];
                 $scope.parentsMap = [];
                 $scope.componentsParentMap = [];
+                $scope.model = null;
                 $rootScope.pvNodesMap = {};
                 $scope.tmpConfStatements = [].concat($scope.confStatements);
             };
@@ -311,7 +311,6 @@
                 $scope.options.collapse = true;
                 if (profile && profile.id != null) {
                     $scope.profile = profile;
-                    $scope.model = null;
                     $scope.profileService.getJson($scope.profile.id).then(function (jsonObject) {
                         $scope.initAll();
                         $scope.model = angular.fromJson(jsonObject);
@@ -321,7 +320,7 @@
                         angular.forEach($scope.model.datatypes, function (value, key) {
                             $scope.datatypes.push(value);
                         });
-                        $scope.datatypes = $filter('orderBy')($scope.datatypes, 'name');
+                        $scope.datatypes = $filter('orderBy')($scope.datatypes, 'id');
                         $scope.getNodeContent($scope.model.message);
                         $scope.loading = false;
                     }, function (error) {
@@ -374,7 +373,7 @@
                     if (parent.type === 'FIELD') {
                         children = angular.copy(children);
                         angular.forEach(children, function (child) {
-                            child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'COMPONENT';
+                             child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'COMPONENT';
                             child.path = parent.path + "." + child.position;
                             child.nodeParent = parent;
                             child.conformanceStatements = [];
@@ -395,7 +394,7 @@
                     } else if (parent.type === 'COMPONENT') {
                         children = angular.copy(children);
                         angular.forEach(children, function (child) {
-                            child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'SUBCOMPONENT';
+                             child.type = parent.datatype === 'varies' ? 'DATATYPE' : 'SUBCOMPONENT';
                             child.path = parent.path + "." + child.position;
                             child.nodeParent = parent;
                             child.conformanceStatements = [];
@@ -502,7 +501,7 @@
             };
 
             $scope.visible = function (node) {
-                return  node ? $scope.isRelevant(node) && $scope.visible($scope.parentsMap[node.id]) : true;
+                 return  node ? $scope.isRelevant(node) ? node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT' ?  $scope.visible(node.nodeParent) : $scope.visible($scope.parentsMap[node.id]) : false:true;
             };
 
             $scope.getNodeContent = function (selectedNode) {
@@ -637,7 +636,7 @@
             $scope.getMessageChildTargetPath = function (element) {
                 if (element == null || element.type === "MESSAGE")
                     return "";
-                var parent = element.type === 'COMPONENT' ? element.nodeParent : element.parent;
+                var parent = element.type === 'COMPONENT' || element.type === 'FIELD' ? element.nodeParent : $scope.parentsMap[element.id]; //X
                 var pTarget = $scope.getMessageChildTargetPath(parent);
                 return pTarget === "" ? element.position + "[1]" : pTarget + "."
                     + element.position + "[1]";
@@ -646,7 +645,7 @@
             $scope.getSegmentChildTargetPath = function (element) {
                 if (element == null || element.type === "SEGMENT")
                     return "";
-                var parent = element.type === 'COMPONENT' ? element.nodeParent : element.parent;
+                var parent = element.type === 'COMPONENT' ? element.nodeParent :$scope.parentsMap[element.id]; //X
                 var pTarget = $scope.getSegmentChildTargetPath(parent);
                 return pTarget === "" ? element.position + "[1]" : pTarget + "."
                     + element.position + "[1]";
@@ -655,16 +654,16 @@
             $scope.getDatatypeChildTargetPath = function (element) {
                 if (element == null || element.type === "DATATYPE")
                     return "";
-                var parent = element.parent;
+                var parent =$scope.parentsMap[element.id]; //X
                 var pTarget = $scope.getDatatypeChildTargetPath(parent);
                 return pTarget === "" ? element.position + "[1]" : pTarget + "."
                     + element.position + "[1]";
             };
 
             $scope.getGroupChildTargetPath = function (element, group) {
-                if (element == null || (element.type === "GROUP" && element.id === group.id))
+                if (!element || element == null || (element.type === "GROUP" && group && group!= null && element.id === group.id))
                     return "";
-                var parent = element.parent;
+                var parent = $scope.parentsMap[element.id]; //X
                 var pTarget = $scope.getGroupChildTargetPath(parent);
                 return pTarget === "" ? element.position + "[1]" : pTarget + "."
                     + element.position + "[1]";
@@ -778,9 +777,9 @@
                     } else if (element.type === 'COMPONENT') {
                         return $scope.getGroup(element.nodeParent);
                     } else if (element.type === 'SEGMENT_REF') { // find the segment
-                        return element.parent;
+                        return $scope.parentsMap[element.id]; //X
                     } else if (element.type === 'GROUP') { // find the segment
-                        return element.parent;
+                        return $scope.parentsMap[element.id]; //X
                     }
                 }
                 return null;
@@ -1028,7 +1027,7 @@
 
         ProfileService.prototype.getJson = function (id) {
             var delay = $q.defer();
-            $http.post('api/profile/' + id).then(
+            $http.get('api/profile/' + id).then(
                 function (object) {
                     try {
                         delay.resolve(angular.fromJson(object.data));
@@ -1041,7 +1040,7 @@
                 }
             );
 
-//            $http.get('../../resources/cf/profile.json').then(
+//            $http.get('../../resources/cf/profile-1.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },

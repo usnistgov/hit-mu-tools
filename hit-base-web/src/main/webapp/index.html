@@ -26,7 +26,7 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="stylesheet" href="styles/cc325d12.vendor.css">
     <!-- For project CSS files -->
-    <link rel="stylesheet" href="styles/ac74db8b.main.css">
+    <link rel="stylesheet" href="styles/46ca290f.main.css">
 
     <!-- Custom styles for this template -->
     <link href="styles/613d0d64.carousel.css" rel="stylesheet">
@@ -42,7 +42,7 @@
 
     <link rel="stylesheet" type="text/css" href="lib/angular-treetable/style/jquery.treetable.css">
     <link rel="stylesheet" type="text/css" href="lib/angular-treetable/style/jquery.treetable.theme.default.css">
-    <link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+    <link rel="stylesheet" href="lib/blueimp/blueimp-file-upload/css/blueimp-gallery.min.css">
     <link rel="stylesheet" href="lib/blueimp/blueimp-file-upload/css/jquery.fileupload.css">
     <link rel="stylesheet" href="lib/blueimp/blueimp-file-upload/css/jquery.fileupload-ui.css">
     <noscript>
@@ -146,22 +146,23 @@
     <script src="lib/profile-viewer/profile-viewer.js"></script>
     <script src="lib/vocab-search/vocab-search.js"></script>
     <script src="lib/validation-result/validation-result.js"></script>
+    <script src="lib/manual-report-viewer/manual-report-viewer.js"></script>
     <script src="lib/report-viewer/report-viewer.js"></script>
     <script src="lib/testcase-details/testcase-details.js"></script>
     <script src="lib/testcase-tree/testcase-tree.js"></script>
     <script src="lib/documentation-viewer/documentation-viewer.js"></script>
-    <script src="lib/format/format.js"></script>
-    <script src="lib/format/default.js"></script>
-    <script src="lib/format/hl7v2-edi.js"></script>
-    <script src="lib/format/hl7v2.js"></script>
-    <script src="lib/format/xml.js"></script>
-    <script src="lib/format/edi.js"></script>
+    <script src="lib/base-libs/common.js"></script>
+    <script src="lib/base-libs/default.js"></script>
+    <script src="lib/base-libs/hl7v2-edi.js"></script>
+    <script src="lib/base-libs/hl7v2.js"></script>
+    <script src="lib/base-libs/xml.js"></script>
+    <script src="lib/base-libs/edi.js"></script>
     <script src="lib/settings/settings.js"></script>
 
     <!--<script src="lib/angular-mocks/angular-mocks.js"></script>-->
 
 
-    <script src="scripts/1071f72f.scripts.js"></script>
+    <script src="scripts/35202d1d.scripts.js"></script>
 
     <div ng-include="'views/error.html'"></div>
     <div ng-include="'views/templates.html'"></div>
@@ -174,6 +175,7 @@
     <div ng-include="'lib/report-viewer/report-viewer-tpls.html'"></div>
     <div ng-include="'lib/testcase-tree/testcase-tree-tpls.html'"></div>
     <div ng-include="'lib/documentation-viewer/documentation-viewer-tpls.html'"></div>
+    <div ng-include="'lib/manual-report-viewer/manual-report-viewer-tpls.html'"></div>
 
 
 </div>
