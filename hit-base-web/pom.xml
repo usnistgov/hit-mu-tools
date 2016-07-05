@@ -6,10 +6,22 @@
 	<description>Electronic Directory of Service tool</description>
 	<packaging>war</packaging>
 	<parent>
-		<groupId>gov.nist.hit.base</groupId>
+		<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 		<artifactId>edos-r2</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>	
 
 	<build>
 		<finalName>edos-r2</finalName>
@@ -71,10 +83,10 @@
 	</build>
 
 	<dependencies>
-
-			<groupId>edos-r2-config</groupId>
+		<dependency>
+			<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 			<artifactId>edos-r2-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${config.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -85,4 +97,9 @@
 		</repository>
 	</repositories>
 	
+	<version>0.1.0-SNAPSHOT</version>
+	<groupId>gov.nist.healthcare.mu.edos</groupId>
+	<properties>
+		<config.version>0.1.0-SNAPSHOT</config.version>
+	</properties>
 </project>

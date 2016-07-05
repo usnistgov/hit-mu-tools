@@ -6,9 +6,9 @@
 	<description>Electronic Directory of Service tool service package</description>
 	<packaging>jar</packaging>
 	<parent>
-		<groupId>gov.nist.hit.base</groupId>
+		<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 		<artifactId>edos-r2</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
  
 	<build>
