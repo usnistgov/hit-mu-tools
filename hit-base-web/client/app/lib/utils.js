@@ -70,7 +70,8 @@ mod.factory('MessageUtil',
                         out += c;
                     } else {
                         //var hex = c.charCodeAt(0).toString(16);
-                        var hex = ("0000" + c.charCodeAt(0).toString(4)).substr(-4);
+//                        var hex = ("0000" + c.charCodeAt(0).toString(4)).substr(-4);
+                        var hex = (c.charCodeAt(0).toString(4));
                         out += "[x" + hex + "]";
                     }
                 }
