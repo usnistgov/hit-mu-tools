@@ -728,3 +728,19 @@ angular.module('main').controller('MessageWithHexadecimalDlgCtrl',  function ($s
     };
 
 });
+
+
+
+angular.module('main').controller('ValidationResultDetailsCtrl', function ($scope, $modalInstance, selectedElement) {
+
+    $scope.selectedElement = selectedElement;
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selectedElement);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
