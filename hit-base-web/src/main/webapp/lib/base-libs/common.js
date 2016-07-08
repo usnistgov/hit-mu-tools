@@ -1067,7 +1067,7 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
             }
         );
 
-
+//
 //        $http.get('../../resources/cb/user.json').then(
 //            function (response) {
 //                var data = angular.fromJson(response.data);
