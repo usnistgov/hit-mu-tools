@@ -1,0 +1,20 @@
+/bin
+.settings/
+target/
+
+# Windows
+Thumbs.db 
+Desktop.ini
+
+# OSX
+.DS_Store
+
+#Eclipse
+.project
+.metadata
+.classpath
+.settings/
+hit-base-web/client/node_modules
+hit-base-web/client/app/bower_components
+hit-base-web/client/.tmp
+hit-base-web/client/.sass-cache

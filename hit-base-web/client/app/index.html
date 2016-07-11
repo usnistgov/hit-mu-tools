@@ -28,6 +28,8 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css" />
     <link rel="stylesheet" href="bower_components/sass-bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/angular-block-ui/dist/angular-block-ui.css" />
+    <link rel="stylesheet" href="bower_components/angular-ui-notification/dist/angular-ui-notification.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- For project CSS files -->
@@ -41,8 +43,6 @@
 
     <script src="lib/codemirror/lib/codemirror.js"></script>
     <script src="lib/codemirror/lib/formating.js"></script>
-    <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
-    <link rel="stylesheet" href="lib/codemirror/theme/elegant.css">
     <script src="lib/codemirror/mode/edi.js"></script>
     <script src="lib/codemirror/mode/xml.js"></script>
     <script src="lib/codemirror/mode/hl7v2.js"></script>
@@ -62,7 +62,14 @@
     <link rel="stylesheet" href="lib/angular-bootstrap-nav-tree/abn_tree.css">
     <link rel="stylesheet" href="lib/testcase-tree/testcase-tree.css"/>
     <link rel="stylesheet" href="lib/documentation-viewer/documentation-viewer.css"/>
-    <!--<link rel="stylesheet" href="lib/tree-grid/treeGrid.css">-->
+    <!--<link href="https://fonts.googleapis.com/css?family=Cairo" rel="stylesheet">-->
+    <!--<style>-->
+        <!--* {-->
+            <!--font-family: 'Cairo', sans-serif;-->
+        <!--}-->
+    <!--</style>-->
+    <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror/theme/elegant.css">
 
     <style id="antiClickjack">body{display:none !important;}</style>
     <script type="text/javascript">
@@ -74,7 +81,9 @@
         }
     </script>
 </head>
-<body ng-app="hit-tool" window-exit>
+<body ng-controller="MainCtrl" ng-app="hit-tool" window-exit>
+<notifications-bar class="notifications" closeIcon="fa fa-times-circle"></notifications-bar>
+
 <div id="wrapper">
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
@@ -145,14 +154,15 @@
     <!--<script src="bower_components/angular-loading-bar/src/loading-bar.js"></script>-->
     <!--<script src="bower_components/ng-table/dist/ng-table.min.js"></script>-->
     <script src="bower_components/angular-smart-table/dist/smart-table.min.js"></script>
-
+    <script src="bower_components/angular-block-ui/dist/angular-block-ui.min.js"></script>
     <script src="bower_components/quick-ngrepeat/quick-ng-repeat.js"></script>
     <script src="bower_components/ng-idle/angular-idle.js"></script>
-    <!--<script src="bower_components/angular-mocks/ngMockE2E.js"></script>&ndash;&gt;-->
+    <script src="bower_components/angular-ui-notification/dist/angular-ui-notification.js"></script>
 
     <!-- endbuild -->
 
     <!-- blueimp -->
+    <script src="lib/i18n/jquery.i18n.properties-1.0.9.js"></script>
     <script src="lib/blueimp/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>
     <script src="lib/blueimp/blueimp-load-image/js/load-image.js"></script>
     <script src="lib/blueimp/blueimp-file-upload/js/jquery.iframe-transport.js"></script>
@@ -170,7 +180,6 @@
     <script src="lib/angular-treetable/js/angular-treetable-custom.js"></script>
 
     <script src="lib/utils.js"></script>
-    <script src="lib/xml-util.js"></script>
     <script src="lib/lrInfiniteScroll/lrInfiniteScroll.js"></script>
     <script src="lib/profile-viewer/profile-viewer.js"></script>
     <script src="lib/vocab-search/vocab-search.js"></script>
@@ -187,29 +196,27 @@
     <script src="lib/base-libs/xml.js"></script>
     <script src="lib/base-libs/edi.js"></script>
     <script src="lib/settings/settings.js"></script>
-
-    <!--<script src="lib/angular-mocks/angular-mocks.js"></script>-->
-
-
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
     <script src="scripts/app.js"></script>
     <!-- Services-->
+    <script src="scripts/i18n.js"></script>
+    <script src="scripts/base64.js"></script>
     <script src="scripts/my.resource.js"></script>
-    <script src="scripts/testing/service.js"></script>
-    <script src="scripts/common.js"></script>
+     <script src="scripts/common.js"></script>
     <script src="scripts/cf/service.js"></script>
     <script src="scripts/cb/service.js"></script>
-    <script src="scripts/contact/service.js"></script>
-    <script src="scripts/common.js"></script>
+     <script src="scripts/common.js"></script>
+    <script src="scripts/main/service.js"></script>
+    <script src="scripts/account/service.js"></script>
     <!--<script src="lib/mock-server.js"></script>-->
 
     <!-- Controllers-->
-    <script src="scripts/testing/controller.js"></script>
-    <script src="scripts/cf/controller.js"></script>
+    <script src="scripts/main/controller.js"></script>
+     <script src="scripts/cf/controller.js"></script>
     <script src="scripts/cb/controller.js"></script>
-    <script src="scripts/contact/controller.js"></script>
-    <script src="scripts/about/controller/about.js"></script>
+     <script src="scripts/account/controller.js"></script>
     <script src="scripts/directives/directives.js"></script>
+    <script src="scripts/account/directive.js"></script>
 
     <!-- endbuild -->
 

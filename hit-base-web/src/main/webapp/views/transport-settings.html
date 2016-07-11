@@ -30,10 +30,10 @@
 
                             <div class="btn-group btn-group-sm" data-toggle="buttons" style="margin-right: 10px">
                                 <label class="btn btn-cf-outline" ng-click="toggleTransport(false)" ng-class="{'active': !transport.disabled}">
-                                    <input type="radio" ng-model="transport.disabled" autocomplete="off" checked="checked">Enabled
+                                    <input type="radio" ng-model="transport.disabled" autocomplete="off" checked="checked">On
                                 </label>
                                 <label class="btn btn-cf-outline" ng-click="toggleTransport(true)" ng-class="{'active': transport.disabled}">
-                                    <input type="radio" ng-model="transport.disabled" autocomplete="off">Disabled
+                                    <input type="radio" ng-model="transport.disabled" autocomplete="off">Off
                                 </label>
                             </div>
 
@@ -56,13 +56,12 @@
                                             Protocols
                                         </div>
                                         <div class="panel-body">
-
-                                            <label class="radio-inline" ng-repeat="proto in getProtocols(dom)">
-                                                <input type="radio" ng-click="selectPane(dom, proto)" ng-checked="isActivePane(dom,proto)">
+                                            <div class="radio" ng-repeat="proto in getProtocols(dom)">
+                                            <label>
+                                                <input type="radio" ng-click="selectPane(dom, proto)" class="form-control" ng-checked="isActivePane(dom,proto)" tooltip-html="getProtoDescription(dom, proto)" tooltip-append-to-body="true" tooltip-class="constraints-tooltip" tooltip-trigger="" tooltip-animation="false" tooltip-placement="left">
                                                 {{proto | uppercase}}
-
-                                                <br>
                                             </label>
+                                             </div>
                                         </div>
                                     </div>
                                 </div>
@@ -94,6 +93,23 @@
                                                                             <div class="row">
                                                                                 <div class="col-md-12">
                                                                                     <div compile="transport.configs[dom][proto]['forms']['sutInitiatorForm']">
+                                                                                </div>
+
+                                                                                <div class="col-md-12" ng-show="isAuthenticated()">
+                                                                                    <div class="form-group">
+                                                                                        <div class="col-md-offset-2 col-md-6">
+                                                                                            <button class="btn btn-sm btn-primary" ng-click="saveSutInitiatorConfig(dom, proto)" ng-disabled="sutInitiatorForm_{{dom}}_{{proto}}.$invalid || sutInitiatorForm_{{dom}}_{{proto}}.$pristine">
+                                                                                                <i class="fa fa-check"></i>
+                                                                                                Save
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <div class="col-md-12">
+                                                                                        <div ng-show="saving" style="text-align:center">
+                                                                                            <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+                                                                                        </div>
+                                                                                        </div>
+
+                                                                                    </div>
                                                                                 </div>
 
                                                                                 <div class="col-md-12" ng-show="error !== null">
