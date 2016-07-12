@@ -89,7 +89,7 @@
                                     Validate
                                 </button>
 
-                                <button title="Show Message With Hexadecimal Character" type="button" class="btn btn-xs btn-primary" ng-hide="isTestCase() && isTestCaseCompleted()" ng-click="showMessageWithHexadecimal()">
+                                <button title="Show Message With Hexadecimal Character" type="button" class="btn btn-xs btn-primary" ng-hide="(isTestCase() && isTestCaseCompleted()) || !hasNonPrintable" ng-click="showMessageWithHexadecimal()">
                                     <i class="fa fa-check-circle"></i>
                                     Show Non-Printable Character
                                 </button>
