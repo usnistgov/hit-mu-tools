@@ -11,7 +11,7 @@ angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
 angular.module('documentation', []);
-var app = angular.module('hit-tool', [
+var app = angular.module('hit-app', [
     'ngRoute',
     'ui.bootstrap',
     'ngCookies',
@@ -71,7 +71,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 
     localStorageServiceProvider
-        .setPrefix('hit-tool')
+        .setPrefix('hit-app')
         .setStorageType('sessionStorage');
 
     $routeProvider
