@@ -62,7 +62,7 @@ var httpHeaders,
     spinner,
 
 //The list of messages we don't want to display
-    mToHide = ['usernameNotFound', 'emailNotFound', 'usernameFound', 'emailFound', 'loginSuccess', 'userAdded', 'igDocumentNotSaved', 'igDocumentSaved', 'uploadImageFailed'];
+    mToHide = ['usernameNotFound', 'emailNotFound', 'usernameFound', 'emailFound', 'loginSuccess', 'userAdded','uploadImageFailed'];
 
 //the message to be shown to the user
 var msg = {};
@@ -88,9 +88,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         })
         .when('/about', {
             templateUrl: 'views/about.html'
-        })
-        .when('/contact', {
-            templateUrl: 'views/contact.html'
         })
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
@@ -146,7 +143,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     });
 
 
-    blockUIConfig.message = 'Please wait...';
+    blockUIConfig.message = 'Loading...';
     blockUIConfig.blockBrowserNavigation = true;
 
 
@@ -336,27 +333,6 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
         $rootScope.appInfo = {};
         $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");
     });
-
-//
-//    $rootScope.createGuestIfNotExistSession = function () {
-//        Session.create().then(function (response) {
-//            // load current user
-//            User.loadGuestAccont().then(function (response) {
-//                Transport.init();
-//            }, function (error) {
-//                $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
-//            });
-//            loadAppInfo();
-//        }, function (error) {
-//            $rootScope.openCriticalErrorDlg("Sorry we could not start your session. Please refresh the page and try again.");
-//        });
-//    };
-
-
-//    function loadAppInfo() {
-//        // load app info
-//
-//    };
 
 
     $rootScope.$watch(function () {
@@ -693,16 +669,6 @@ app.filter('capitalize', function () {
     }
 });
 
-
-app.directive('stRatio', function () {
-    return {
-
-        link: function (scope, element, attr) {
-            var ratio = +(attr.stRatio);
-            element.css('width', ratio + '%');
-        }
-    };
-});
 
 
 app.controller('ErrorCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
