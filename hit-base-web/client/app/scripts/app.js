@@ -52,7 +52,7 @@ var app = angular.module('hit-tool', [
     'main',
     'hit-manual-report-viewer',
     'blockUI'
-]);
+ ]);
 
 var httpHeaders,
 
@@ -145,6 +145,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         delay: 30000,
         maxCount:1
     });
+
 
     blockUIConfig.message = 'Please wait...';
     blockUIConfig.blockBrowserNavigation = true;
