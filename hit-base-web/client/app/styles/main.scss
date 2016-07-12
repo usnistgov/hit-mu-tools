@@ -2421,3 +2421,7 @@ div.table-container{
   width: 100%;
   padding-top:10px;
 }
+
+.table-bordered tbody tr td{
+  border: 1px solid #ddd;
+}
