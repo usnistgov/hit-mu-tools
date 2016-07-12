@@ -49,7 +49,8 @@ var app = angular.module('hit-app', [
     'account',
     'main',
     'hit-manual-report-viewer',
-    'blockUI'
+    'blockUI',
+    'ociFixedHeader'
  ]);
 
 var httpHeaders,
