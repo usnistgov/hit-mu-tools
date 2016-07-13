@@ -3,7 +3,6 @@ angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 
 angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
-angular.module('base-tool', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('base-tool').directive('checkEmail', [ '$resource',
+angular.module('account').directive('checkEmail', [ '$resource',
     function ($resource) {
         return {
             restrict: 'AC',
@@ -40,7 +40,7 @@ angular.module('base-tool').directive('checkEmail', [ '$resource',
 'use strict';
 
 //This directive is used to make sure both passwords match
-angular.module('base-tool').directive('checkEmployer', [
+angular.module('account').directive('checkEmployer', [
     function () {
         return {
             require: 'ngModel',
