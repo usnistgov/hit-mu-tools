@@ -79,45 +79,44 @@ angular.module('hit-tool-directives').directive('mypopover', function ($compile,
 });
 
 
-angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache,User) {
+angular.module('hit-tool-directives').directive('windowExit', function($window, $templateCache,$http,User) {
     return {
         restrict: 'AE',
         //performance will be improved in compile
         compile: function(element, attrs){
             var myEvent = $window.attachEvent || $window.addEventListener,
                 chkevent = $window.attachEvent ? 'onbeforeunload' : 'beforeunload'; /// make IE7, IE8 compatable
-
             myEvent(chkevent, function (e) { // For >=IE7, Chrome, Firefox
-//                User.delete();
-                $templateCache.removeAll();
+                 $templateCache.removeAll();
             });
         }
     };
 });
 
 
-
-angular.module('hit-tool-directives').directive('initiatorConfigForm', function ($compile) {
-    return function(scope, element, attrs) {
-        scope.$watch(
-            function(scope) {
-                // watch the 'compile' expression for changes
-                return scope.$eval(attrs.htmlForm);
-            },
-            function(value) {
-                // when the 'compile' expression changes
-                // assign it into the current DOM
-                element.html(value);
-
-                // compile the new DOM and link it to the current
-                // scope.
-                // NOTE: we only compile .childNodes so that
-                // we don't get into infinite loop compiling ourselves
-                $compile(element.contents())(scope);
+angular.module('hit-tool-directives')
+    .directive('msg', [function () {
+        return {
+            restrict: 'EA',
+            replace: true,
+            link: function (scope, element, attrs) {
+                //console.log("Dir");
+                var key = attrs.key;
+                if (attrs.keyExpr) {
+                    scope.$watch(attrs.keyExpr, function (value) {
+                        key = value;
+                        element.text($.i18n.prop(value));
+                    });
+                }
+                scope.$watch('language()', function (value) {
+                    element.text($.i18n.prop(key));
+                });
             }
-        );
-    };
-});
+        };
+    }]);
+
+
+
 
 
 

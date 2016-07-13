@@ -173,17 +173,16 @@
                            ng-click="showFailures()"
                             > Highlight All
                 </div>
-                <br/>
-
-                <table st-table="tmpData" st-safe-src="currentCategory.data"
-                       class="table table-striped table-bordered table-condensed table-fix-header validation-result-table">
+                <div class="validation-result-table-container fixed-table-container">
+                    <table   st-table="tmpData" st-safe-src="currentCategory.data"
+                       class="table table-condensed  table-striped table-bordered" oci-fixed-header>
                     <thead>
-                    <!--<tr ng-show="data.length >= 100">-->
-                    <!--<th colspan="5" class="text-center" st-ratio="100">-->
-                    <!--<div class="validation-pagination" st-pagination="" st-items-by-page="100" st-displayed-pages="10"></div>-->
-                    <!--</th>-->
+                    <!--<tr>-->
+                        <!--<th colspan="3" st-ratio="100">-->
+                            <!--<input st-search placeholder="Search" class="input-sm form-control" type="search"/>-->
+                        <!--</th>-->
                     <!--</tr>-->
-                    <tr class="tbl-header" style="margin-right:{{scrollbarWidth}}px">
+                    <tr class="">
                         <th st-sort="path" st-ratio="30">Path</th>
                         <th st-sort="description" st-ratio="60">Description</th>
                         <th st-sort="line" st-ratio="10">Line #</th>
@@ -214,16 +213,17 @@
                         <!--</td>-->
                     </tr>
                     </tbody>
-                    <tfoot ng-show="currentCategory.data.length >= 100">
-                    <tr style="margin-right:{{scrollbarWidth}}px">
-                        <td colspan="5" class="text-center" st-ratio="100">
-                            <div class="validation-pagination" st-pagination="" st-items-by-page="100"
-                                 st-displayed-pages="10"></div>
-                        </td>
-                    </tr>
-                    </tfoot>
+                    <!--<tfoot ng-show="currentCategory.data.length >= 100">-->
+                    <!--<tr  >-->
+                        <!--<td colspan="5" class="text-center" st-ratio="100">-->
+                            <!--<div class="validation-pagination" st-pagination="" st-items-by-page="100"-->
+                                 <!--st-displayed-pages="10"></div>-->
+                        <!--</td>-->
+                    <!--</tr>-->
+                    <!--</tfoot>-->
                 </table>
-            </div>
+                    </div>
+             </div>
             <div ng-if="currentCategory.data == null || currentCategory.data.length == 0">
                 No {{currentType}} found.
             </div>
