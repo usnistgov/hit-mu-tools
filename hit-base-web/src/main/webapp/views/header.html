@@ -38,9 +38,9 @@
 
         <ul class="nav navbar-nav navbar-right" style="margin-right: 15px" ng-show="!transportSupported">
             <li class="dropdown clear-fix">
-                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cogs"></i>&nbsp;Settings<span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog"></i>&nbsp;Preferences<span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a ng-click="showSettings()"><i class="fa fa-check-square"></i>&nbsp; Validation Settings</a>
+                    <li><a ng-click="showSettings()"><i class="fa fa-cog"></i>&nbsp; Validation Settings</a>
                     </li>
                 </ul>
             </li>
@@ -57,7 +57,7 @@
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a ng-click="showSettings()"><i class="fa fa-check-square"></i>&nbsp; Validation Settings</a>
+                    <li><a ng-click="showSettings()"><i class="fa fa-cog"></i>&nbsp; Validation Settings</a>
                     </li>
 
                     <li role="separator" class="divider"></li>
@@ -89,7 +89,8 @@
                     <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a href="#/transport-settings">
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
-                    <li><a ng-click="showSettings()"><i class="fa fa-check-square"></i>&nbsp; Validation Settings</a>
+                    <li role="separator" class="divider"></li>
+                    <li><a ng-click="showSettings()"><i class="fa fa-cog"></i>&nbsp; Validation Settings</a>
                     </li>
                 </ul>
             </li>
