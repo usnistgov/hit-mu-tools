@@ -281,7 +281,8 @@
             };
             $http.post("api/testStepValidationReport/update", data, config).then(
                 function (object) {
-                    delay.resolve(angular.fromJson(object.data));
+                    var res = object.data != null && object.data != "" ? angular.fromJson(object.data): null;
+                    delay.resolve(res);
                 },
                 function (response) {
                     delay.reject(response.data);
