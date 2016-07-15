@@ -3,7 +3,6 @@ angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 
 angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
-angular.module('base-tool', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
@@ -49,8 +48,7 @@ var app = angular.module('hit-app', [
     'account',
     'main',
     'hit-manual-report-viewer',
-    'blockUI',
-    'ociFixedHeader'
+     'ociFixedHeader'
  ]);
 
 var httpHeaders,
@@ -62,11 +60,11 @@ var httpHeaders,
     spinner,
 
 //The list of messages we don't want to display
-    mToHide = ['usernameNotFound', 'emailNotFound', 'usernameFound', 'emailFound', 'loginSuccess', 'userAdded', 'igDocumentNotSaved', 'igDocumentSaved', 'uploadImageFailed'];
+    mToHide = ['usernameNotFound', 'emailNotFound', 'usernameFound', 'emailFound', 'loginSuccess', 'userAdded','uploadImageFailed'];
 
 //the message to be shown to the user
 var msg = {};
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider,blockUIConfig) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider) {
 
 
     localStorageServiceProvider
@@ -88,9 +86,6 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         })
         .when('/about', {
             templateUrl: 'views/about.html'
-        })
-        .when('/contact', {
-            templateUrl: 'views/contact.html'
         })
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
@@ -138,18 +133,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     IdleProvider.timeout(30);
     KeepaliveProvider.interval(10);
 
-
     // auto hide
     NotificationProvider.setOptions({
         delay: 30000,
         maxCount:1
     });
-
-
-    blockUIConfig.message = 'Please wait...';
-    blockUIConfig.blockBrowserNavigation = true;
-
-
     httpHeaders = $httpProvider.defaults.headers;
 
 });
@@ -187,8 +175,7 @@ app.factory('interceptor2', function ($q, $rootScope, $location, StorageService,
         },
         responseError: function (response) {
             if (response.status === 401) {
-                console.log("interceptor2");
-                //We catch everything but this one. So public users are not bothered
+                 //We catch everything but this one. So public users are not bothered
                 //with a login windows when browsing home.
                 if (response.config.url !== 'api/accounts/cuser') {
                     //We don't intercept this request
@@ -220,8 +207,7 @@ app.factory('interceptor3', function ($q, $rootScope, $location, StorageService,
             return response || $q.when(response);
         },
         responseError: function (response) {
-            console.log("interceptor3");
-            //hide the spinner
+             //hide the spinner
             spinner = false;
             return $q.reject(response);
         }
@@ -235,8 +221,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
         if (response.data && response.data.text && response.data.type) {
             if (response.status === 401) {
 //                        console.log("setting login message");
-                console.log("401");
-                loginMessage = {
+                 loginMessage = {
                     text: response.data.text,
                     type: response.data.type,
                     skip: response.data.skip,
@@ -245,8 +230,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
                 };
 
             } else if (response.status === 503) {
-                console.log("503");
-                msg = {
+                 msg = {
                     text: "server.down",
                     type: "danger",
                     show: true,
@@ -336,27 +320,6 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
         $rootScope.appInfo = {};
         $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");
     });
-
-//
-//    $rootScope.createGuestIfNotExistSession = function () {
-//        Session.create().then(function (response) {
-//            // load current user
-//            User.loadGuestAccont().then(function (response) {
-//                Transport.init();
-//            }, function (error) {
-//                $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
-//            });
-//            loadAppInfo();
-//        }, function (error) {
-//            $rootScope.openCriticalErrorDlg("Sorry we could not start your session. Please refresh the page and try again.");
-//        });
-//    };
-
-
-//    function loadAppInfo() {
-//        // load app info
-//
-//    };
 
 
     $rootScope.$watch(function () {
@@ -693,16 +656,6 @@ app.filter('capitalize', function () {
     }
 });
 
-
-app.directive('stRatio', function () {
-    return {
-
-        link: function (scope, element, attr) {
-            var ratio = +(attr.stRatio);
-            element.css('width', ratio + '%');
-        }
-    };
-});
 
 
 app.controller('ErrorCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
