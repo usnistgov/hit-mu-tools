@@ -638,6 +638,7 @@
                     + element.position + "[1]";
             };
 
+
             $scope.getSegmentChildTargetPath = function (element) {
                 if (element == null || element.type === "SEGMENT")
                     return "";
@@ -666,6 +667,14 @@
             };
 
 
+            $scope.getGroupChildDirectTargetPath = function (element, group) {
+                if (!element || element == null || (element.type === "GROUP" && group && group!= null && element.id === group.id))
+                    return "";
+                return  element.position + "[1]";
+            };
+
+
+
             $scope.getGroupLevelConfStatements = function (element) {
                 if (element.type === 'MESSAGE')
                     return [];
@@ -689,6 +698,15 @@
                                 }
                             });
                         }
+                        targetPath = $scope.getGroupChildDirectTargetPath(element, group);
+                        if (targetPath !== "") {
+                            angular.forEach(group.conformanceStatements, function (cs) {
+                                if (cs.constraintTarget === targetPath) {
+                                    conformanceStatements.push(cs);
+                                }
+                            });
+                        }
+
                     }
                 }
                 return conformanceStatements;
@@ -713,6 +731,14 @@
                 if (group != null) {
                     if (group.predicates != null && group.predicates.length > 0) {
                         var targetPath = $scope.getGroupChildTargetPath(element, group);
+                        if (targetPath !== "") {
+                            angular.forEach(group.predicates, function (predicate) {
+                                if (predicate.constraintTarget === targetPath) {
+                                    predicates.push(predicate);
+                                }
+                            });
+                        }
+                        targetPath = $scope.getGroupChildDirectTargetPath(element, group);
                         if (targetPath !== "") {
                             angular.forEach(group.predicates, function (predicate) {
                                 if (predicate.constraintTarget === targetPath) {
