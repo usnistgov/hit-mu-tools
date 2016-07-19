@@ -560,19 +560,15 @@
         <td class="col-xs-2 col-fixed-350"
             ng-class="{'name-concise-view concise-view':options.concise, 'expanded-view': !options.concise}">
 
-             <span class="concise-view" ng-if="options.concise"
-                   tooltip-html="getDatatypeNodeName3(node)" tooltip-append-to-body="true"
-                   tooltip-class="constraints-tooltip"
-                   tooltip-trigger tooltip-animation="false" tooltip-placement="left">
-                            <span class="label label-datatype label-icon">D</span>
-                            <span>{{getDatatypeNodeName3(node)}}</span>
-             </span>
+              <span
+                      tooltip-enable="options.concise"
+                      tooltip-html="getDatatypeNodeName3(node)" tooltip-append-to-body="true"
+                      tooltip-class="constraints-tooltip"
+                      tooltip-trigger tooltip-animation="false" tooltip-placement="left">
+                                  <span class="label label-datatype label-icon">D</span>
+<span>{{getDatatypeNodeName3(node)}}</span>
+                  </span>
 
-             <span
-                     ng-if="!options.concise" class="expanded-view">
-                  <span class="label label-datatype label-icon">D</span>
-                  <span> {{getDatatypeNodeName3(node)}} </span>
-             </span>
 
 
         </td>
