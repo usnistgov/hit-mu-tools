@@ -501,7 +501,20 @@
             };
 
             $scope.visible = function (node) {
-                 return  node ? $scope.isRelevant(node) ? node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT' ?  $scope.visible(node.nodeParent) : $scope.visible($scope.parentsMap[node.id]) : false:true;
+                if(node && node != null){
+                    if($scope.isRelevant(node)){
+                        if(node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT'){
+                            return $scope.visible(node.nodeParent);
+                        }else{
+                            return  $scope.visible($scope.parentsMap[node.id]);
+                        }
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+//                 return  node ? $scope.isRelevant(node) ? node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT' ?  $scope.visible(node.nodeParent) : $scope.visible($scope.parentsMap[node.id]) : false:true;
             };
 
             $scope.getNodeContent = function (selectedNode) {
