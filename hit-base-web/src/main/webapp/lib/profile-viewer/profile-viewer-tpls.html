@@ -437,7 +437,7 @@
 </script>
 
 <script type="text/ng-template" id="MessageSegmentRefReadTree.html">
-    <tr pv-node ng-show="visible(node,node.predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-350"
             ng-class="{'name-concise-view concise-view':options.concise, 'expanded-view': !options.concise}">
             <span class="label label-segment label-icon">S</span>
@@ -458,6 +458,9 @@
         </td>
         <td class="col-xs-1 col-fixed-80">
             <span ng-bind="node.usage"></span>
+             <span ng-repeat="p in node.predicates">
+					({{p.trueUsage}}/{{p.falseUsage}})
+				</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             [{{::node.min}}, {{::node.max}}]
@@ -496,7 +499,7 @@
 </script>
 
 <script type="text/ng-template" id="MessageGroupReadTree.html">
-    <tr pv-node ng-show="visible(node,node.predicates)" is-branch="hasRelevantChild(node)" node="node">
+    <tr pv-node ng-show="visible(node)" is-branch="hasRelevantChild(node)" node="node">
         <td class="col-xs-2 col-fixed-350"
             ng-class="{'name-concise-view concise-view':options.concise, 'expanded-view': !options.concise}">
 
@@ -514,6 +517,9 @@
         </td>
         <td class="col-xs-1 col-fixed-80">
             <span ng-bind="node.usage"></span>
+            <span ng-repeat="p in node.predicates">
+					({{p.trueUsage}}/{{p.falseUsage}})
+				</span>
         </td>
         <td class="col-xs-1 col-fixed-80">
             [{{::node.min}}, {{::node.max}}]
