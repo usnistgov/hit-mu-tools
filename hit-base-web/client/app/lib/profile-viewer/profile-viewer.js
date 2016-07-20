@@ -501,7 +501,20 @@
             };
 
             $scope.visible = function (node) {
-                 return  node ? $scope.isRelevant(node) ? node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT' ?  $scope.visible(node.nodeParent) : $scope.visible($scope.parentsMap[node.id]) : false:true;
+                if(node && node != null){
+                    if($scope.isRelevant(node)){
+                        if(node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT'){
+                            return $scope.visible(node.nodeParent);
+                        }else{
+                            return  $scope.visible($scope.parentsMap[node.id]);
+                        }
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+//                 return  node ? $scope.isRelevant(node) ? node.type == 'COMPONENT' || node.type === 'SUBCOMPONENT' ?  $scope.visible(node.nodeParent) : $scope.visible($scope.parentsMap[node.id]) : false:true;
             };
 
             $scope.getNodeContent = function (selectedNode) {
@@ -519,7 +532,7 @@
                         $scope.csWidth = null;
                         $scope.getCsWidth();
                         $scope.getPredWidth();
-                    }, 100);
+                    }, 1000);
 
                 }
 //                $scope.setAllRelevance($scope.options.relevance);
@@ -531,11 +544,7 @@
 
             $scope.setAllRelevance = function (value) {
                 $scope.options.relevance = value;
-//                if (value) {
-//                    $scope.hideIndenters();
-//                } else {
-//                    $scope.showIndenters();
-//                }
+
             };
 
             $scope.hideIndenters = function () {
@@ -642,6 +651,7 @@
                     + element.position + "[1]";
             };
 
+
             $scope.getSegmentChildTargetPath = function (element) {
                 if (element == null || element.type === "SEGMENT")
                     return "";
@@ -670,6 +680,14 @@
             };
 
 
+            $scope.getGroupChildDirectTargetPath = function (element, group) {
+                if (!element || element == null || (element.type === "GROUP" && group && group!= null && element.id === group.id))
+                    return "";
+                return  element.position + "[1]";
+            };
+
+
+
             $scope.getGroupLevelConfStatements = function (element) {
                 if (element.type === 'MESSAGE')
                     return [];
@@ -693,6 +711,15 @@
                                 }
                             });
                         }
+                        targetPath = $scope.getGroupChildDirectTargetPath(element, group);
+                        if (targetPath !== "") {
+                            angular.forEach(group.conformanceStatements, function (cs) {
+                                if (cs.constraintTarget === targetPath) {
+                                    conformanceStatements.push(cs);
+                                }
+                            });
+                        }
+
                     }
                 }
                 return conformanceStatements;
@@ -717,6 +744,14 @@
                 if (group != null) {
                     if (group.predicates != null && group.predicates.length > 0) {
                         var targetPath = $scope.getGroupChildTargetPath(element, group);
+                        if (targetPath !== "") {
+                            angular.forEach(group.predicates, function (predicate) {
+                                if (predicate.constraintTarget === targetPath) {
+                                    predicates.push(predicate);
+                                }
+                            });
+                        }
+                        targetPath = $scope.getGroupChildDirectTargetPath(element, group);
                         if (targetPath !== "") {
                             angular.forEach(group.predicates, function (predicate) {
                                 if (predicate.constraintTarget === targetPath) {
@@ -886,32 +921,32 @@
             };
 
             $scope.getCsWidth = function () {
-                if ($scope.csWidth === null) {
+                //if ($scope.csWidth === null) {
                     var tableWidth = $scope.getTableWidth();
                     if (tableWidth > 0) {
-                        var otherColumsWidth = !$scope.nodeData || $scope.nodeData === null || $scope.nodeData.type === 'MESSAGE' ? 700 : 950;
+                        var otherColumsWidth = !$scope.nodeData || $scope.nodeData === null || $scope.nodeData.type === 'MESSAGE' ? 800 : 800;
                         var left = tableWidth - otherColumsWidth;
                         $scope.csWidth = {"width": 2 * parseInt(left / 3) + "px"};
                     }
-                }
+                //}
                 return $scope.csWidth;
             };
 
             $scope.getPredWidth = function () {
-                if ($scope.predWidth === null) {
+                //if ($scope.predWidth === null) {
                     var tableWidth = $scope.getTableWidth();
                     if (tableWidth > 0) {
-                        var otherColumsWidth = !$scope.nodeData || $scope.nodeData === null || $scope.nodeData.type === 'MESSAGE' ? 700 : 950;
-                        var left = tableWidth - otherColumsWidth;
+                        //var otherColumsWidth = !$scope.nodeData || $scope.nodeData === null || $scope.nodeData.type === 'MESSAGE' ? 800 : 800;
+                        var left = tableWidth - 800;
                         $scope.predWidth = {"width": parseInt(left / 3) + "px"};
                     }
-                }
+               // }
                 return $scope.predWidth;
             };
 
 
             $scope.getSegmentRefNodeName = function (node) {
-                return node && $scope.model.segments[node.ref] ? node.position + "." + $scope.model.segments[node.ref].name + ":" + $scope.model.segments[node.ref].description : '';
+                return node && $scope.model != null && $scope.model.segments[node.ref] ? node.position + "." + $scope.model.segments[node.ref].name + ":" + $scope.model.segments[node.ref].description : '';
             };
 
             $scope.getGroupNodeName = function (node) {
@@ -934,9 +969,23 @@
                 return node.id;
             };
 
+            $scope.getDatatypeNodeName3 = function (node) {
+                return node.id + ":" + node.description;
+            };
+
+
             $scope.isSubDT = function (component) {
                 return component.type === 'COMPONENT' && $scope.parentsMap && $scope.parentsMap[component.id] && $scope.parentsMap[component.id].type === 'COMPONENT';
             };
+
+            $scope.getComponentNodeName2 = function (node) {
+                return node.position + "." + node.name;
+            };
+
+            $scope.getSegmentReadName = function (node) {
+                return node.name + "." + node.description;
+            };
+
 
 
         }

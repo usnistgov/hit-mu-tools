@@ -146,7 +146,7 @@ angular.module('cf').controller('CFProfileInfoCtrl', function ($scope, $modalIns
 });
 
 angular.module('cf')
-    .controller('CFValidatorCtrl', ['$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService', function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService) {
+    .controller('CFValidatorCtrl',[ '$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService','MessageUtil',function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService,MessageUtil) {
         $scope.cf = CF;
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
@@ -171,7 +171,7 @@ angular.module('cf')
 
         $scope.tError = null;
         $scope.tLoading = false;
-
+        $scope.hasNonPrintable = false;
         $scope.dqaCodes = StorageService.get(StorageService.DQA_OPTIONS_KEY) != null ? angular.fromJson(StorageService.get(StorageService.DQA_OPTIONS_KEY)) : [];
 
         $scope.showDQAOptions = function () {
@@ -406,6 +406,7 @@ angular.module('cf')
                 $scope.mError = null;
                 $scope.vError = null;
                 $scope.cf.message.content = $scope.editor.doc.getValue();
+                $scope.setHasNonPrintableCharacters();
                 StorageService.set(StorageService.CF_EDITOR_CONTENT_KEY, $scope.cf.message.content);
                 $scope.validateMessage();
                 $scope.parseMessage();
@@ -461,6 +462,28 @@ angular.module('cf')
             if ($scope.cf.tree.root != null)
                 $scope.cf.tree.root.collapse_all();
         };
+
+
+        $scope.setHasNonPrintableCharacters = function () {
+            $scope.hasNonPrintable = MessageUtil.hasNonPrintable($scope.cf.message.content);
+        };
+
+        $scope.showMessageWithHexadecimal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'MessageWithHexadecimal.html',
+                controller: 'MessageWithHexadecimalDlgCtrl',
+                windowClass: 'valueset-modal',
+                animation:false,
+                keyboard:true,
+                backdrop:true,
+                resolve: {
+                    original: function () {
+                        return  $scope.cf.message.content;
+                    }
+                }
+            });
+        };
+
 
     }]);
 

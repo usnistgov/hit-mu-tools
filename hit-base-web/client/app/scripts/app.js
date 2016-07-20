@@ -1,15 +1,14 @@
-'use strict';
-
 angular.module('commonServices', []);
-angular.module('hit-util', []);
-angular.module('common', ['ngResource', 'my.resource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi', 'hit-util']);
+angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 'edi', 'hit-util']);
+angular.module('main', ['common']);
+angular.module('account', ['common']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
 angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
 angular.module('documentation', []);
-var app = angular.module('hit-tool', [
+var app = angular.module('hit-app', [
     'ngRoute',
     'ui.bootstrap',
     'ngCookies',
@@ -19,6 +18,7 @@ var app = angular.module('hit-tool', [
     'ngIdle',
     'ngAnimate',
     'ui.bootstrap',
+    'ui-notification',
     'angularBootstrapNavTree',
     'QuickList',
     'hit-util',
@@ -44,19 +44,31 @@ var app = angular.module('hit-tool', [
     'hit-testcase-tree',
     'hit-doc',
     'hit-settings',
-    'doc'
-    ,
-    'hit-manual-report-viewer'
-//    ,
-//    'ngMockE2E'
-]);
+    'doc',
+    'account',
+    'main',
+    'hit-manual-report-viewer',
+     'ociFixedHeader'
+ ]);
 
-var httpHeaders;
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider) {
+var httpHeaders,
+
+//the message to show on the login popup page
+    loginMessage,
+
+//the spinner used to show when we are still waiting for a server answer
+    spinner,
+
+//The list of messages we don't want to display
+    mToHide = ['usernameNotFound', 'emailNotFound', 'usernameFound', 'emailFound', 'loginSuccess', 'userAdded','uploadImageFailed'];
+
+//the message to be shown to the user
+var msg = {};
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider) {
 
 
     localStorageServiceProvider
-        .setPrefix('hit-tool')
+        .setPrefix('hit-app')
         .setStorageType('sessionStorage');
 
     $routeProvider
@@ -75,48 +87,77 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/about', {
             templateUrl: 'views/about.html'
         })
-        .when('/contact', {
-            templateUrl: 'views/contact.html'
-        })
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
         })
         .when('/cb', {
             templateUrl: 'views/cb/cb.html'
         })
-        .when('/transport-settings', {
-            templateUrl: 'views/transport-settings.html'
-        })
         .when('/error', {
             templateUrl: 'error.html'
+        })
+        .when('/transport-settings', {
+            templateUrl: 'views/transport-settings.html'
+        }).when('/forgotten', {
+            templateUrl: 'views/account/forgotten.html',
+            controller: 'ForgottenCtrl'
+        }).when('/registration', {
+            templateUrl: 'views/account/registration.html',
+            controller: 'RegistrationCtrl'
+        }).when('/useraccount', {
+            templateUrl: 'views/account/userAccount.html'
+        }).when('/glossary', {
+            templateUrl: 'views/glossary.html'
+        }).when('/resetPassword', {
+            templateUrl: 'views/account/registerResetPassword.html',
+            controller: 'RegisterResetPasswordCtrl',
+            resolve: {
+                isFirstSetup: function () {
+                    return false;
+                }
+            }
+        }).when('/registrationSubmitted', {
+            templateUrl: 'views/account/registrationSubmitted.html'
         })
         .otherwise({
             redirectTo: '/'
         });
 
-    $httpProvider.interceptors.push('ErrorInterceptor');
+    $httpProvider.interceptors.push('interceptor1');
+    $httpProvider.interceptors.push('interceptor2');
+    $httpProvider.interceptors.push('interceptor3');
+    $httpProvider.interceptors.push('interceptor4');
 
 
     IdleProvider.idle(7200);
     IdleProvider.timeout(30);
     KeepaliveProvider.interval(10);
 
+    // auto hide
+    NotificationProvider.setOptions({
+        delay: 30000,
+        maxCount:1
+    });
     httpHeaders = $httpProvider.defaults.headers;
 
 });
 
 
-app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageService, $window) {
+
+
+app.factory('interceptor1', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
+        console.log("interceptor1");
         if (response.status === 440) {
             response.data = "Session timeout";
             $rootScope.openSessionExpiredDlg();
         } else if (response.status === 498) {
             response.data = "Invalid Application State";
             $rootScope.openVersionChangeDlg();
-        } else if (response.status === 401) {
-            $rootScope.openInvalidReqDlg();
         }
+//        else if (response.status === 401) {
+//            $rootScope.openInvalidReqDlg();
+//        }
     };
     return {
         responseError: function (response) {
@@ -126,44 +167,160 @@ app.factory('ErrorInterceptor', function ($q, $rootScope, $location, StorageServ
     };
 });
 
-app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInfo, StorageService, $route, $window, $sce, $templateCache, User,Idle,Transport,IdleService) {
+
+app.factory('interceptor2', function ($q, $rootScope, $location, StorageService, $window) {
+    return {
+        response: function (response) {
+            return response || $q.when(response);
+        },
+        responseError: function (response) {
+            if (response.status === 401) {
+                 //We catch everything but this one. So public users are not bothered
+                //with a login windows when browsing home.
+                if (response.config.url !== 'api/accounts/cuser') {
+                    //We don't intercept this request
+                    if (response.config.url !== 'api/accounts/login') {
+                        var deferred = $q.defer(),
+                            req = {
+                                config: response.config,
+                                deferred: deferred
+                            };
+                        $rootScope.requests401.push(req);
+                    }
+                    $rootScope.$broadcast('event:loginRequired');
+//                        return deferred.promise;
+
+                    return  $q.when(response);
+                }
+            }
+            return $q.reject(response);
+        }
+    };
+});
+
+
+app.factory('interceptor3', function ($q, $rootScope, $location, StorageService, $window) {
+    return {
+        response: function (response) {
+            //hide the spinner
+            spinner = false;
+            return response || $q.when(response);
+        },
+        responseError: function (response) {
+             //hide the spinner
+            spinner = false;
+            return $q.reject(response);
+        }
+    };
+});
+
+app.factory('interceptor4', function ($q, $rootScope, $location, StorageService, $window) {
+    var setMessage = function (response) {
+        console.log("interceptor4");
+        //if the response has a text and a type property, it is a message to be shown
+        if (response.data && response.data.text && response.data.type) {
+            if (response.status === 401) {
+//                        console.log("setting login message");
+                 loginMessage = {
+                    text: response.data.text,
+                    type: response.data.type,
+                    skip: response.data.skip,
+                    show: true,
+                    manualHandle: response.data.manualHandle
+                };
+
+            } else if (response.status === 503) {
+                 msg = {
+                    text: "server.down",
+                    type: "danger",
+                    show: true,
+                    manualHandle: true
+                };
+            } else {
+                console.log(response.status);
+                msg = {
+                    text: response.data.text,
+                    type: response.data.type,
+                    skip: response.data.skip,
+                    show: true,
+                    manualHandle: response.data.manualHandle
+                };
+                var found = false;
+                var i = 0;
+                while (i < mToHide.length && !found) {
+                    if (msg.text === mToHide[i]) {
+                        found = true;
+                    }
+                    i++;
+                }
+                if (found === true) {
+                    msg.show = false;
+                } else {
+//                        //hide the msg in 5 seconds
+//                                                setTimeout(
+//                                                    function() {
+//                                                        msg.show = false;
+//                                                        //tell angular to refresh
+//                                                        $rootScope.$apply();
+//                                                    },
+//                                                    10000
+//                                                );
+                }
+            }
+        }
+    };
+
+    return {
+        response: function (response) {
+            setMessage(response);
+            return response || $q.when(response);
+        },
+
+        responseError: function (response) {
+            setMessage(response);
+            return $q.reject(response);
+        }
+    };
+});
+
+
+app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppInfo, $q, $sce, $templateCache, $compile, StorageService, $window, $route, $timeout, $http, User, Idle, Transport, IdleService, userInfoService, base64,Notification) {
+
 
     $rootScope.appInfo = {};
+
     $rootScope.stackPosition = 0;
+    $rootScope.transportSupported = false;
     $rootScope.scrollbarWidth = null;
     $rootScope.vcModalInstance = null;
     $rootScope.sessionExpiredModalInstance = null;
-    $rootScope.errorModalInstance = null;
-    $rootScope.transportSupported = false;
+    $rootScope.errorModalInstanceInstance = null;
 
     function getContextPath() {
-        return $window.location.pathname.substring(0, $window.location.pathname.indexOf("/",2));
+        return $window.location.pathname.substring(0, $window.location.pathname.indexOf("/", 2));
     }
 
-    Session.create().then(function (response) {
-        // load current user
-        User.load().then(function (response) {
-            Transport.init();
-        }, function (error) {
-            $rootScope.openCriticalErrorDlg("Sorry we could not create a new user for your session. Please refresh the page and try again.");
-        });
-        // load app info
-        AppInfo.get().then(function (appInfo) {
-            $rootScope.appInfo = appInfo;
-            $rootScope.apiLink = $window.location.protocol + "//" + $window.location.host + getContextPath() + $rootScope.appInfo.apiDocsPath;
-            httpHeaders.common['rsbVersion'] = appInfo.rsbVersion;
-            var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
-            if (previousToken != null && previousToken !== appInfo.rsbVersion) {
-                $rootScope.openVersionChangeDlg();
-            }
-            StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.rsbVersion);
-        }, function (error) {
-            $rootScope.appInfo = {};
-            $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");
-        });
+    var initUser = function(user){
+        userInfoService.setCurrentUser(user);
+        User.initUser(user);
+        Transport.init();
+    };
+
+
+    AppInfo.get().then(function (appInfo) {
+        $rootScope.appInfo = appInfo;
+        $rootScope.apiLink = $window.location.protocol + "//" + $window.location.host + getContextPath() + $rootScope.appInfo.apiDocsPath;
+        httpHeaders.common['rsbVersion'] = appInfo.rsbVersion;
+        var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
+        if (previousToken != null && previousToken !== appInfo.rsbVersion) {
+            $rootScope.openVersionChangeDlg();
+        }
+        StorageService.set(StorageService.APP_STATE_TOKEN, appInfo.rsbVersion);
     }, function (error) {
-        $rootScope.openCriticalErrorDlg("Sorry we could not start your session. Please refresh the page and try again.");
+        $rootScope.appInfo = {};
+        $rootScope.openCriticalErrorDlg("Sorry we could not communicate with the server. Please try again");
     });
+
 
     $rootScope.$watch(function () {
         return $location.path();
@@ -212,93 +369,158 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
         StorageService.set(StorageService.ACTIVE_SUB_TAB_KEY, path);
     };
 
+    //make current message accessible to root scope and therefore all scopes
+    $rootScope.msg = function () {
+        return msg;
+    };
 
-    $rootScope.showError = function (error) {
-        var modalInstance = $modal.open({
-            templateUrl: 'ErrorDlgDetails.html',
-            controller: 'ErrorDetailsCtrl',
-            resolve: {
-                error: function () {
-                    return error;
-                }
-            }
+    //make current loginMessage accessible to root scope and therefore all scopes
+    $rootScope.loginMessage = function () {
+//            console.log("calling loginMessage()");
+        return loginMessage;
+    };
+
+    //showSpinner can be referenced from the view
+    $rootScope.showSpinner = function () {
+        return spinner;
+    };
+
+    $rootScope.createGuestIfNotExist = function(){
+        console.log("creating guest user");
+        User.createGuestIfNotExist().then(function (guest) {
+            initUser(guest);
+            console.log("guest user created");
+
+        }, function (error) {
+            $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
         });
-        modalInstance.result.then(function (error) {
-            $rootScope.error = error;
-        }, function () {
-        });
     };
 
-    $rootScope.cutString = function (str) {
-        if (str.length > 20) str = str.substring(0, 20) + "...";
-        return str;
-    };
+    /**
+     * Holds all the requests which failed due to 401 response.
+     */
+    $rootScope.requests401 = [];
 
-    $rootScope.tabs = new Array();
-    $rootScope.selectTestingType = function (value) {
-        $rootScope.tabs[0] = false;
-        $rootScope.tabs[1] = false;
-        $rootScope.tabs[2] = false;
-        $rootScope.tabs[3] = false;
-        $rootScope.tabs[4] = false;
-        $rootScope.tabs[5] = false;
-        $rootScope.activeTab = value;
-        $rootScope.tabs[$rootScope.activeTab] = true;
-        TestingSettings.setActiveTab($rootScope.activeTab);
-    };
-
-    $rootScope.downloadArtifact = function (path) {
-        var form = document.createElement("form");
-        form.action = "api/artifact/download";
-        form.method = "POST";
-        form.target = "_target";
-        var input = document.createElement("input");
-        input.name = "path";
-        input.value = path;
-        form.appendChild(input);
-        form.style.display = 'none';
-        document.body.appendChild(form);
-        form.submit();
-    };
-
-
-    $rootScope.toHTML = function (content) {
-        return $sce.trustAsHtml(content);
-//        return  content;
-    };
-
-
-    $rootScope.compile = function (content) {
-//        scope.$watch(
-//            function(scope) {
-//                // watch the 'compile' expression for changes
-//                return scope.$eval(attrs.compile);
-//            },
-//            function(value) {
-//                // when the 'compile' expression changes
-//                // assign it into the current DOM
-//                element.html(value);
-//
-//                // compile the new DOM and link it to the current
-//                // scope.
-//                // NOTE: we only compile .childNodes so that
-//                // we don't get into infinite loop compiling ourselves
-//                return $compile(content);
-//            }
-//        );
-        return $compile(content);
-    };
-
-
-    $rootScope.$on('$locationChangeSuccess', function () {
-        //$rootScope.activePath = $location.path();
-        $rootScope.setActive($location.path());
+    $rootScope.$on('event:loginRequired', function () {
+//            console.log("in loginRequired event");
+        $rootScope.showLoginDialog();
     });
 
+    /**
+     * On 'event:loginConfirmed', resend all the 401 requests.
+     */
+    $rootScope.$on('event:loginConfirmed', function () {
+        initUser(userInfoService.getCurrentUser());
+        var i,
+            requests = $rootScope.requests401,
+            retry = function (req) {
+                $http(req.config).then(function (response) {
+                    req.deferred.resolve(response);
+                });
+            };
+        for (i = 0; i < requests.length; i += 1) {
+            retry(requests[i]);
+        }
+        $rootScope.requests401 = [];
+//        $window.location.reload();
+    });
+
+    /*jshint sub: true */
+    /**
+     * On 'event:loginRequest' send credentials to the server.
+     */
+    $rootScope.$on('event:loginRequest', function (event, username, password) {
+        httpHeaders.common['Accept'] = 'application/json';
+        httpHeaders.common['Authorization'] = 'Basic ' + base64.encode(username + ':' + password);
+//        httpHeaders.common['withCredentials']=true;
+//        httpHeaders.common['Origin']="http://localhost:9000";
+        $http.get('api/accounts/login').success(function () {
+            //If we are here in this callback, login was successfull
+            //Let's get user info now
+            httpHeaders.common['Authorization'] = null;
+            $http.get('api/accounts/cuser').then(function (result) {
+                if (result.data && result.data != null) {
+                    var rs = angular.fromJson(result.data);
+                     initUser(rs);
+                    $rootScope.$broadcast('event:loginConfirmed');
+                } else {
+                    userInfoService.setCurrentUser(null);
+                }
+            }, function () {
+                userInfoService.setCurrentUser(null);
+            });
+        });
+    });
+
+    /**
+     * On 'logoutRequest' invoke logout on the server.
+     */
+    $rootScope.$on('event:logoutRequest', function () {
+        httpHeaders.common['Authorization'] = null;
+        userInfoService.setCurrentUser(null);
+        $http.get('j_spring_security_logout').then(function(result){
+            $rootScope.createGuestIfNotExist();
+        });
+    });
+
+    /**
+     * On 'loginCancel' clears the Authentication header
+     */
+    $rootScope.$on('event:loginCancel', function () {
+        httpHeaders.common['Authorization'] = null;
+    });
+
+    $rootScope.$on('$routeChangeStart', function (next, current) {
+//            console.log('route changing');
+        // If there is a message while change Route the stop showing the message
+        if (msg && msg.manualHandle === 'false') {
+//                console.log('detected msg with text: ' + msg.text);
+            msg.show = false;
+        }
+    });
+
+    $rootScope.$watch(function () {
+        return $rootScope.msg().text;
+    }, function (value) {
+        $rootScope.showNotification($rootScope.msg());
+    });
+
+    $rootScope.$watch('language()', function (value) {
+        $rootScope.showNotification($rootScope.msg());
+    });
+
+    $rootScope.loadFromCookie = function () {
+        if (userInfoService.hasCookieInfo() === true) {
+            //console.log("found cookie!")
+            userInfoService.loadFromCookie();
+            httpHeaders.common['Authorization'] = userInfoService.getHthd();
+        }
+        else {
+            //console.log("cookie not found");
+        }
+    };
+
+    $rootScope.showNotification = function (m) {
+        if(m != undefined && m.show && m.text != null) {
+            var msg = angular.copy(m);
+            var message = $.i18n.prop(msg.text);
+            var type = msg.type;
+            if (type === "danger") {
+                Notification.error({message: message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay:10000});
+            } else if (type === 'warning') {
+                Notification.warning({message: message, templateUrl: "NotificationWarningTemplate.html", scope: $rootScope, delay:5000});
+            } else if (type === 'success') {
+                Notification.success({message: message, templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay:5000});
+            }
+            //reset
+            m.text = null;
+            m.type = null;
+            m.show = false;
+        }
+    };
 
     $rootScope.getScrollbarWidth = function () {
-
-        if ($rootScope.scrollbarWidth == null) {
+        if ($rootScope.scrollbarWidth == 0) {
             var outer = document.createElement("div");
             outer.style.visibility = "hidden";
             outer.style.width = "100px";
@@ -326,253 +548,22 @@ app.run(function (Session,$rootScope, $location, $modal, TestingSettings, AppInf
         return $rootScope.scrollbarWidth;
     };
 
-    $rootScope.openValidationResultInfo = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'ValidationResultInfoCtrl.html',
-            windowClass: 'profile-modal',
-            controller: 'ValidationResultInfoCtrl'
-        });
-    };
-
-    $rootScope.showSettings = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'SettingsCtrl.html',
-            size: 'lg',
-            keyboard: 'false',
-            controller: 'SettingsCtrl'
-        });
-    };
-
-    $rootScope.openVersionChangeDlg = function () {
-        StorageService.clearAll();
-        if(!$rootScope.vcModalInstance || $rootScope.vcModalInstance === null || !$rootScope.vcModalInstance.opened) {
-            $rootScope.vcModalInstance = $modal.open({
-                templateUrl: 'VersionChanged.html',
-                size: 'lg',
-                backdrop: 'static',
-                keyboard: 'false',
-                'controller': 'FailureCtrl',
-                resolve: {
-                    error: function () {
-                        return "";
-                    }
-                }
-            });
-            $rootScope.vcModalInstance.result.then(function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            }, function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            });
+    //loadAppInfo();
+    userInfoService.loadFromServer().then(function (currentUser) {
+        console.log("currentUser=" + angular.toJson(currentUser));
+        if(currentUser !== null && currentUser.id != null && currentUser.id != undefined) {
+            initUser(currentUser);
+        }else{
+            $rootScope.createGuestIfNotExist();
         }
-    };
-
-    $rootScope.openCriticalErrorDlg = function (errorMessage) {
-
-        StorageService.clearAll();
-        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
-            $rootScope.errorModalInstance = $modal.open({
-                     templateUrl: 'CriticalError.html',
-                    size: 'lg',
-                    backdrop: true,
-                    keyboard: 'false',
-                    'controller': 'FailureCtrl',
-                    resolve: {
-                        error: function () {
-                            return errorMessage;
-                        }
-                    }
-                });
-            $rootScope.errorModalInstance .result.then(function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            }, function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            });
-        }
-    };
-
-    $rootScope.openSessionExpiredDlg = function () {
-        StorageService.clearAll();
-        if(!$rootScope.sessionExpiredModalInstance || $rootScope.sessionExpiredModalInstance === null || !$rootScope.sessionExpiredModalInstance.opened) {
-            $rootScope.sessionExpiredModalInstance = $modal.open({
-                templateUrl: 'timedout-dialog.html',
-                size: 'lg',
-                backdrop: true,
-                keyboard: 'true',
-                'controller': 'FailureCtrl',
-                resolve: {
-                    error: function () {
-                        return "";
-                    }
-                }
-            });
-            $rootScope.sessionExpiredModalInstance.result.then(function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            }, function () {
-                $rootScope.clearTemplate();
-                $rootScope.reloadPage();
-            });
-        }
-    };
-
-    $rootScope.clearTemplate = function () {
-        $templateCache.removeAll();
-    };
-
-    $rootScope.openErrorDlg = function () {
-        $location.path('/error');
-//        
-//        var errorModalInstance = $modal.open({
-//            templateUrl: 'ErrorCtrl.html',
-//            size: 'lg',
-//            backdrop:true,
-//            keyboard: 'false',
-//            'controller': 'ErrorCtrl'
-//        });
-//        errorModalInstance.result.then(function () {
-//            $rootScope.reloadPage();
-//        }, function () {
-//            $rootScope.reloadPage();
-//        });
-    };
-
-    $rootScope.reloadPage = function () {
-         $window.location.reload();
-    };
-
-    $rootScope.openInvalidReqDlg = function () {
-        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
-            $rootScope.errorModalInstance = $modal.open({
-                templateUrl: 'InvalidReqCtrl.html',
-                size: 'lg',
-                backdrop: true,
-                keyboard: 'false',
-                'controller': 'FailureCtrl',
-                resolve: {
-                    error: function () {
-                        return "";
-                    }
-                }
-            });
-            $rootScope.errorModalInstance.result.then(function () {
-                $rootScope.reloadPage();
-            }, function () {
-                $rootScope.reloadPage();
-            });
-        }
-    };
-
-    $rootScope.openNotFoundDlg = function () {
-        if(!$rootScope.errorModalInstance || $rootScope.errorModalInstance === null || !$rootScope.errorModalInstance.opened) {
-            $rootScope.errorModalInstance = $modal.open({
-                     templateUrl: 'NotFoundCtrl.html',
-                    size: 'lg',
-                    backdrop: true,
-                    keyboard: 'false',
-                    'controller': 'FailureCtrl',
-                    resolve: {
-                        error: function () {
-                            return "";
-                        }
-                    }
-                });
-
-            $rootScope.errorModalInstance.result.then(function () {
-                $rootScope.reloadPage();
-            }, function () {
-                $rootScope.reloadPage();
-            });
-        }
-    };
-
-
-//    $rootScope.$on('$routeChangeStart', function(event, next, current) {
-//        if (typeof(current) !== 'undefined'){
-//            $templateCache.remove(current.templateUrl);
-//        }
-//    });
-
-    $rootScope.pettyPrintType = function (type) {
-        return type === 'TestStep' ? 'Test Step' : type === 'TestCase' ? 'Test Case' : type;
-    };
-
-    $rootScope.started = false;
-
-    Idle.watch();
-
-    $rootScope.$on('IdleStart', function() {
-        closeModals();
-        $rootScope.warning = $modal.open({
-            templateUrl: 'warning-dialog.html',
-            windowClass: 'modal-danger'
-        });
-    });
-
-    $rootScope.$on('IdleEnd', function() {
-        closeModals();
-    });
-
-    $rootScope.$on('IdleTimeout', function() {
-        closeModals();
-        StorageService.clearAll();
-        Session.delete().then(
-            function (response) {
-                $rootScope.timedout = $modal.open({
-                    templateUrl: 'timedout-dialog.html',
-                    windowClass: 'modal-danger',
-                    backdrop:true,
-                    keyboard: 'false',
-                    controller: 'FailureCtrl',
-                    resolve: {
-                        error: function () {
-                            return "";
-                        }
-                    }
-                });
-                $rootScope.timedout.result.then(function () {
-                    $rootScope.clearTemplate();
-                    $rootScope.reloadPage();
-                }, function () {
-                    $rootScope.clearTemplate();
-                    $rootScope.reloadPage();
-                });
-            }
-        );
+    }, function (error) {
+        $rootScope.createGuestIfNotExist();
     });
 
 
-    $rootScope.$on('Keepalive', function() {
-        IdleService.keepAlive();
-    });
-
-    function closeModals() {
-        if ($rootScope.warning) {
-            $rootScope.warning.close();
-            $rootScope.warning = null;
-        }
-
-        if ($rootScope.timedout) {
-            $rootScope.timedout.close();
-            $rootScope.timedout = null;
-        }
+    $rootScope.getAppInfo = function(){
+        return $rootScope.appInfo;
     };
-
-    $rootScope.start = function() {
-        closeModals();
-        Idle.watch();
-        $rootScope.started = true;
-    };
-
-    $rootScope.stop = function() {
-        closeModals();
-        Idle.unwatch();
-        $rootScope.started = false;
-    };
-
 
 });
 
@@ -666,16 +657,6 @@ app.filter('capitalize', function () {
 });
 
 
-app.directive('stRatio', function () {
-    return {
-
-        link: function (scope, element, attr) {
-            var ratio = +(attr.stRatio);
-            element.css('width', ratio + '%');
-        }
-    };
-});
-
 
 app.controller('ErrorCtrl', [ '$scope', '$modalInstance', 'StorageService', '$window',
     function ($scope, $modalInstance, StorageService, $window) {
@@ -694,3 +675,124 @@ app.controller('FailureCtrl', [ '$scope', '$modalInstance', 'StorageService', '$
     }
 ]);
 
+
+
+app
+    .service('base64', function base64() {
+        // AngularJS will instantiate a singleton by calling "new" on this function
+        var keyStr = 'ABCDEFGHIJKLMNOP' +
+            'QRSTUVWXYZabcdef' +
+            'ghijklmnopqrstuv' +
+            'wxyz0123456789+/' +
+            '=';
+        this.encode = function (input) {
+            var output = '',
+                chr1, chr2, chr3 = '',
+                enc1, enc2, enc3, enc4 = '',
+                i = 0;
+
+            while (i < input.length) {
+                chr1 = input.charCodeAt(i++);
+                chr2 = input.charCodeAt(i++);
+                chr3 = input.charCodeAt(i++);
+
+                enc1 = chr1 >> 2;
+                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                enc4 = chr3 & 63;
+
+                if (isNaN(chr2)) {
+                    enc3 = enc4 = 64;
+                } else if (isNaN(chr3)) {
+                    enc4 = 64;
+                }
+
+                output = output +
+                    keyStr.charAt(enc1) +
+                    keyStr.charAt(enc2) +
+                    keyStr.charAt(enc3) +
+                    keyStr.charAt(enc4);
+                chr1 = chr2 = chr3 = '';
+                enc1 = enc2 = enc3 = enc4 = '';
+            }
+
+            return output;
+        };
+
+        this.decode = function (input) {
+            var output = '',
+                chr1, chr2, chr3 = '',
+                enc1, enc2, enc3, enc4 = '',
+                i = 0;
+
+            // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+            input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+            while (i < input.length) {
+                enc1 = keyStr.indexOf(input.charAt(i++));
+                enc2 = keyStr.indexOf(input.charAt(i++));
+                enc3 = keyStr.indexOf(input.charAt(i++));
+                enc4 = keyStr.indexOf(input.charAt(i++));
+
+                chr1 = (enc1 << 2) | (enc2 >> 4);
+                chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                chr3 = ((enc3 & 3) << 6) | enc4;
+
+                output = output + String.fromCharCode(chr1);
+
+                if (enc3 !== 64) {
+                    output = output + String.fromCharCode(chr2);
+                }
+                if (enc4 !== 64) {
+                    output = output + String.fromCharCode(chr3);
+                }
+
+                chr1 = chr2 = chr3 = '';
+                enc1 = enc2 = enc3 = enc4 = '';
+            }
+        };
+    });
+
+app.factory('i18n', function() {
+    // AngularJS will instantiate a singleton by calling "new" on this function
+    var language;
+    var setLanguage = function (theLanguage) {
+        $.i18n.properties({
+            name: 'messages',
+            path: 'lang/',
+            mode: 'map',
+            language: theLanguage,
+            callback: function () {
+                language = theLanguage;
+            }
+        });
+    };
+    setLanguage('en');
+    return {
+        setLanguage: setLanguage
+    };
+});
+
+app.factory( 'Resource', [ '$resource', function( $resource ) {
+    return function( url, params, methods ) {
+        var defaults = {
+            update: { method: 'put', isArray: false },
+            create: { method: 'post' }
+        };
+
+        methods = angular.extend( defaults, methods );
+
+        var resource = $resource( url, params, methods );
+
+        resource.prototype.$save = function(successHandler,errorHandler) {
+            if ( !this.id ) {
+                return this.$create(successHandler,errorHandler);
+            }
+            else {
+                return this.$update(successHandler,errorHandler);
+            }
+        };
+
+        return resource;
+    };
+}]);

@@ -24,9 +24,9 @@
     </style>
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="stylesheet" href="styles/cc325d12.vendor.css">
+    <link rel="stylesheet" href="styles/91847c31.vendor.css">
     <!-- For project CSS files -->
-    <link rel="stylesheet" href="styles/46ca290f.main.css">
+    <link rel="stylesheet" href="styles/16643006.main.css">
 
     <!-- Custom styles for this template -->
     <link href="styles/613d0d64.carousel.css" rel="stylesheet">
@@ -34,8 +34,6 @@
 
     <script src="lib/codemirror/lib/codemirror.js"></script>
     <script src="lib/codemirror/lib/formating.js"></script>
-    <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
-    <link rel="stylesheet" href="lib/codemirror/theme/elegant.css">
     <script src="lib/codemirror/mode/edi.js"></script>
     <script src="lib/codemirror/mode/xml.js"></script>
     <script src="lib/codemirror/mode/hl7v2.js"></script>
@@ -55,7 +53,16 @@
     <link rel="stylesheet" href="lib/angular-bootstrap-nav-tree/abn_tree.css">
     <link rel="stylesheet" href="lib/testcase-tree/testcase-tree.css">
     <link rel="stylesheet" href="lib/documentation-viewer/documentation-viewer.css">
-    <!--<link rel="stylesheet" href="lib/tree-grid/treeGrid.css">-->
+    <link rel="stylesheet" href="lib/FixedHeader/dist/fixed-header.css">
+
+    <!--<link href="https://fonts.googleapis.com/css?family=Cairo" rel="stylesheet">-->
+    <!--<style>-->
+        <!--* {-->
+            <!--font-family: 'Cairo', sans-serif;-->
+        <!--}-->
+    <!--</style>-->
+    <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror/theme/elegant.css">
 
     <style id="antiClickjack">body{display:none !important;}</style>
     <script type="text/javascript">
@@ -67,7 +74,7 @@
         }
     </script>
 </head>
-<body ng-app="hit-tool" window-exit="">
+<body ng-controller="MainCtrl" ng-app="hit-app" window-exit="">
 <div id="wrapper">
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
@@ -82,48 +89,15 @@
     <div ng-include="'views/header.html'"></div>
     <!-- Add your site or application content here -->
     <div id="appcontainer">
-        <!--<div class="container">-->
-        <!--<div class="row">-->
-        <!--<div class="col-md-10">-->
-        <!--<div ng-class="'alert alert-'+msg().type" ng-show="msg().show" id="ehralert">-->
-        <!--<button type="button" class="close" ng-click="msg().show=false">×</button>-->
-        <!--<div ng-bind="msg().text"></div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
         <div ng-view=""></div>
-
-        <!--<script type="text/ng-template" id="warning-dialog.html">-->
-        <!--<div class="modal-header">-->
-        <!--<h3>Your session will expire soon!</h3>-->
-        <!--</div>-->
-        <!--<div idle-countdown="countdown" ng-init="countdown=30" class="modal-body">-->
-        <!--<progressbar type="warning" max="30" value="30" animate="false" class="progress-striped active">Your session-->
-        <!--will expire in {{countdown}} second(s).-->
-        <!--</progressbar>-->
-        <!--</div>-->
-        <!--</script>-->
-
-        <!--<script type="text/ng-template" id="timedout-dialog.html">-->
-        <!--<div class="modal-header">-->
-        <!--<h3>Session Expired</h3>-->
-        <!--</div>-->
-        <!--<div class="modal-body">-->
-        <!--<p>-->
-        <!--Your session has expired due to inactivity for a long time.-->
-        <!--</p>-->
-        <!--</div>-->
-        <!--</script>-->
-
-
     </div>
 
     <div ng-include="'views/footer.html'"></div>
 
-    <script src="scripts/40704b3a.vendor.js"></script>
+    <script src="scripts/2b49bd47.vendor.js"></script>
 
     <!-- blueimp -->
+    <script src="lib/i18n/jquery.i18n.properties-1.0.9.js"></script>
     <script src="lib/blueimp/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>
     <script src="lib/blueimp/blueimp-load-image/js/load-image.js"></script>
     <script src="lib/blueimp/blueimp-file-upload/js/jquery.iframe-transport.js"></script>
@@ -140,8 +114,8 @@
     <script src="lib/angular-treetable/js/jquery.treetable.js"></script>
     <script src="lib/angular-treetable/js/angular-treetable-custom.js"></script>
 
+    <script src="lib/FixedHeader/dist/fixed-header.js"></script>
     <script src="lib/utils.js"></script>
-    <script src="lib/xml-util.js"></script>
     <script src="lib/lrInfiniteScroll/lrInfiniteScroll.js"></script>
     <script src="lib/profile-viewer/profile-viewer.js"></script>
     <script src="lib/vocab-search/vocab-search.js"></script>
@@ -158,11 +132,7 @@
     <script src="lib/base-libs/xml.js"></script>
     <script src="lib/base-libs/edi.js"></script>
     <script src="lib/settings/settings.js"></script>
-
-    <!--<script src="lib/angular-mocks/angular-mocks.js"></script>-->
-
-
-    <script src="scripts/35202d1d.scripts.js"></script>
+    <script src="scripts/dfd844b4.scripts.js"></script>
 
     <div ng-include="'views/error.html'"></div>
     <div ng-include="'views/templates.html'"></div>

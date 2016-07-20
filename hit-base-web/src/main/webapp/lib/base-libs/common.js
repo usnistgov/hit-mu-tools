@@ -862,10 +862,11 @@ angular.module('format').factory('SecurityFaultCredentials', function ($q, $http
 });
 
 
-angular.module('format').factory('Clock', function ($interval) {
+angular.module('format').factory('Clock', function ($interval, $timeout) {
     var Clock = function (intervl) {
         this.value = undefined;
         this.intervl = intervl;
+        this.timeout = null;
     };
     Clock.prototype.start = function (fn) {
         if (angular.isDefined(this.value)) {
@@ -873,6 +874,8 @@ angular.module('format').factory('Clock', function ($interval) {
         }
         this.value = $interval(fn, this.intervl);
     };
+
+
     Clock.prototype.stop = function () {
         if (angular.isDefined(this.value)) {
             $interval.cancel(this.value);
@@ -995,7 +998,7 @@ angular.module('format').factory('AppInfo', ['$http', '$q', function ($http, $q)
                     delay.reject(response.data);
                 }
             );
-//
+
 //            $http.get('../../resources/appInfo.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
@@ -1022,17 +1025,15 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
         //StorageService.set(StorageService.USER_KEY,angular.toJson(data));
     };
 
-    UserClass.prototype.load = function () {
+    UserClass.prototype.getGuest = function () {
         var delay = $q.defer();
         var user = this;
-        $http.post('api/user/current').then(
+        $http.post('api/accounts/guest').then(
             function (response) {
                 var data = angular.fromJson(response.data);
-                user.setInfo(data);
-                delay.resolve(data);
+                 delay.resolve(data);
             },
             function (response) {
-                user.setInfo(null);
                 delay.reject(response.data);
             }
         );
@@ -1053,22 +1054,58 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
         return delay.promise;
     };
 
-    UserClass.prototype.delete = function () {
+    UserClass.prototype.createGuestIfNotExist = function () {
         var delay = $q.defer();
         var user = this;
-        $http.post('api/user/delete').then(
+        $http.post('api/accounts/guest/createIfNotExist').then(
             function (response) {
                 var data = angular.fromJson(response.data);
-                user.setInfo(null);
-                delay.resolve(true);
+                delay.resolve(data);
             },
             function (response) {
-                user.setInfo(null);
-                delay.reject(response.data);
+                 delay.reject(response.data);
             }
         );
+
+//
+//        $http.get('../../resources/cb/user.json').then(
+//            function (response) {
+//                var data = angular.fromJson(response.data);
+//                user.setInfo(data);
+//                delay.resolve(data);
+//            },
+//            function (response) {
+//                user.setInfo(null);
+//                delay.reject(response.data);
+//            }
+//        );
+
         return delay.promise;
     };
+
+
+    UserClass.prototype.initUser = function (currentUser) {
+        this.info = {};
+        if (currentUser != null && currentUser) {
+            this.info.id = currentUser.accountId;
+        }
+    };
+
+//        var delay = $q.defer();
+//        var user = this;
+//        $http.post('api/accounts/guest/delete').then(
+//            function (response) {
+//                var data = angular.fromJson(response.data);
+//                user.setInfo(null);
+//                delay.resolve(true);
+//            },
+//            function (response) {
+//                user.setInfo(null);
+//                delay.reject(response.data);
+//            }
+//        );
+//        return delay.promise;
+//    };
 
 //    UserClass.prototype.delete = function () {
 //        if(this.info && this.info != null && this.info.id != null){
@@ -1081,7 +1118,7 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
 });
 
 
-angular.module('format').factory('Session', function ($q, $http) {
+angular.module('format').factory('Session', ['$q', '$http', function ($q, $http) {
     var SessionClass = function () {
     };
 
@@ -1120,7 +1157,7 @@ angular.module('format').factory('Session', function ($q, $http) {
     };
 
     return new SessionClass();
-});
+}]);
 
 
 angular.module('format').factory('Transport', function ($q, $http, StorageService, User, $timeout, $rootScope) {
@@ -1150,14 +1187,14 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
                         delay.reject(response);
                     }
                 );
-//                $http.get('../../resources/cb/transport-forms.json').then(
-//                    function (response) {
-//                        var data = angular.fromJson(response.data);
-//                        delay.resolve(data);
-//                    },
-//                    function (response) {
-//                        delay.reject(response);
-//                    }
+
+//                $http.get('../../resources/cb/transport-config-forms.json').then(
+//                        function (response) {
+//                            delay.resolve(angular.fromJson(response.data));
+//                        },
+//                        function (response) {
+//                            delay.reject(response);
+//                        }
 //                );
 
                 return delay.promise;
@@ -1416,7 +1453,7 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
 
 
 angular.module('format')
-    .controller('TransportConfigListCtrl', ['$scope', 'Transport', 'StorageService',function ($scope, Transport,StorageService) {
+    .controller('TransportConfigListCtrl', ['$scope', 'Transport', 'StorageService', '$http', 'User', function ($scope, Transport, StorageService, $http, User) {
         $scope.transport = Transport;
         $scope.loading = false;
         $scope.selectedProto = null;
@@ -1431,6 +1468,14 @@ angular.module('format')
 
         $scope.getProtocols = function (domain) {
             return domain != null && $scope.transport.configs && $scope.transport.configs[domain] ? Object.getOwnPropertyNames($scope.transport.configs[domain]) : [];
+        };
+
+        $scope.getProtoDescription = function (domain, protocol) {
+            try{
+                return $scope.transport.configs[domain][protocol]['forms']['description'];
+            }catch(error){
+            }
+            return null;
         };
 
         $scope.getConfigs = function () {
@@ -1460,6 +1505,8 @@ angular.module('format')
             $scope.transport.disabled = disabled;
             StorageService.set(StorageService.TRANSPORT_DISABLED, disabled);
         };
+
+
     }]);
 
 
@@ -1491,7 +1538,7 @@ angular.module('format').controller('InitiatorConfigCtrl', function ($scope, $mo
 });
 
 
-angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $http, User, StorageService, Transport, $rootScope) {
+angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $http, User, StorageService, Transport, $rootScope, Notification) {
     $scope.transport = Transport;
     $scope.config = null;
     $scope.prevConfig = null;
@@ -1548,9 +1595,9 @@ angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $
             $scope.transport.configs[$scope.domain][$scope.protocol]['data']['taInitiator'] = $scope.config;
             $scope.loadData();
             $scope.saved = true;
-            $scope.message = "Configuration Information Saved !"
+            Notification.success({message: "Configuration Information Saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
         }, function (error) {
-            $scope.error = error.data;
+            Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             $scope.saved = false;
             $scope.message = null;
         });
@@ -1559,14 +1606,16 @@ angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $
     $scope.reset = function () {
         $scope.config = angular.copy($scope.prevConfig);
         $scope.saved = true;
+
     };
 
 });
 
-angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope) {
+angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope, User,Notification) {
     $scope.transport = Transport;
     $scope.config = null;
     $scope.loading = false;
+    $scope.saving = false;
     $scope.error = null;
     $scope.protocol = null;
     $scope.initSutInitiatorConfig = function (domain, protocol) {
@@ -1600,6 +1649,25 @@ angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, 
         $scope.config = $scope.transport.configs[$scope.domain][$scope.protocol]['data']['sutInitiator'];
     };
 
+    $scope.saveSutInitiatorConfig = function (domain, protocole) {
+        var config = $scope.config;
+        if (config) {
+            $scope.saving = true;
+            var tmpConfig = angular.copy(config);
+            delete tmpConfig["password"];
+            delete tmpConfig["username"];
+            var data = angular.fromJson({"config": $scope.config, "userId": User.info.id, "type": "SUT_INITIATOR", "protocol": protocole, "domain": domain});
+            $http.post('api/transport/config/save', data).then(function (result) {
+                $scope.saving = false;
+                Notification.success({message: "Configuration Information Saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+            }, function (error) {
+                $scope.saving = false;
+                $scope.error = error;
+                Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+
+            });
+        }
+    };
 });
 
 
@@ -1795,24 +1863,27 @@ angular.module('format').factory('TestExecutionService',
         };
 
         TestExecutionService.setTestCaseValidationResultFromTestSteps = function (testCase) {
+            var results = [];
             for (var i = 0; i < testCase.children.length; i++) {
                 var testStep = testCase.children[i];
                 var result = TestExecutionService.getTestStepValidationResult(testStep);
-                if (result === 'INCOMPLETE') {
-                    TestExecutionService.setTestCaseValidationResult(testCase, 'INCOMPLETE');
-                    break;
-                } else if (result === 'INCONCLUSIVE') {
-                    TestExecutionService.setTestCaseValidationResult(testCase, 'INCONCLUSIVE');
-                    break;
-                } else if (result === 'FAILED_NOT_SUPPORTED' || result === 'FAILED') {
-                    TestExecutionService.setTestCaseValidationResult(testCase, 'FAILED');
-                    break;
-                } else if (result === 'PASSED_NOTABLE_EXCEPTION' || result === 'PASSED') {
-                    TestExecutionService.setTestCaseValidationResult(testCase, 'PASSED');
-                    break;
-                }
+                result = result != null && result != undefined && result != '' ? result: 'INCOMPLETE';
+                results.push(result);
             }
-        };
+            var res =null;
+            if(results.indexOf('INCOMPLETE') >= 0){
+                res = 'INCOMPLETE';
+            }else if(results.indexOf('INCONCLUSIVE') >= 0){
+                res = 'INCONCLUSIVE';
+            }else if(results.indexOf('FAILED_NOT_SUPPORTED') >= 0 || results.indexOf('FAILED') >= 0){
+                res = 'FAILED';
+            }else if(results.indexOf('PASSED_NOTABLE_EXCEPTION') >= 0 ){
+                res = 'PASSED_NOTABLE_EXCEPTION';
+            }else{
+                res = 'PASSED';
+            }
+            TestExecutionService.setTestCaseValidationResult(testCase, res);
+         };
 
         TestExecutionService.getResultOptionByValue = function (value) {
             for (var i = 0; i < TestExecutionService.resultOptions.length; i++) {
@@ -1910,8 +1981,22 @@ angular.module('format').factory('TestExecutionService',
             result = result != undefined ? result : null;
             var comments = TestExecutionService.getTestStepComments(testStep);
             comments = comments != undefined ? comments : null;
-            return ReportService.updateTestStepValidationReport(testStep, result, comments);
+            var report = TestExecutionService.getTestStepValidationReport(testStep);
+            var xmlMessageOrManualValidation = report != null ? report.xml:null;
+            return ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments);
         };
+
+//        TestExecutionService.updateTestStepValidationReport = function (testStep) {
+//            StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+//            StorageService.set("testStepComments", angular.toJson(TestExecutionService.testStepComments));
+//            var result = TestExecutionService.getTestStepValidationResult(testStep);
+//            result = result != undefined ? result : null;
+//            var comments = TestExecutionService.getTestStepComments(testStep);
+//            comments = comments != undefined ? comments : null;
+//            return ReportService.updateTestStepValidationReport(testStep, result, comments);
+//        };
+//
+
 
         return TestExecutionService;
     }]);
