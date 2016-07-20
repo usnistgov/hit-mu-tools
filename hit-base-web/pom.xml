@@ -83,6 +83,6 @@
 	</repositories>
 	
 	<properties>
-		<config.version>1.0.4</config.version>
+		<config.version>1.0.5</config.version>
 	</properties>
 </project>
