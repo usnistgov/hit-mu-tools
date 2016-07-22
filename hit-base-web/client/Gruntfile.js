@@ -317,7 +317,8 @@ module.exports = function (grunt) {
                             'styles/fonts/{,*/}*.*',
                             'styles/font-awesome*.css',
                             'styles/report.css',
-                            'styles/carousel.css'
+                            'styles/carousel.css',
+                            'lang/*'
                         ]
                     },
                     {
@@ -448,6 +449,24 @@ module.exports = function (grunt) {
         'usemin',
         'htmlmin'
     ]);
+
+
+    grunt.registerTask('build-quick', [
+        'clean:dist',
+        'bower-install',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
+        'ngmin',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'rev',
+        'usemin',
+        'htmlmin'
+    ]);
+
 
     grunt.registerTask('default', [
         'newer:jshint',

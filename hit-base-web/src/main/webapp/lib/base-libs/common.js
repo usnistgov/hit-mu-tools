@@ -457,7 +457,7 @@ angular.module('format').factory('TestStepService', function ($filter, $q, $http
 
     TestStepService.clearRecords = function (id) {
         var delay = $q.defer();
-        $http.post('api/teststeps/' + id + '/clearRecords').then(
+        $http.post('api/testStepValidationReport/' + id + '/clearRecords').then(
             function (object) {
                 delay.resolve(angular.fromJson(object.data));
             },
@@ -478,14 +478,18 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
 
     TestCaseService.clearRecords = function (id) {
         var delay = $q.defer();
-        $http.post('api/testcases/' + id + '/clearRecords').then(
-            function (object) {
-                delay.resolve(angular.fromJson(object.data));
-            },
-            function (response) {
-                delay.reject(response.data);
-            }
-        );
+        if (id != null && id != undefined) {
+            $http.post('api/testCaseValidationReport/' + id + '/clearRecords').then(
+                function (object) {
+                    delay.resolve(angular.fromJson(object.data));
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
+        } else {
+            delay.resolve(true);
+        }
         return delay.promise;
     };
 
@@ -858,10 +862,11 @@ angular.module('format').factory('SecurityFaultCredentials', function ($q, $http
 });
 
 
-angular.module('format').factory('Clock', function ($interval) {
+angular.module('format').factory('Clock', function ($interval, $timeout) {
     var Clock = function (intervl) {
         this.value = undefined;
         this.intervl = intervl;
+        this.timeout = null;
     };
     Clock.prototype.start = function (fn) {
         if (angular.isDefined(this.value)) {
@@ -869,6 +874,8 @@ angular.module('format').factory('Clock', function ($interval) {
         }
         this.value = $interval(fn, this.intervl);
     };
+
+
     Clock.prototype.stop = function () {
         if (angular.isDefined(this.value)) {
             $interval.cancel(this.value);
@@ -991,7 +998,7 @@ angular.module('format').factory('AppInfo', ['$http', '$q', function ($http, $q)
                     delay.reject(response.data);
                 }
             );
-//
+
 //            $http.get('../../resources/appInfo.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
@@ -1018,36 +1025,19 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
         //StorageService.set(StorageService.USER_KEY,angular.toJson(data));
     };
 
-    UserClass.prototype.load = function () {
+    UserClass.prototype.getGuest = function () {
         var delay = $q.defer();
         var user = this;
-        $http.post('api/user/current').then(
+        $http.post('api/accounts/guest').then(
             function (response) {
                 var data = angular.fromJson(response.data);
-                user.setInfo(data);
-                delay.resolve(data);
+                 delay.resolve(data);
             },
             function (response) {
-                user.setInfo(null);
                 delay.reject(response.data);
             }
         );
 
-        //        this.info = {};
-//        var backup = StorageService.get(StorageService.USER_KEY);
-//        if(backup != null){
-//            this.info = angular.fromJson(backup);
-//        }else {
-//            var user = this;
-//            $http.post('api/user/create').then(
-//                function (response) {
-//                     user.setInfo(angular.fromJson(response.data));
-//                },
-//                function (response) {
-//                    user.setInfo(null);
-//                    StorageService.remove(StorageService.USER_KEY);
-//                }
-//            );
 //        $http.get('../../resources/cb/user.json').then(
 //            function (response) {
 //                var data = angular.fromJson(response.data);
@@ -1059,28 +1049,63 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
 //                delay.reject(response.data);
 //            }
 //        );
-//
-//        }
+
 
         return delay.promise;
     };
 
-    UserClass.prototype.delete = function () {
+    UserClass.prototype.createGuestIfNotExist = function () {
         var delay = $q.defer();
         var user = this;
-        $http.post('api/user/delete').then(
+        $http.post('api/accounts/guest/createIfNotExist').then(
             function (response) {
                 var data = angular.fromJson(response.data);
-                user.setInfo(null);
-                delay.resolve(true);
+                delay.resolve(data);
             },
             function (response) {
-                user.setInfo(null);
-                delay.reject(response.data);
+                 delay.reject(response.data);
             }
         );
+
+//
+//        $http.get('../../resources/cb/user.json').then(
+//            function (response) {
+//                var data = angular.fromJson(response.data);
+//                user.setInfo(data);
+//                delay.resolve(data);
+//            },
+//            function (response) {
+//                user.setInfo(null);
+//                delay.reject(response.data);
+//            }
+//        );
+
         return delay.promise;
     };
+
+
+    UserClass.prototype.initUser = function (currentUser) {
+        this.info = {};
+        if (currentUser != null && currentUser) {
+            this.info.id = currentUser.accountId;
+        }
+    };
+
+//        var delay = $q.defer();
+//        var user = this;
+//        $http.post('api/accounts/guest/delete').then(
+//            function (response) {
+//                var data = angular.fromJson(response.data);
+//                user.setInfo(null);
+//                delay.resolve(true);
+//            },
+//            function (response) {
+//                user.setInfo(null);
+//                delay.reject(response.data);
+//            }
+//        );
+//        return delay.promise;
+//    };
 
 //    UserClass.prototype.delete = function () {
 //        if(this.info && this.info != null && this.info.id != null){
@@ -1093,7 +1118,7 @@ angular.module('format').factory('User', function ($q, $http, StorageService) {
 });
 
 
-angular.module('format').factory('Session', function ($q, $http) {
+angular.module('format').factory('Session', ['$q', '$http', function ($q, $http) {
     var SessionClass = function () {
     };
 
@@ -1132,7 +1157,7 @@ angular.module('format').factory('Session', function ($q, $http) {
     };
 
     return new SessionClass();
-});
+}]);
 
 
 angular.module('format').factory('Transport', function ($q, $http, StorageService, User, $timeout, $rootScope) {
@@ -1141,7 +1166,7 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
             configs: {},
             transactions: [],
             logs: {},
-            disabled: StorageService.get(StorageService.TRANSPORT_DISABLED) != null ? StorageService.get(StorageService.TRANSPORT_DISABLED) : false,
+            disabled: StorageService.get(StorageService.TRANSPORT_DISABLED) != null ? StorageService.get(StorageService.TRANSPORT_DISABLED) : true,
 
             /**
              *
@@ -1162,14 +1187,14 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
                         delay.reject(response);
                     }
                 );
-//                $http.get('../../resources/cb/transport-forms.json').then(
-//                    function (response) {
-//                        var data = angular.fromJson(response.data);
-//                        delay.resolve(data);
-//                    },
-//                    function (response) {
-//                        delay.reject(response);
-//                    }
+
+//                $http.get('../../resources/cb/transport-config-forms.json').then(
+//                        function (response) {
+//                            delay.resolve(angular.fromJson(response.data));
+//                        },
+//                        function (response) {
+//                            delay.reject(response);
+//                        }
 //                );
 
                 return delay.promise;
@@ -1428,7 +1453,7 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
 
 
 angular.module('format')
-    .controller('TransportConfigListCtrl', ['$scope', 'Transport', function ($scope, Transport) {
+    .controller('TransportConfigListCtrl', ['$scope', 'Transport', 'StorageService', '$http', 'User', function ($scope, Transport, StorageService, $http, User) {
         $scope.transport = Transport;
         $scope.loading = false;
         $scope.selectedProto = null;
@@ -1443,6 +1468,14 @@ angular.module('format')
 
         $scope.getProtocols = function (domain) {
             return domain != null && $scope.transport.configs && $scope.transport.configs[domain] ? Object.getOwnPropertyNames($scope.transport.configs[domain]) : [];
+        };
+
+        $scope.getProtoDescription = function (domain, protocol) {
+            try{
+                return $scope.transport.configs[domain][protocol]['forms']['description'];
+            }catch(error){
+            }
+            return null;
         };
 
         $scope.getConfigs = function () {
@@ -1466,7 +1499,12 @@ angular.module('format')
 
         $scope.isActivePane = function (dom, proto) {
             return $scope.selected.protocol != null && $scope.selected.protocol === proto && $scope.selected.domain != null && $scope.selected.domain === dom;
-        }
+        };
+
+        $scope.toggleTransport = function (disabled) {
+            $scope.transport.disabled = disabled;
+            StorageService.set(StorageService.TRANSPORT_DISABLED, disabled);
+        };
 
 
     }]);
@@ -1500,7 +1538,7 @@ angular.module('format').controller('InitiatorConfigCtrl', function ($scope, $mo
 });
 
 
-angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $http, User, StorageService, Transport, $rootScope) {
+angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $http, User, StorageService, Transport, $rootScope, Notification) {
     $scope.transport = Transport;
     $scope.config = null;
     $scope.prevConfig = null;
@@ -1557,9 +1595,9 @@ angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $
             $scope.transport.configs[$scope.domain][$scope.protocol]['data']['taInitiator'] = $scope.config;
             $scope.loadData();
             $scope.saved = true;
-            $scope.message = "Configuration Information Saved !"
+            Notification.success({message: "Configuration Information Saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
         }, function (error) {
-            $scope.error = error.data;
+            Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             $scope.saved = false;
             $scope.message = null;
         });
@@ -1568,14 +1606,16 @@ angular.module('format').controller('TaInitiatorConfigCtrl', function ($scope, $
     $scope.reset = function () {
         $scope.config = angular.copy($scope.prevConfig);
         $scope.saved = true;
+
     };
 
 });
 
-angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope) {
+angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, $http, Transport, $rootScope, User,Notification) {
     $scope.transport = Transport;
     $scope.config = null;
     $scope.loading = false;
+    $scope.saving = false;
     $scope.error = null;
     $scope.protocol = null;
     $scope.initSutInitiatorConfig = function (domain, protocol) {
@@ -1609,99 +1649,357 @@ angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, 
         $scope.config = $scope.transport.configs[$scope.domain][$scope.protocol]['data']['sutInitiator'];
     };
 
+    $scope.saveSutInitiatorConfig = function (domain, protocole) {
+        var config = $scope.config;
+        if (config) {
+            $scope.saving = true;
+            var tmpConfig = angular.copy(config);
+            delete tmpConfig["password"];
+            delete tmpConfig["username"];
+            var data = angular.fromJson({"config": $scope.config, "userId": User.info.id, "type": "SUT_INITIATOR", "protocol": protocole, "domain": domain});
+            $http.post('api/transport/config/save', data).then(function (result) {
+                $scope.saving = false;
+                Notification.success({message: "Configuration Information Saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+            }, function (error) {
+                $scope.saving = false;
+                $scope.error = error;
+                Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+
+            });
+        }
+    };
 });
 
 
 angular.module('format').factory('TestExecutionService',
-    ['$q', '$http', 'ServiceDelegator', 'ManualReportService', function ($q, $http, ServiceDelegator, ManualReportService) {
+    ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService) {
 
-        var TestExecutionService = function () {
+        var TestExecutionService = {
+            resultOptions: [
+                {"title": "Passed", "value": "PASSED", "class": "fa fa-check green"},
+                {"title": "Passed - Notable Exception", "value": "PASSED_NOTABLE_EXCEPTION", "class": "fa fa-check green"},
+                {"title": "Failed", "value": "FAILED", "class": "fa fa-check red"},
+                {"title": "Failed - Not Supported", "value": "FAILED_NOT_SUPPORTED", "class": "fa fa-check red"},
+                {"title": "Incomplete", "value": "INCOMPLETE", "class": "fa fa-check gray"},
+                {"title": "Inconclusive", "value": "INCONCLUSIVE", "class": "fa fa-check yellow"}
+            ],
+            executionOptions: [
+                {"title": "In Progress", "value": "IN_PROGRESS"},
+                {"title": "Complete", "value": "COMPLETE"},
+                {"title": "Incomplete", "value": "INCOMPLETE"}
+            ],
+            testStepValidationResults: StorageService.get("testStepValidationResults") != null ? angular.fromJson(StorageService.get("testStepValidationResults")) : {},
+            testStepExecutionStatuses: StorageService.get("testStepExecutionStatuses") != null ? angular.fromJson(StorageService.get("testStepExecutionStatuses")) : {},
+            testCaseExecutionStatuses: StorageService.get("testCaseExecutionStatuses") != null ? angular.fromJson(StorageService.get("testCaseExecutionStatuses")) : {},
+            testCaseValidationResults: StorageService.get("testCaseValidationResults") != null ? angular.fromJson(StorageService.get("testCaseValidationResults")) : {},
+            testCaseComments: StorageService.get("testCaseComments") != null ? angular.fromJson(StorageService.get("testCaseComments")) : {},
+            testStepComments: StorageService.get("testStepComments") != null ? angular.fromJson(StorageService.get("testStepComments")) : {},
+            testStepValidationReports: StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {},
+            testStepExecutionMessages: StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {},
+            testStepMessageTrees: StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {},
+            testStepValidationReportObjects: StorageService.get("testStepValidationReportObjects") != null ? angular.fromJson(StorageService.get("testStepValidationReportObjects")) : {}
         };
 
-        TestExecutionService.setExecutionStatus = function (step, value) {
-            if (step != null)
-                step.executionStatus = value;
+
+        TestExecutionService.init = function () {
+            TestExecutionService.testStepValidationResults = StorageService.get("testStepValidationResults") != null ? angular.fromJson(StorageService.get("testStepValidationResults")) : {};
+            TestExecutionService.testStepExecutionStatuses = StorageService.get("testStepExecutionStatuses") != null ? angular.fromJson(StorageService.get("testStepExecutionStatuses")) : {};
+            TestExecutionService.testCaseExecutionStatuses = StorageService.get("testCaseExecutionStatuses") != null ? angular.fromJson(StorageService.get("testCaseExecutionStatuses")) : {};
+            TestExecutionService.testCaseValidationResults = StorageService.get("testCaseValidationResults") != null ? angular.fromJson(StorageService.get("testCaseValidationResults")) : {};
+            TestExecutionService.testCaseComments = StorageService.get("testCaseComments") != null ? angular.fromJson(StorageService.get("testCaseComments")) : {};
+            TestExecutionService.testStepComments = StorageService.get("testStepComments") != null ? angular.fromJson(StorageService.get("testStepComments")) : {};
+            TestExecutionService.testStepValidationReports = StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {};
+            TestExecutionService.testStepExecutionMessages = StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {};
+            TestExecutionService.testStepMessageTrees = StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {};
+            TestExecutionService.testStepValidationReportObjects = StorageService.get("testStepValidationReportObjects") != null ? angular.fromJson(StorageService.get("testStepValidationReportObjects")) : {};
+
         };
 
-        TestExecutionService.getExecutionStatus = function (step) {
-            return step != null ? step.executionStatus : undefined;
+        TestExecutionService.clear = function (testCaseId) {
+            StorageService.remove("testStepValidationResults");
+            StorageService.remove("testStepExecutionStatuses");
+            StorageService.remove("testCaseExecutionStatuses");
+            StorageService.remove("testCaseValidationResults");
+            StorageService.remove("testCaseComments");
+            StorageService.remove("testStepComments");
+            StorageService.remove("testStepValidationReports");
+            StorageService.remove("testStepExecutionMessages");
+            StorageService.remove("testStepMessageTrees");
+            StorageService.remove("testStepValidationReportObjects");
+            TestExecutionService.testStepValidationResults = {};
+            TestExecutionService.testStepExecutionStatuses = {};
+            TestExecutionService.testCaseExecutionStatuses = {};
+            TestExecutionService.testCaseValidationResults = {};
+            TestExecutionService.testCaseComments = {};
+            TestExecutionService.testStepComments = {};
+            TestExecutionService.testStepValidationReports = {};
+            TestExecutionService.testStepExecutionMessages = {};
+            TestExecutionService.testStepMessageTrees = {};
+            TestExecutionService.testStepValidationReportObjects = {};
+            return TestCaseService.clearRecords(testCaseId);
         };
 
-        TestExecutionService.getValidationStatus = function (step) {
-            return  step != null && step.validationReport && step.validationReport.result ? (step.testingType === 'SUT_MANUAL' || step.testingType === 'TA_MANUAL') && step.validationReport.result.value ? step.validationReport.result.value.indexOf("PASSED") : step.validationReport.result.errors && step.validationReport.result.errors.categories[0] && step.validationReport.result.errors.categories[0].data ? step.validationReport.result.errors.categories[0].data.length : -1 : -1;
+
+        TestExecutionService.initTestStep = function (testStep) {
+//            delete TestExecutionService.testStepComments[testStep.id];
+//            delete TestExecutionService.testStepValidationResults[testStep.id];
+//            delete TestExecutionService.testStepExecutionStatuses[testStep.id];
+//            delete TestExecutionService.testStepValidationReports[testStep.id];
+//            delete TestExecutionService.testStepMessageTrees[testStep.id];
+//            delete TestExecutionService.testStepExecutionMessages[testStep.id];
+//            delete TestExecutionService.testStepValidationReportObjects[testStep.id];
+            return ReportService.initTestStepValidationReport(testStep.id);
         };
 
-        TestExecutionService.getManualValidationStatusTitle = function (step) {
-            if(step.validationReport  && step.validationReport.result) {
-                if (step.testingType === 'SUT_MANUAL' || step.testingType === 'TA_MANUAL') {
-                    return ManualReportService.findResultTitle(step.validationReport.result.value);
+
+        TestExecutionService.setTestStepValidationReportObject = function (step, value) {
+            if (step != null) {
+                TestExecutionService.testStepValidationReportObjects[step.id] = angular.toJson(value);
+                StorageService.set("testStepValidationReportObjects", angular.toJson(TestExecutionService.testStepValidationReportObjects));
+            }
+        };
+
+        TestExecutionService.getTestStepValidationReportObject = function (step) {
+            return step != null && TestExecutionService.testStepValidationReportObjects[step.id] ? angular.fromJson(TestExecutionService.testStepValidationReportObjects[step.id]) : undefined;
+        };
+
+
+        TestExecutionService.getTestStepExecutionStatus = function (step) {
+            return step != null ? TestExecutionService.testStepExecutionStatuses[step.id] : undefined;
+        };
+
+
+        TestExecutionService.setTestStepExecutionStatus = function (step, value) {
+            if (step != null) {
+                TestExecutionService.testStepExecutionStatuses[step.id] = value;
+                StorageService.set("testStepExecutionStatuses", angular.toJson(TestExecutionService.testStepExecutionStatuses));
+
+            }
+        };
+
+        TestExecutionService.getTestStepExecutionStatus = function (step) {
+            return step != null ? TestExecutionService.testStepExecutionStatuses[step.id] : undefined;
+        };
+
+        TestExecutionService.setTestCaseValidationResult = function (testCase, value) {
+            if (testCase != null) {
+                TestExecutionService.testCaseValidationResults[testCase.id] = value;
+                StorageService.set("testCaseValidationResults", angular.toJson(TestExecutionService.testCaseValidationResults));
+
+            }
+        };
+
+        TestExecutionService.getTestCaseValidationResult = function (testCase) {
+            return testCase != null ? TestExecutionService.testCaseValidationResults[testCase.id] : undefined;
+        };
+
+        TestExecutionService.setTestCaseExecutionStatus = function (testCase, value) {
+            if (testCase != null) {
+                TestExecutionService.testCaseExecutionStatuses[testCase.id] = value;
+                StorageService.set("testCaseExecutionStatuses", angular.toJson(TestExecutionService.testCaseExecutionStatuses));
+
+            }
+        };
+
+        TestExecutionService.getTestCaseExecutionStatus = function (testCase) {
+            return testCase != null ? TestExecutionService.testCaseExecutionStatuses[testCase.id] : undefined;
+        };
+
+        TestExecutionService.getTestStepValidationResult = function (step) {
+            return step != null ? TestExecutionService.testStepValidationResults[step.id] : undefined;
+        };
+
+        TestExecutionService.getTestCaseComments = function (testCase) {
+            return testCase != null ? TestExecutionService.testCaseComments[testCase.id] : undefined;
+        };
+
+        TestExecutionService.setTestCaseComments = function (testCase) {
+            return testCase != null ? TestExecutionService.testCaseComments[testCase.id] : undefined;
+        };
+
+        TestExecutionService.getTestStepComments = function (testStep) {
+            return testStep != null ? TestExecutionService.testStepComments[testStep.id] : undefined;
+        };
+
+        TestExecutionService.setTestStepComments = function (testStep, value) {
+            TestExecutionService.testStepComments[testStep.id] = value;
+            StorageService.set("testStepComments", angular.toJson(TestExecutionService.testStepComments));
+            return TestExecutionService.updateTestStepValidationReport(testStep);
+        };
+
+        TestExecutionService.deleteTestStepComments = function (testStep) {
+            delete TestExecutionService.testStepComments[testStep.id];
+            StorageService.set("testStepComments", angular.toJson(TestExecutionService.testStepComments));
+            return TestExecutionService.updateTestStepValidationReport(testStep);
+        };
+
+
+        TestExecutionService.setTestStepValidationResult = function (step, value) {
+            TestExecutionService.testStepValidationResults[step.id] = value;
+            StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+            return  TestExecutionService.updateTestStepValidationReport(step);
+        };
+
+        TestExecutionService.deleteTestStepValidationResult = function (step) {
+            delete TestExecutionService.testStepValidationResults[step.id];
+            StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+            return  TestExecutionService.updateTestStepValidationReport(step);
+        };
+
+
+        TestExecutionService.getTestStepMessageValidationResult = function (step) {
+            var result = -1;
+            try {
+                result = TestExecutionService.getTestStepValidationReport(step).result.errors.categories[0].data.length;
+            } catch (errr) {
+
+            }
+            return result;
+        };
+
+        TestExecutionService.getTestStepMessageValidationResultDesc = function (step) {
+            var result = TestExecutionService.getTestStepMessageValidationResult(step);
+            return result > 0 ? 'FAILED' : result === 0 ? 'PASSED' : undefined;
+        };
+
+        TestExecutionService.setTestCaseValidationResultFromTestSteps = function (testCase) {
+            var results = [];
+            for (var i = 0; i < testCase.children.length; i++) {
+                var testStep = testCase.children[i];
+                var result = TestExecutionService.getTestStepValidationResult(testStep);
+                result = result != null && result != undefined && result != '' ? result: 'INCOMPLETE';
+                results.push(result);
+            }
+            var res =null;
+            if(results.indexOf('INCOMPLETE') >= 0){
+                res = 'INCOMPLETE';
+            }else if(results.indexOf('INCONCLUSIVE') >= 0){
+                res = 'INCONCLUSIVE';
+            }else if(results.indexOf('FAILED_NOT_SUPPORTED') >= 0 || results.indexOf('FAILED') >= 0){
+                res = 'FAILED';
+            }else if(results.indexOf('PASSED_NOTABLE_EXCEPTION') >= 0 ){
+                res = 'PASSED_NOTABLE_EXCEPTION';
+            }else{
+                res = 'PASSED';
+            }
+            TestExecutionService.setTestCaseValidationResult(testCase, res);
+         };
+
+        TestExecutionService.getResultOptionByValue = function (value) {
+            for (var i = 0; i < TestExecutionService.resultOptions.length; i++) {
+                if (TestExecutionService.resultOptions[i].value === value) {
+                    return TestExecutionService.resultOptions[i];
                 }
             }
-            return "Not Defined";
+            return null;
         };
 
 
         TestExecutionService.getValidationResult = function (step) {
-            return step != null && step.validationReport ? step.validationReport.result : undefined;
+            return step != null && TestExecutionService.getTestStepValidationReport(step) ? TestExecutionService.getTestStepValidationReport(step).result : undefined;
         };
 
-        TestExecutionService.setExecutionMessage = function (step, value) {
-            if (step != null)
-                step.executionMessage = value;
+        TestExecutionService.setTestStepExecutionMessage = function (step, value) {
+            if (step != null) {
+                TestExecutionService.testStepExecutionMessages[step.id] = value;
+                StorageService.set("testStepExecutionMessages", angular.toJson(TestExecutionService.testStepExecutionMessages));
+            }
 
         };
 
-        TestExecutionService.getExecutionMessage = function (step) {
-            return step != null ? step.executionMessage : undefined;
+        TestExecutionService.getTestStepExecutionMessage = function (step) {
+            return step != null ? TestExecutionService.testStepExecutionMessages[step.id] : undefined;
         };
 
-
-        TestExecutionService.setMessageTree = function (step, value) {
-            if (step != null)
-                step.messageTree = value;
-        };
-
-        TestExecutionService.getMessageTree = function (step) {
-            return step != null ? step.messageTree : undefined;
-        };
-
-        TestExecutionService.getValidationReport = function (step) {
-            return step != null ? step.validationReport : undefined;
-        };
-
-        TestExecutionService.setValidationReport = function (step, value) {
-            step.validationReport = value;
-        };
-
-
-        TestExecutionService.deleteExecutionStatus = function (step) {
-            if (step != null)
-                delete step.executionStatus;
-        };
-
-        TestExecutionService.deleteValidationReport = function (step) {
-            if (step && step.validationReport) {
-                delete step.validationReport;
+        TestExecutionService.setTestStepMessageTree = function (step, value) {
+            if (step != null) {
+                TestExecutionService.testStepMessageTrees[step.id] = value;
+                StorageService.set("testStepMessageTrees", angular.toJson(TestExecutionService.testStepMessageTrees));
             }
         };
 
-        TestExecutionService.deleteExecutionMessage = function (step) {
-            if (step && step.executionMessage) {
-                delete step.executionMessage;
+        TestExecutionService.getTestStepMessageTree = function (step) {
+            return step != null ? TestExecutionService.testStepMessageTrees[step.id] : undefined;
+        };
+
+        TestExecutionService.getTestStepValidationReport = function (step) {
+            return step != null ? TestExecutionService.testStepValidationReports[step.id] : undefined;
+        };
+
+        TestExecutionService.setTestStepValidationReport = function (step, value) {
+            TestExecutionService.testStepValidationReports[step.id] = value;
+            StorageService.set("testStepValidationReports", angular.toJson(TestExecutionService.testStepValidationReports));
+        };
+
+
+        TestExecutionService.deleteTestStepExecutionStatus = function (step) {
+            if (step != null) {
+                delete  TestExecutionService.testStepExecutionStatuses[step.id];
+                StorageService.set("testStepExecutionStatuses", angular.toJson(TestExecutionService.testStepExecutionStatuses));
             }
         };
 
-        TestExecutionService.deleteMessageTree = function (step) {
-            if (step && step.messageTree) {
-                delete step.messageTree;
+        TestExecutionService.deleteTestCaseExecutionStatus = function (testCase) {
+            if (testCase != null) {
+                delete  TestExecutionService.testCaseExecutionStatuses[testCase.id];
+                StorageService.set("testCaseExecutionStatuses", angular.toJson(TestExecutionService.testCaseExecutionStatuses));
             }
         };
+
+        TestExecutionService.deleteTestCaseValidationResult = function (testCase) {
+            if (testCase != null) {
+                delete  TestExecutionService.testCaseValidationResults[testCase.id];
+                StorageService.set("testCaseValidationResults", angular.toJson(TestExecutionService.testCaseValidationResults));
+            }
+        };
+
+
+        TestExecutionService.deleteTestStepValidationReport = function (step) {
+            delete TestExecutionService.testStepValidationReports[step.id];
+            StorageService.set("testStepValidationReports", angular.toJson(TestExecutionService.testStepValidationReports));
+
+        };
+
+        TestExecutionService.deleteTestStepExecutionMessage = function (step) {
+            if (step) {
+                delete TestExecutionService.testStepExecutionMessages[step.id];
+                StorageService.set("testStepExecutionMessages", angular.toJson(TestExecutionService.testStepExecutionMessages));
+            }
+        };
+
+        TestExecutionService.deleteTestStepMessageTree = function (step) {
+            if (step) {
+                delete  TestExecutionService.testStepMessageTrees[step.id];
+                StorageService.set("testStepMessageTrees", angular.toJson(TestExecutionService.testStepMessageTrees));
+            }
+        };
+
+        TestExecutionService.updateTestStepValidationReport = function (testStep) {
+            StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+            StorageService.set("testStepComments", angular.toJson(TestExecutionService.testStepComments));
+            var result = TestExecutionService.getTestStepValidationResult(testStep);
+            result = result != undefined ? result : null;
+            var comments = TestExecutionService.getTestStepComments(testStep);
+            comments = comments != undefined ? comments : null;
+            var report = TestExecutionService.getTestStepValidationReport(testStep);
+            var xmlMessageOrManualValidation = report != null ? report.xml:null;
+            return ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments);
+        };
+
+//        TestExecutionService.updateTestStepValidationReport = function (testStep) {
+//            StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+//            StorageService.set("testStepComments", angular.toJson(TestExecutionService.testStepComments));
+//            var result = TestExecutionService.getTestStepValidationResult(testStep);
+//            result = result != undefined ? result : null;
+//            var comments = TestExecutionService.getTestStepComments(testStep);
+//            comments = comments != undefined ? comments : null;
+//            return ReportService.updateTestStepValidationReport(testStep, result, comments);
+//        };
+//
 
 
         return TestExecutionService;
     }]);
-
-
 
 
 angular.module('format').factory('TestExecutionClock', function ($interval, Clock) {
@@ -1814,6 +2112,5 @@ angular.module('format').factory('IdleService',
         };
         return IdleService;
     });
-
 
 

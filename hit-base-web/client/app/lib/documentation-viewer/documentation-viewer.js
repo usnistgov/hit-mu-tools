@@ -16,6 +16,17 @@
         }
     ]);
 
+    mod.directive('apiDocs', [
+        function () {
+            return {
+                restrict: 'A',
+                templateUrl: 'ApiDocs.html',
+                replace: false,
+                controller: 'ApiDocsCtrl'
+            };
+        }
+    ]);
+
 
     mod.directive('testcaseDoc', [
         function () {
@@ -332,6 +343,29 @@
         }]);
 
     mod
+        .controller('ApiDocsCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout','$window', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout,$window) {
+            $scope.data = [];
+            $scope.loading = false;
+            $scope.error = null;
+            $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
+
+            $scope.apiLink = function(){
+                return $rootScope.apiLink;
+            };
+//            var listLoader = new DeliverableListLoader();
+//            listLoader.then(function (result) {
+//                $scope.error = null;
+//                $scope.data = result;
+//                $scope.loading = false;
+//            }, function (error) {
+//                $scope.loading = false;
+//                $scope.error = "Sorry, failed to load the files";
+//                $scope.data = [];
+//            });
+        }]);
+
+
+    mod
         .controller('InstallationGuideCtrl', ['$scope', '$rootScope', '$http', '$filter', '$cookies', '$sce', '$timeout', 'InstallationGuideLoader', function ($scope, $rootScope, $http, $filter, $cookies, $sce, $timeout, InstallationGuideLoader) {
             $scope.doc = null;
             $scope.loading = false;
@@ -551,7 +585,7 @@
 //                    }
 //                );
 
-                $http.get('api/documentation/testcases', {params: {"stage": stage}, timeout: 60000}).then(
+                $http.get('api/documentation/testcases', {timeout: 60000}).then(
                     function (object) {
                         if (object.data != null && object.data != "") {
                             delay.resolve(angular.fromJson(object.data));

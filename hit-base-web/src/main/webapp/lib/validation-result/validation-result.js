@@ -38,7 +38,7 @@
     ]);
 
     mod
-        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'NewValidationResult', '$timeout', 'ServiceDelegator', 'Settings', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, NewValidationResult, $timeout,ServiceDelegator,Settings) {
+        .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'NewValidationResult', '$timeout', 'ServiceDelegator', 'Settings', 'TestExecutionService',function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, NewValidationResult, $timeout,ServiceDelegator,Settings,TestExecutionService) {
             $scope.validationTabs = new Array();
             $scope.currentType = null;
             $scope.settings = Settings;
@@ -169,7 +169,7 @@
                 });
             });
 
-            $scope.$on($scope.type + ':validationResultLoaded', function (event, mvResult,testStepId) {
+            var destroyEvent1 = $rootScope.$on($scope.type + ':validationResultLoaded', function (event, mvResult,testStep) {
 
                 if($scope.format != null) {
                     $scope.editorService = ServiceDelegator.getEditorService($scope.format);
@@ -179,7 +179,7 @@
                 var report = null;
                 var validationResult = null;
                 var validationResultId = null;
-                if (mvResult !== null) {
+                if (mvResult !== null && mvResult != undefined) {
                     if (!mvResult.result) {
                         validationResult = new NewValidationResult();
                         validationResult.init(mvResult.json);
@@ -188,8 +188,20 @@
                         validationResult = mvResult.result;
                     }
                 }
+
+                if(testStep.testingType != 'TA_RESPONDER'){
+                    var rs = TestExecutionService.getTestStepValidationResult(testStep);
+                    if(rs === undefined) { // set default
+                        TestExecutionService.setTestStepValidationResult(testStep, TestExecutionService.getTestStepMessageValidationResultDesc(testStep));
+                    }
+                }
+
                 $timeout(function () {
-                    $rootScope.$emit($scope.type + ':reportLoaded', mvResult,testStepId);
+                    if($scope.type === 'cb'){ // TODO: remove dependency
+                        $rootScope.$emit($scope.type + ':updateTestStepValidationReport', mvResult,testStep);
+                    }else{
+                        $rootScope.$emit($scope.type + ':createMessageValidationReport', mvResult,testStep);
+                    }
                 });
 
                 $scope.validationResult = validationResult;
@@ -265,6 +277,12 @@
             $scope.toHTML = function (content) {
                 return $sce.trustAsHtml(content);
             };
+
+
+            $rootScope.$on('$destroy', function() {
+                destroyEvent1(); // remove listener.
+            });
+
 
             $scope.scrollbarWidth = $rootScope.getScrollbarWidth();
 
