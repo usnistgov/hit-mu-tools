@@ -57,12 +57,31 @@
                 var rs = [];
                 if (predicates != null && predicates.length > 0 && targetPath !== "" && targetPath !== null) {
                     rs =  _.filter(predicates, function (predicate) {
-                        return predicate.constraintTarget === targetPath;
+                        return fixPath(predicate.constraintTarget) === fixPath(targetPath);
                     });
                 }
-                console.log(rs);
-                return rs;
+                 return rs;
             };
+
+            var fixPath = function (targetPath) {
+                var path = targetPath;
+                if(targetPath != null && targetPath != "") {
+                    var sections = targetPath.split(".");
+                    if(sections != null && sections.length > 0) {
+                        path = null;
+                        _.each(sections, function (section) {
+                            var res = section;
+                            if (section.indexOf("[") != -1 && section.indexOf("]") != -1) {
+                                var d = section.split("["); // 23, 1]
+                                res = d[0] + "[*]";
+                            }
+                            path = path != null ? path + "." + res : res;
+                        });
+                    }
+                 }
+                return path;
+            };
+
 
             $scope.setAllConcise = function (value) {
                 $scope.options.concise = value;
@@ -923,7 +942,9 @@
              */
             $scope.filterConstraints = function (node, constraints) {
                 if (constraints) {
-                    return $filter('filter')(constraints, {constraintTarget: node.position + '[1]'}, true);
+                    return _.filter(constraints, function (constraint) {
+                        return fixPath(constraint.constraintTarget) === fixPath(node.position + '[1]');
+                    });
                 }
                 return null;
             };
@@ -1402,7 +1423,7 @@
                 }
             );
 
-//            $http.get('../../resources/cf/profile-1.json').then(
+//            $http.get('../../resources/cf/profile-loi.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
