@@ -53,7 +53,7 @@
                 return sorted;
             };
 
-            var findPredicatesByTargetPath = function (predicates, targetPath) {
+            var findConstraintsByTargetPath = function (predicates, targetPath) {
                 var rs = [];
                 if (predicates != null && predicates.length > 0 && targetPath !== "" && targetPath !== null) {
                     rs =  _.filter(predicates, function (predicate) {
@@ -347,9 +347,6 @@
              */
             $scope.processDatatype = function (datatype, fieldOrComponent) {
                 $scope.processConstraints(datatype, fieldOrComponent);
-
-
-
                 if (!datatype.referencers)
                     datatype.referencers = [];
                 if (datatype.referencers.indexOf(fieldOrComponent) === -1) {
@@ -358,20 +355,20 @@
                 if ($scope.model.datatypeList.indexOf(datatype) === -1) {
                     $scope.model.datatypeList.push(datatype);
                      if (datatype.children && datatype.children != null && datatype.children.length > 0) {
-                        var removeCandidates = [];
+//                        var removeCandidates = [];
                         angular.forEach(datatype.children, function (component) {
-                            if ($scope.visible(component)) {
+//                            if ($scope.visible(component)) {
                                 $scope.processComponent(component, datatype, fieldOrComponent);
-                            } else {
-                                removeCandidates.push(component);
-                            }
+//                            } else {
+//                                removeCandidates.push(component);
+//                            }
                         });
-                        if (removeCandidates.length > 0) {
-                            angular.forEach(removeCandidates, function (removeCandidate) {
-                                var index = datatype.children.indexOf(removeCandidate);
-                                datatype.children.splice(index, 1);
-                            });
-                        }
+//                        if (removeCandidates.length > 0) {
+//                            angular.forEach(removeCandidates, function (removeCandidate) {
+//                                var index = datatype.children.indexOf(removeCandidate);
+//                                datatype.children.splice(index, 1);
+//                            });
+//                        }
                         datatype.children = sortByPosition(datatype.children);
                     }
                 }
@@ -403,20 +400,20 @@
                 $scope.parentsMap[group.id] = parent;
                 if (group.children && group.children != null && group.children.length > 0) {
                     //group.children = sortByPosition(group.children);
-                    var removeCandidates = [];
+//                    var removeCandidates = [];
                     angular.forEach(group.children, function (segmentRefOrGroup) {
-                        if ($scope.visible(segmentRefOrGroup)) {
+//                        if ($scope.visible(segmentRefOrGroup)) {
                             $scope.processElement(segmentRefOrGroup, group);
-                        } else {
-                            removeCandidates.push(segmentRefOrGroup);
-                        }
+//                        } else {
+//                            removeCandidates.push(segmentRefOrGroup);
+//                        }
                     });
-                    if (removeCandidates.length > 0) {
-                        angular.forEach(removeCandidates, function (removeCandidate) {
-                            var index = group.children.indexOf(removeCandidate);
-                            group.children.splice(index, 1);
-                        });
-                    }
+//                    if (removeCandidates.length > 0) {
+//                        angular.forEach(removeCandidates, function (removeCandidate) {
+//                            var index = group.children.indexOf(removeCandidate);
+//                            group.children.splice(index, 1);
+//                        });
+//                    }
                     group.children = sortByPosition(group.children);
                 }
             };
@@ -439,21 +436,21 @@
                     $scope.model.segmentList.push(segment);
                     if (segment.children && segment.children.length > 0) {
                         //segment.children = sortByPosition(segment.children);
-                        var removeCandidates = [];
+//                        var removeCandidates = [];
                         angular.forEach(segment.children, function (field) {
-                            if ($scope.visible(field)) {
+//                            if ($scope.visible(field)) {
                                 $scope.processField(field, segment);
-                            } else {
-                                removeCandidates.push(field);
-                            }
+//                            } else {
+//                                removeCandidates.push(field);
+//                            }
                         });
-                        if (removeCandidates.length > 0) {
-                            angular.forEach(removeCandidates, function (removeCandidate) {
-                                var index = segment.children.indexOf(removeCandidate);
-                                console.log("Non-relevant field at position=" + removeCandidate.position + " and path=" + removeCandidate.path);
-                                segment.children.splice(index, 1);
-                            });
-                        }
+//                        if (removeCandidates.length > 0) {
+//                            angular.forEach(removeCandidates, function (removeCandidate) {
+//                                var index = segment.children.indexOf(removeCandidate);
+//                                console.log("Non-relevant field at position=" + removeCandidate.position + " and path=" + removeCandidate.path);
+//                                segment.children.splice(index, 1);
+//                            });
+//                        }
                         segment.children = sortByPosition(segment.children);
                     }
 
@@ -509,21 +506,21 @@
              */
             $scope.processMessage = function () {
                 //$scope.model.message.children = sortByPosition($scope.model.message.children);
-                var removeCandidates = [];
+//                var removeCandidates = [];
                 angular.forEach($scope.model.message.children, function (segmentRefOrGroup) {
-                    if ($scope.visible(segmentRefOrGroup)) {
+                    //if ($scope.visible(segmentRefOrGroup)) {
                         $scope.processElement(segmentRefOrGroup);
-                    } else {
-                        removeCandidates.push(segmentRefOrGroup);
-                    }
+//                    } else {
+//                        removeCandidates.push(segmentRefOrGroup);
+//                    }
                 });
 
-                if (removeCandidates.length > 0) {
-                    angular.forEach(removeCandidates, function (removeCandidate) {
-                        var index = $scope.model.message.children.indexOf(removeCandidate);
-                        $scope.model.message.children.splice(index, 1);
-                    });
-                }
+//                if (removeCandidates.length > 0) {
+//                    angular.forEach(removeCandidates, function (removeCandidate) {
+//                        var index = $scope.model.message.children.indexOf(removeCandidate);
+//                        $scope.model.message.children.splice(index, 1);
+//                    });
+//                }
                 $scope.model.message.children = $filter('orderBy')($scope.model.message.children, 'position');
 //                angular.forEach($scope.model.datatypes, function (value, key) {
 //                    $scope.model.datatypeList.push(value);
@@ -618,12 +615,25 @@
                 return [];
             };
 
+
+            var removeNotVisibles = function(removeCandidates, all){
+                 if (removeCandidates.length > 0 && all != null && all.length > 0) {
+                    angular.forEach(removeCandidates, function (removeCandidate) {
+                        var index = all.indexOf(removeCandidate);
+                        all.splice(index, 1);
+                    });
+                }
+                return all;
+            }
+
             /**
              * return children of a node
              * @param parent: node to get the children of
              * @returns {Array}: collection of children nodes
              */
             $scope.getNodes = function (parent) {
+
+                var removeCandidates = [];
                 var children = [];
                 if (!parent || parent == null) {
                     if ($scope.nodeData.type === 'SEGMENT' || $scope.nodeData.type === 'MESSAGE') {
@@ -634,6 +644,9 @@
                                 child.selfPredicates = [];
                                 child.selfConformanceStatements = $scope.getSegmentLevelConfStatements(child);
                                 child.selfPredicates = $scope.getSegmentLevelPredicates(child);
+                                if (!$scope.visible(child)) {
+                                    removeCandidates.push(child);
+                                }
                             });
                         } else if ($scope.nodeData.type === 'MESSAGE') {
                             angular.forEach(children, function (child) {
@@ -641,6 +654,9 @@
                                 child.selfPredicates = [];
                                 child.selfConformanceStatements = $scope.getMessageLevelConfStatements(child);
                                 child.selfPredicates = $scope.getMessageLevelPredicates(child);
+                                if (!$scope.visible(child)) {
+                                    removeCandidates.push(child);
+                                }
                             });
                         }
                     } else if ($scope.nodeData.type === 'DATATYPE') {
@@ -666,6 +682,9 @@
                                 child.selfConformanceStatements = child.selfConformanceStatements.concat($scope.getGroupLevelConfStatements(child));
                                 child.selfPredicates = child.selfPredicates.concat($scope.getGroupLevelPredicates(child));
                             }
+                            if (!$scope.visible(child)) {
+                                removeCandidates.push(child);
+                            }
                         });
                     } else if (parent.type === 'COMPONENT') {
                         children = angular.copy(children);
@@ -688,6 +707,9 @@
                                 child.selfConformanceStatements = child.selfConformanceStatements.concat($scope.getGroupLevelConfStatements(child));
                                 child.selfPredicates = child.selfPredicates.concat($scope.getGroupLevelPredicates(child));
                             }
+                            if (!$scope.visible(child)) {
+                                removeCandidates.push(child);
+                            }
                         });
                     } else if (parent.type === 'DATATYPE') {
                         children = angular.copy(children);
@@ -698,6 +720,9 @@
                             child.selfPredicates = [];
                             child.selfConformanceStatements = child.selfConformanceStatements.concat($scope.getDatatypeLevelConfStatements(child));
                             child.selfPredicates = child.selfPredicates.concat($scope.getDatatypeLevelPredicates(child));
+                            if (!$scope.visible(child)) {
+                                removeCandidates.push(child);
+                            }
                         });
                     } else if (parent.type === 'GROUP') {
                         children = angular.copy(children);
@@ -709,6 +734,9 @@
                             child.selfPredicates = child.selfPredicates.concat($scope.getGroupLevelPredicates(child));
                             child.selfConformanceStatements = child.selfConformanceStatements.concat($scope.getMessageLevelConfStatements(child));
                             child.selfPredicates = child.selfPredicates.concat($scope.getMessageLevelPredicates(child));
+                            if (!$scope.visible(child)) {
+                                removeCandidates.push(child);
+                            }
 
                         });
                     } else if (parent.type === 'SEGMENT_REF') {
@@ -723,10 +751,13 @@
                             child.selfPredicates = child.selfPredicates.concat($scope.getMessageLevelPredicates(child));
                             child.selfConformanceStatements = child.selfConformanceStatements.concat($scope.getSegmentLevelConfStatements(child));
                             child.selfPredicates = child.selfPredicates.concat($scope.getSegmentLevelPredicates(child));
+                            if (!$scope.visible(child)) {
+                                removeCandidates.push(child);
+                            }
                         });
                     }
                 }
-                return children;
+                return removeNotVisibles(removeCandidates,children);
             };
 
             $scope.params = new PvTreetableParams({
@@ -782,6 +813,22 @@
                 $scope.params.refreshWithState(!$scope.options.collapse ? 'expanded' : 'collapse');
             };
 
+//            /**
+//             *
+//             * @param node
+//             * @returns {boolean}
+//             */
+//            $scope.hasRelevantChild = function (node) {
+//                if (node != undefined) {
+//                    var children = $scope.children(node);
+//                    if (children && children != null && children.length > 0) {
+//                        return true;
+//                    }
+//                }
+//                return false;
+//            };
+
+
             /**
              *
              * @param node
@@ -789,13 +836,14 @@
              */
             $scope.hasRelevantChild = function (node) {
                 if (node != undefined) {
-                    var children = $scope.children(node);
+                    var children = $scope.getNodes(node);
                     if (children && children != null && children.length > 0) {
                         return true;
                     }
                 }
                 return false;
             };
+
 
             /**
              *
@@ -1055,11 +1103,7 @@
                     if (group.conformanceStatements != null && group.conformanceStatements.length > 0) {
                         var targetPath = $scope.getGroupChildTargetPath(element, group);
                         if (targetPath !== "") {
-                            angular.forEach(group.conformanceStatements, function (cs) {
-                                if (cs.constraintTarget === targetPath) {
-                                    conformanceStatements.push(cs);
-                                }
-                            });
+                            conformanceStatements = conformanceStatements.concat(findConstraintsByTargetPath(group.conformanceStatements, targetPath));
                         }
                     }
                 }
@@ -1083,7 +1127,7 @@
             $scope.getDirectGroupLevelPredicatesByGroup = function (element, group) {
                 if (group != null && group.predicates != null && group.predicates.length > 0) {
                     var targetPath = $scope.getGroupDirectChildTargetPath(element, group);
-                    return findPredicatesByTargetPath(group.predicates, targetPath);
+                    return findConstraintsByTargetPath(group.predicates, targetPath);
                 }
                 return [];
             };
@@ -1091,7 +1135,7 @@
             $scope.getGroupLevelPredicatesByGroup = function (element, group) {
                 if (group != null && group.predicates != null && group.predicates.length > 0) {
                     var targetPath = $scope.getGroupChildTargetPath(element, group);
-                    return findPredicatesByTargetPath(group.predicates, targetPath);
+                    return findConstraintsByTargetPath(group.predicates, targetPath);
                 }
                 return [];
             };
@@ -1106,11 +1150,7 @@
                 if ($scope.model.message.conformanceStatements != null && $scope.model.message.conformanceStatements.length > 0) {
                     var targetPath = $scope.getMessageChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach($scope.model.message.conformanceStatements, function (cs) {
-                            if (cs.constraintTarget === targetPath) {
-                                conformanceStatements.push(cs);
-                            }
-                        });
+                        conformanceStatements = conformanceStatements.concat(findConstraintsByTargetPath($scope.model.message.conformanceStatements, targetPath));
                     }
                 }
                 return conformanceStatements;
@@ -1121,11 +1161,7 @@
                 if ($scope.model.message.predicates != null && $scope.model.message.predicates.length > 0) {
                     var targetPath = $scope.getMessageChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach($scope.model.message.predicates, function (pred) {
-                            if (p.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
+                        predicates = predicates.concat(findConstraintsByTargetPath($scope.model.message.predicates, targetPath));
                     }
                 }
                 return predicates;
@@ -1162,11 +1198,8 @@
                 if (segment != null && segment.predicates && segment.predicates != null && segment.predicates.length > 0) {
                     var targetPath = $scope.getSegmentChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach(segment.predicates, function (pred) {
-                            if (pred.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
+                        predicates = predicates.concat(findConstraintsByTargetPath(segment.predicates, targetPath));
+
                     }
                 }
                 return predicates;
@@ -1179,11 +1212,7 @@
                 if (segment != null && segment.conformanceStatements && segment.conformanceStatements != null && segment.conformanceStatements.length > 0) {
                     var targetPath = $scope.getSegmentChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach(segment.conformanceStatements, function (confStat) {
-                            if (confStat.constraintTarget === targetPath) {
-                                confStatements.push(confStat);
-                            }
-                        });
+                        confStatements = confStatements.concat(findConstraintsByTargetPath(segment.conformanceStatements, targetPath));
                     }
                 }
                 return confStatements;
@@ -1195,11 +1224,7 @@
                 if (datatype && datatype != null && datatype.predicates.length > 0) {
                     var targetPath = $scope.getDatatypeChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach(datatype.predicates, function (pred) {
-                            if (pred.constraintTarget === targetPath) {
-                                predicates.push(pred);
-                            }
-                        });
+                        predicates = predicates.concat(findConstraintsByTargetPath(datatype.predicates, targetPath));
                     }
                 }
                 return predicates;
@@ -1211,11 +1236,7 @@
                 if (datatype && datatype != null && datatype.conformanceStatements.length > 0) {
                     var targetPath = $scope.getDatatypeChildTargetPath(element);
                     if (targetPath !== "") {
-                        angular.forEach(datatype.conformanceStatements, function (confStat) {
-                            if (confStat.constraintTarget === targetPath) {
-                                confStatements.push(confStat);
-                            }
-                        });
+                        confStatements = confStatements.concat(findConstraintsByTargetPath(datatype.conformanceStatements, targetPath));
                     }
                 }
                 return confStatements;
@@ -1423,7 +1444,7 @@
                 }
             );
 
-//            $http.get('../../resources/cf/profile-loi.json').then(
+//            $http.get('../../resources/cf/profile-lri.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
