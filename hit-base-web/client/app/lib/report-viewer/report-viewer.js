@@ -20,7 +20,7 @@
     ]);
 
     mod
-        .controller('ReportViewerCtrl', ['$scope', '$rootScope', '$compile', 'ReportService', 'TestExecutionService', function ($scope, $rootScope, $compile, ReportService, TestExecutionService) {
+        .controller('ReportViewerCtrl', ['$scope', '$rootScope', '$compile', 'ReportService', 'TestExecutionService', 'Notification', function ($scope, $rootScope, $compile, ReportService, TestExecutionService,Notification) {
             $scope.report = null;
             $scope.testStepId = null;
             $scope.error = null;
@@ -31,8 +31,8 @@
             var destroyEvent1;
             destroyEvent1 =  $rootScope.$on($scope.type + ':createMessageValidationReport', function (event, report, testStep) {
                 $scope.loading = true;
-                $scope.testStepId = testStep.id;
-                if (report != null) {
+                if (report != null && testStep != null) {
+                    $scope.testStepId = testStep.id;
                     ReportService.createMessageValidationReport(report.xml, testStep.id).then(function (response) {
                         $scope.report = report;
                         $scope.report["id"] = response.id;
@@ -42,7 +42,7 @@
                         $scope.report = null;
                         $scope.compile();
                         $scope.loading = false;
-                        $scope.error = error;
+                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                     });
                 } else {
                     $scope.report = null;
@@ -50,15 +50,32 @@
                 }
             });
 
-
             destroyEvent2 = $rootScope.$on($scope.type + ':initValidationReport', function (event, report, testStep) {
                 $scope.loading = true;
                 $scope.testStepId = testStep.id;
                 if (report != null && report != undefined) {
-                    $scope.report = report;
-                    TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
-                    $scope.compile();
-                    $scope.loading = false;
+                    console.log("<<<<<<<<<< report" + report);
+                    if( report.html == null){
+                        var comments =  report.comments != undefined ? report.comments : null;
+                        var xml = report.xml != undefined ? report.xml : null;
+                        var result = report.result != undefined ? report.result : null;
+                        ReportService.updateTestStepValidationReport(xml, testStep.id, result, comments).then(function (response) {
+                            $scope.report = response;
+                            TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
+                            $scope.loading = false;
+                             $scope.compile();
+                         }, function (error) {
+                            $scope.report = null;
+                             $scope.compile();
+                            $scope.loading = false;
+                            Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                        });
+                    }else{
+                        $scope.report = report;
+                        TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
+                        $scope.compile();
+                        $scope.loading = false;
+                    }
                 } else {
                     $scope.report = null;
                     $scope.compile();
@@ -71,25 +88,26 @@
 
             destroyEvent3 = $rootScope.$on($scope.type + ':updateTestStepValidationReport', function (event, report, testStep) {
                 //$scope.loading = true;
-                $scope.testStepId = testStep.id;
-
-                var result = TestExecutionService.getTestStepValidationResult(testStep);
-                result= result != undefined ? result: null;
-                var comments = TestExecutionService.getTestStepComments(testStep);
-                comments = comments != undefined ? comments:null;
-                var xmlMessageOrManualValidation = report != null ? report.xml:null;
-                ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments).then(function (response) {
-                    $scope.report = response;
-                    TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
-                    var back = TestExecutionService.getTestStepValidationReportObject(testStep);
-                    $scope.compile();
+                if(testStep != null) {
+                    $scope.testStepId = testStep.id;
+                    var result = TestExecutionService.getTestStepValidationResult(testStep);
+                    result = result != undefined ? result : null;
+                    var comments = TestExecutionService.getTestStepComments(testStep);
+                    comments = comments != undefined ? comments : null;
+                    var xmlMessageOrManualValidation = report != null ? report.xml : null;
+                    ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments).then(function (response) {
+                        $scope.report = response;
+                        TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
+                        var back = TestExecutionService.getTestStepValidationReportObject(testStep);
+                        $scope.compile();
 //                    $scope.loading = false;
-                }, function (error) {
-                    $scope.report = null;
+                    }, function (error) {
+                        $scope.report = null;
 //                    $scope.loading = false;
-                    $scope.compile();
-                    $scope.error = error;
-                });
+                        $scope.compile();
+                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                    });
+                }
             });
 
             $rootScope.$on('$destroy', function() {
@@ -150,7 +168,7 @@
         }]);
 
 
-    mod.factory('ReportService', function ($http, $q, $filter) {
+    mod.factory('ReportService', function ($rootScope, $http, $q, $filter,Notification) {
         var ReportService = function () {
         };
 
@@ -218,17 +236,13 @@
 
         ReportService.createMessageValidationReport = function (xmlMessageValidationReport, testStepId) {
             var delay = $q.defer();
-            var data = $.param({xmlMessageValidationReport: xmlMessageValidationReport, testStepId: testStepId});
-            var config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-                }
-            };
-            $http.post("api/messageValidationReport/create", data, config).then(
+            var data = angular.fromJson({"xmlMessageValidationReport": xmlMessageValidationReport, "testStepId": testStepId});
+            $http.post("api/testStepValidationReport/create", data).then(
                 function (object) {
                     delay.resolve(angular.fromJson(object.data));
                 },
                 function (response) {
+                    Notification.error({message: "Failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                     delay.reject(response.data);
                 }
             );
@@ -250,6 +264,7 @@
                     delay.resolve(angular.fromJson(object.data));
                 },
                 function (response) {
+                    Notification.error({message: "Sorry, failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                     delay.reject(response.data);
                 }
             );
@@ -270,20 +285,35 @@
 
         ReportService.updateTestStepValidationReport = function (xmlMessageValidationReport, testStepId, result, comments) {
             var delay = $q.defer();
-            var data = $.param({xmlMessageValidationReport: xmlMessageValidationReport, testStepId: testStepId, result: result, comments: comments});
-            var config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-                }
-            };
-            $http.post("api/testStepValidationReport/update", data, config).then(
+            var data = angular.fromJson({"xmlMessageValidationReport": xmlMessageValidationReport, "testStepId": testStepId, "result": result, "comments": comments});
+            $http.post("api/testStepValidationReport/update", data).then(
                 function (object) {
-                    delay.resolve(angular.fromJson(object.data));
+                    var res = object.data != null && object.data != "" ? angular.fromJson(object.data): null;
+                    delay.resolve(res);
                 },
                 function (response) {
+                    Notification.error({message: "Sorry, failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                     delay.reject(response.data);
                 }
             );
+//
+////            var data = $.param(;
+//            var data = angular.fromJson({xml: xmlMessageValidationReport, testStep: {id: testStepId}, result: result, comments: comments});
+////             var config = {
+////                headers: {
+////                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+////                }
+////            };
+//
+//            console.log(angular.toJson(data));
+//            $http.post("api/testStepValidationReport/update", data).then(
+//                function (object) {
+//                    delay.resolve(angular.fromJson(object.data));
+//                },
+//                function (response) {
+//                    delay.reject(response.data);
+//                }
+//            );
 
 //            $http.get("../../resources/cb/updateTestStepReport.json").then(
 //                function (object) {
@@ -304,17 +334,7 @@
 
 //        ReportService.updateTestStepValidationReport = function (testStep, result, comments) {
 //            var delay = $q.defer();
-//            var config = {
-//                headers: {
-//                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-//                }
-//            };
-//
-//            var data = $.param({
-//                result: result,
-//                comments: comments,
-//                testStepId: testStep.id
-//            });
+//            var data = {xml: xmlMessageValidationReport, testStep: testStep:{id:testStep.id}, result: result, comments: comments};
 //            $http.post("api/testStepValidationReport/update", data, config).then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
