@@ -155,8 +155,10 @@
              * @returns {boolean}
              */
             $scope.isRelevant = function (node) {
-                if (node === undefined || !$scope.options.relevance)
-                    return true;
+                return (node === undefined || !$scope.options.relevance) ? true: isNodeUsageRelevant(node);
+            };
+
+            var isNodeUsageRelevant = function (node) {
                 if (node.hide == undefined || !node.hide || node.hide === false) {
                     if (node.selfPredicates && node.selfPredicates != null && node.selfPredicates.length > 0) {
                         return  node.selfPredicates[0].trueUsage === "R" || node.selfPredicates[0].trueUsage === "RE" || node.selfPredicates[0].falseUsage === "R" || node.selfPredicates[0].falseUsage === "RE";
@@ -167,6 +169,7 @@
                     return false;
                 }
             };
+
 
 
             /**
@@ -205,10 +208,10 @@
              * @returns {boolean}
              */
             $scope.isSegmentVisible = function (segment) {
-                if (segment.referencers) {
+                 if ($scope.options.relevance && segment.referencers) {
                     for (var i = 0; i < segment.referencers.length; i++) {
                         var segRef = segment.referencers[i];
-                        if (!$scope.visible(segRef)) {
+                        if (!segRef.usageRelevent) {
                             return false;
                         }
                     }
@@ -316,6 +319,7 @@
             };
 
 
+
             /**
              *
              * @param datatype
@@ -345,11 +349,13 @@
              * @param messageOrGroup
              */
             var processSegRef = function (segRef, messageOrGroup) {
-                $scope.collectSelfConstraints(segRef, messageOrGroup);
                 segRef.position = parseInt(segRef.position);
                 if (messageOrGroup && messageOrGroup != null) {
                     $scope.parentsMap[segRef.id] = messageOrGroup;
                 }
+                processSegRefOrGroupConstraints(segRef);
+                $scope.collectSelfConstraints(segRef, messageOrGroup);
+                segRef.usageRelevent = messageOrGroup != undefined && messageOrGroup != null ? messageOrGroup.usageRelevent && isNodeUsageRelevant(segRef) : isNodeUsageRelevant(segRef);
                 var segment = $scope.model.segments[segRef.ref];
                processSegment(segment, segRef);
             };
@@ -361,8 +367,10 @@
              */
             var processGroup = function (group, parent) {
                processConstraints(group, parent);
-                group.position = parseInt(group.position);
-                $scope.parentsMap[group.id] = parent;
+               group.position = parseInt(group.position);
+               $scope.parentsMap[group.id] = parent;
+               processSegRefOrGroupConstraints(group);
+               group.usageRelevent = parent != undefined &&  parent != null ? parent.usageRelevent && isNodeUsageRelevant(group):isNodeUsageRelevant(group);
                 if (group.children && group.children != null && group.children.length > 0) {
                     angular.forEach(group.children, function (segmentRefOrGroup) {
                        processElement(segmentRefOrGroup, group);
@@ -718,14 +726,33 @@
                 angular.forEach(children, function (child) {
                     child.selfConformanceStatements = [];
                     child.selfPredicates = [];
-                    child.selfConformanceStatements = getSegmentLevelConfStatements(child);
-                    child.selfPredicates = getSegmentLevelPredicates(child);
+                    child.selfConformanceStatements = child.selfConformanceStatements.concat(getGroupLevelConfStatements(child));
+                    child.selfPredicates = child.selfPredicates.concat(getGroupLevelPredicates(child));
+                    child.selfConformanceStatements = child.selfConformanceStatements.concat(getMessageLevelConfStatements(child));
+                    child.selfPredicates = child.selfPredicates.concat(getMessageLevelPredicates(child));
                     if (!$scope.visible(child)) {
                         removeCandidates.push(child);
                     }
                 });
                 return children;
             };
+
+
+            /**
+             *
+             * @param nodeData
+             * @param removeCandidates
+             * @returns {*}
+             */
+            var processSegRefOrGroupConstraints = function (segORGroup) {
+                segORGroup.selfConformanceStatements = [];
+                segORGroup.selfPredicates = [];
+                segORGroup.selfConformanceStatements = segORGroup.selfConformanceStatements.concat(getGroupLevelConfStatements(segORGroup));
+                segORGroup.selfPredicates = segORGroup.selfPredicates.concat(getGroupLevelPredicates(segORGroup));
+                segORGroup.selfConformanceStatements = segORGroup.selfConformanceStatements.concat(getMessageLevelConfStatements(segORGroup));
+                segORGroup.selfPredicates = segORGroup.selfPredicates.concat(getMessageLevelPredicates(segORGroup));
+            };
+
 
             /**
              *
@@ -1278,7 +1305,7 @@
              * @param node
              * @returns {string}
              */
-            var getConfStatementsAsMultipleLinesString = function (node) {
+            $scope.getConfStatementsAsMultipleLinesString = function (node) {
                 var confStatements = node.selfConformanceStatements;
                 var html = "";
                 if (confStatements && confStatements != null && confStatements.length > 0) {
@@ -1295,7 +1322,7 @@
              * @param constraints
              * @returns {*}
              */
-            var getConfStatementsAsOneLineString = function (node, constraints) {
+            $scope.getConfStatementsAsOneLineString = function (node, constraints) {
                 var confStatements = node.selfConformanceStatements;
                 var html = "";
                 if (confStatements && confStatements != null && confStatements.length > 0) {
@@ -1555,7 +1582,7 @@
                 }
             );
 
-//            $http.get('../../resources/cf/profile-lri.json').then(
+//            $http.get('../../resources/cf/profile-loi-2.json').then(
 //                function (object) {
 //                    delay.resolve(angular.fromJson(object.data));
 //                },
