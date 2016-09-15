@@ -3,7 +3,7 @@
     <div ng-show="validationResult !== null">
         <tabset>
             <tab ng-click="showValidationTable(validationResult.errors.categories[0],'errors')" active="active.errors"
-                 ng-show="settings.options.validation.show.errors">
+                 ng-if="settings.options.validation.show.errors">
                 <tab-heading>
                 <span class="badge failure failure-errors"
                       ng-bind="::validationResult.errors.categories[0].data.length"></span>
@@ -24,7 +24,7 @@
             </tab>
 
             <tab ng-click="showValidationTable(validationResult.warnings.categories[0],'warnings')"
-                 ng-show="settings.options.validation.show.warnings"
+                 ng-if="settings.options.validation.show.warnings"
                  active="active.warnings">
                 <tab-heading>
 
@@ -45,7 +45,7 @@
                 </tabset>
             </tab>
             <tab ng-click="showValidationTable(validationResult.alerts.categories[0],'alerts')" active="active.alerts"
-                 ng-show="settings.options.validation.show.alerts">
+                 ng-if="settings.options.validation.show.alerts">
                 <tab-heading>
 
                 <span class="badge failure failure-alerts"
@@ -67,7 +67,7 @@
             </tab>
 
             <tab ng-click="showValidationTable(validationResult.affirmatives.categories[0],'affirmatives')"
-                 active="active.affirmatives" ng-show="settings.options.validation.show.affirmatives">
+                 active="active.affirmatives" ng-if="settings.options.validation.show.affirmatives">
                 <tab-heading>
 
 
@@ -163,7 +163,7 @@
         <!--<div ui-grid="gridOptions" class="grid"></div>-->
         <div ng-show="currentCategory && currentCategory !== null">
 
-            <div ng-if="currentCategory.data != null && currentCategory.data.length > 0">
+            <div ng-show="currentCategory.data != null && currentCategory.data.length > 0">
                 <div class="">
                     <input type="checkbox" title="Highlight All in editor"
                            ng-model="checkboxConfig[currentType][currentCategory.title]"
@@ -221,8 +221,8 @@
                 </table>
                     </div>
              </div>
-            <div ng-if="currentCategory.data == null || currentCategory.data.length == 0">
-                No{{::currentType}} found.
+            <div ng-show="currentCategory.data == null || currentCategory.data.length == 0">
+                No {{currentType}} found.
             </div>
 
         </div>
