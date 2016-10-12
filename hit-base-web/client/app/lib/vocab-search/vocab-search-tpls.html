@@ -59,7 +59,7 @@
                                                 <tbody>
                                                 <tr ng-repeat="row in tmpList">
                                                     <td st-ratio="50">
-                                                        <a class="point" ng-show="row.bindingIdentifier"
+                                                        <a class="point" ng-show="row.bindingIdentifier != null"
                                                            ng-click="selectValueSetDefinition(row,tableLibrary)"
                                                            ng-bind="row.bindingIdentifier"></a>
                                                         <span ng-show="row.bindingIdentifier == null">N/A</span>
@@ -181,14 +181,14 @@
 
                         <tr ng-repeat="row in tmpSearchResults">
                             <td st-ratio="50">
-                                <a ng-show="row.bindingIdentifier" class="point"
+                                <a ng-if="row.bindingIdentifier" class="point"
                                    ng-click="selectValueSetDefinition2(row)"
                                    ng-bind="row.bindingIdentifier"></a>
                             </td>
 
                             <td st-ratio="50">
-                                <span ng-show="row.name" ng-bind="row.name"></span>
-                                <span ng-show="row.name == null">N/A</span>
+                                <span ng-if="row.name" ng-bind="row.name"></span>
+                                <span ng-if="row.name == null">N/A</span>
                             </td>
 
                             <!--<td st-ratio="20">-->
@@ -254,14 +254,14 @@
                         <tbody>
                         <tr ng-repeat="row in tmpSearchResults">
                             <td st-ratio="30">
-                                {{row.value}}
+                                {{::row.value}}
                             </td>
                             <td st-ratio="30">
-                                {{row.codeSystem}}
+                                {{::row.codeSystem}}
                             </td>
 
                             <td st-ratio="40">
-                                {{row.displayName}}
+                                {{::row.displayName}}
                             </td>
                         </tr>
                         </tbody>
@@ -317,9 +317,6 @@
             </table>
 
             <div class="vocab-result-table-container fixed-table-container">
-
-
-
                 <table st-table="tmpValueSetElements"
                        st-safe-src="selectedValueSetDefinition.valueSetElements"
                        class="table table-striped table-bordered table-condensed table-line-break table-condensed table-line-break"
@@ -342,14 +339,14 @@
 
                     <tr ng-repeat="row in tmpValueSetElements">
                         <td st-ratio="30">
-                            <span>{{row.value}}</span>
+                            <span>{{::row.value}}</span>
                         </td>
                         <td st-ratio="30">
-                            <span>{{row.codeSystem}}</span>
+                            <span>{{::row.codeSystem}}</span>
                         </td>
 
                         <td st-ratio="40">
-                            <span>{{row.displayName}}</span>
+                            <span>{{::row.displayName}}</span>
                         </td>
                     </tr>
                     </tbody>
@@ -432,8 +429,8 @@
 <script type="text/ng-template" id="TableFoundCtrl.html">
     <div class="modal-header">
   <span style="font-weight: bold; font-size: 20px">
-            <span ng-show="valueSet !== null" class="modal-title">ValueSet:{{valueSet.bindingIdentifier}}</span>
-      <span ng-show="valueSet === null" class="modal-title">Value Set Not Found</span>
+            <span ng-if="valueSet !== null" class="modal-title">ValueSet:{{valueSet.bindingIdentifier}}</span>
+      <span ng-if="valueSet === null" class="modal-title">Value Set Not Found</span>
         </span>
         <span class="pull-right">
          <button class="btn btn-xs btn-primary" title="Close" type="button" class="pull-right point"
@@ -444,23 +441,23 @@
     </div>
     <div class="modal-body">
         <div class="valueset-modal-content">
-            <div ng-show="table !== null">
+            <div ng-if="valueSet !== null">
                 <div class="panel panel-info">
                     <!-- Default panel contents -->
                     <div class="panel-heading">Value Set Attributes</div>
                     <!-- Table -->
                     <table class="table table-bordered">
-                        <tr ng-show="valueSet.bindingIdentifier != null && valueSet.bindingIdentifier != ''">
+                        <tr ng-if="valueSet.bindingIdentifier != null && valueSet.bindingIdentifier != ''">
                             <td>Binding Identifier</td>
                             <td ng-bind="valueSet.bindingIdentifier"></td>
                         </tr>
-                        <tr ng-show="valueSet.name != null && valueSet.name != ''">
+                        <tr ng-if="valueSet.name != null && valueSet.name != ''">
                             <td>Value Set Name</td>
                             <td ng-bind="valueSet.name"></td>
                         </tr>
                     </table>
                                     <span style="color:red; font-weight:bold;"
-                                          ng-show="isNoValidation()">This table will not be validated.
+                                          ng-if="isNoValidation()">This table will not be validated.
                                     </span>
                 </div>
                 <br/>
@@ -469,7 +466,8 @@
                     <div class="panel-heading">Value Set Elements</div>
 
                     <div class="table-container">
-                        <table st-table="tmpValueSetElements" st-safe-src="valueSet.valueSetElements" style="width:100%"  ng-if="valueSet.valueSetElements.length > 0">
+                        <div ng-if="valueSet.valueSetElements.length > 0">
+                        <table st-table="tmpValueSetElements" st-safe-src="valueSet.valueSetElements" style="width:100%">
                             <thead>
                             <tr>
                                 <th colspan="3" st-ratio="100">
@@ -480,10 +478,8 @@
                             </thead>
                         </table>
                          <div class="vocab-result-table-container fixed-table-container">
-
                             <table st-table="tmpValueSetElements" st-safe-src="valueSet.valueSetElements"
-                                   ng-if="valueSet.valueSetElements.length > 0"
-                                   class="table table-striped table-bordered table-condensed table-line-break"
+                                    class="table table-striped table-bordered table-condensed table-line-break"
                                    oci-fixed-header>
                                 <thead>
                                 <!--<tr>-->
@@ -504,23 +500,23 @@
                                 </thead>
                                 <tbody>
 
-                                <!--<tr ng-repeat="row in tmpValueSetElements">-->
-                                <!--<td st-ratio="30">-->
-                                <!--<span>{{row.value}}</span>-->
+                                <tr ng-repeat="row in tmpValueSetElements">
+                                <td st-ratio="30">
+                                <span>{{::row.value}}</span>
+                                </td>
+                                <td st-ratio="30">
+                                <span>{{::row.codeSystem}}</span>
+                                </td>
+                                <td st-ratio="40">
+                                <span>{{::row.displayName}}</span>
+                                </td>
+                                <!--<td st-ratio="50">-->
+                                <!--<span>{{row.source}}</span>-->
                                 <!--</td>-->
-                                <!--<td st-ratio="30">-->
-                                <!--<span>{{row.codeSystem}}</span>-->
+                                <!--<td st-ratio="50">-->
+                                <!--<span>{{row.usageType}}</span>-->
                                 <!--</td>-->
-                                <!--<td st-ratio="40">-->
-                                <!--<span>{{row.displayName}}</span>-->
-                                <!--</td>-->
-                                <!--&lt;!&ndash;<td st-ratio="50">&ndash;&gt;-->
-                                <!--&lt;!&ndash;<span>{{row.source}}</span>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<td st-ratio="50">&ndash;&gt;-->
-                                <!--&lt;!&ndash;<span>{{row.usageType}}</span>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                                <!--</tr>-->
+                                </tr>
                                 </tbody>
                                 <!--<tfoot>-->
                                 <!--<tr>-->
@@ -531,6 +527,8 @@
                                 <!--</tr>-->
                                 <!--</tfoot>-->
                             </table>
+
+                             </div>
 
                             <div ng-if="valueSet.valueSetElements.length == 0">
                                 <p style="color:red"
@@ -551,12 +549,13 @@
                  </div>
                     </div>
             </div>
-        </div>
-    </div>
-    <div ng-show="table === null">
+
+    <p ng-if="valueSet === null" style="text-align:center">
         Sorry, Could not find this table in the library.
+    </p>
     </div>
-    </div>
+        </div>
+
     <!--<div class="modal-footer">-->
     <!--<button title="Close" type="button" class="pull-right btn btn-sm btn-primary"-->
     <!--ng-click="cancel()">-->

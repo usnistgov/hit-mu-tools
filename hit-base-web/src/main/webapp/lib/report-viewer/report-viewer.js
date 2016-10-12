@@ -42,23 +42,41 @@
                         $scope.report = null;
                         $scope.compile();
                         $scope.loading = false;
-                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
                     });
                 } else {
                     $scope.report = null;
+                    $scope.compile();
                     $scope.loading = false;
                 }
             });
-
 
             destroyEvent2 = $rootScope.$on($scope.type + ':initValidationReport', function (event, report, testStep) {
                 $scope.loading = true;
                 $scope.testStepId = testStep.id;
                 if (report != null && report != undefined) {
-                    $scope.report = report;
-                    TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
-                    $scope.compile();
-                    $scope.loading = false;
+                    console.log("<<<<<<<<<< report" + report);
+                    if( report.html == null){
+                        var comments =  report.comments != undefined ? report.comments : null;
+                        var xml = report.xml != undefined ? report.xml : null;
+                        var result = report.result != undefined ? report.result : null;
+                        ReportService.updateTestStepValidationReport(xml, testStep.id, result, comments).then(function (response) {
+                            $scope.report = response;
+                            TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
+                            $scope.loading = false;
+                             $scope.compile();
+                         }, function (error) {
+                            $scope.report = null;
+                             $scope.compile();
+                            $scope.loading = false;
+                            Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
+                        });
+                    }else{
+                        $scope.report = report;
+                        TestExecutionService.setTestStepValidationReportObject(testStep, $scope.report);
+                        $scope.compile();
+                        $scope.loading = false;
+                    }
                 } else {
                     $scope.report = null;
                     $scope.compile();
@@ -88,7 +106,7 @@
                         $scope.report = null;
 //                    $scope.loading = false;
                         $scope.compile();
-                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                        Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
                     });
                 }
             });
@@ -225,7 +243,7 @@
                     delay.resolve(angular.fromJson(object.data));
                 },
                 function (response) {
-                    Notification.error({message: "Failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+//                    Notification.error({message: "Failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
                     delay.reject(response.data);
                 }
             );
@@ -247,7 +265,7 @@
                     delay.resolve(angular.fromJson(object.data));
                 },
                 function (response) {
-                    Notification.error({message: response.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+//                    Notification.error({message: "Sorry, failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
                     delay.reject(response.data);
                 }
             );
@@ -275,7 +293,7 @@
                     delay.resolve(res);
                 },
                 function (response) {
-                    Notification.error({message: response.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+//                    Notification.error({message: "Sorry, failed to generate the report. Please try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
                     delay.reject(response.data);
                 }
             );

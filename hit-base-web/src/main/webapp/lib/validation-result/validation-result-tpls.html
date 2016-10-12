@@ -3,7 +3,7 @@
     <div ng-show="validationResult !== null">
         <tabset>
             <tab ng-click="showValidationTable(validationResult.errors.categories[0],'errors')" active="active.errors"
-                 ng-show="settings.options.validation.show.errors">
+                 ng-if="settings.options.validation.show.errors">
                 <tab-heading>
                 <span class="badge failure failure-errors"
                       ng-bind="validationResult.errors.categories[0].data.length"></span>
@@ -17,14 +17,14 @@
                         <tab-heading>
 
                             <span class="badge failure failure-errors" ng-bind="category.data.length"></span>
-                            {{category.title}}
+                           {{category.title}}
                         </tab-heading>
                     </tab>
                 </tabset>
             </tab>
 
             <tab ng-click="showValidationTable(validationResult.warnings.categories[0],'warnings')"
-                 ng-show="settings.options.validation.show.warnings"
+                 ng-if="settings.options.validation.show.warnings"
                  active="active.warnings">
                 <tab-heading>
 
@@ -39,13 +39,13 @@
                         <tab-heading>
 
                             <span class="badge failure failure-warnings" ng-bind="category.data.length"></span>
-                            {{category.title}}
+                           {{category.title}}
                         </tab-heading>
                     </tab>
                 </tabset>
             </tab>
             <tab ng-click="showValidationTable(validationResult.alerts.categories[0],'alerts')" active="active.alerts"
-                 ng-show="settings.options.validation.show.alerts">
+                 ng-if="settings.options.validation.show.alerts">
                 <tab-heading>
 
                 <span class="badge failure failure-alerts"
@@ -60,14 +60,14 @@
                         <tab-heading>
 
                             <span class="badge failure failure-alerts" ng-bind="category.data.length"></span>
-                            {{category.title}}
+                           {{category.title}}
                         </tab-heading>
                     </tab>
                 </tabset>
             </tab>
 
             <tab ng-click="showValidationTable(validationResult.affirmatives.categories[0],'affirmatives')"
-                 active="active.affirmatives" ng-show="settings.options.validation.show.affirmatives">
+                 active="active.affirmatives" ng-if="settings.options.validation.show.affirmatives">
                 <tab-heading>
 
 
@@ -84,7 +84,7 @@
                         <tab-heading>
 
                             <span class="badge failure failure-affirmatives" ng-bind="category.data.length"></span>
-                            {{category.title}}
+                           {{category.title}}
                         </tab-heading>
                     </tab>
                 </tabset>
@@ -136,14 +136,14 @@
             <div ng-if="selectedElement.stackTrace && selectedElement.stackTrace != null">
                 <h4>StackTrace</h4>
             <pre>
-                {{selectedElement.stackTrace | json}}
+               {{selectedElement.stackTrace | json}}
             </pre>
                 <br/>
             </div>
             <div ng-if="selectedElement.metaData && selectedElement.metaData != null">
                 <h4>MetaData</h4>
             <pre>
-                {{selectedElement.metaData | json}}
+               {{selectedElement.metaData | json}}
             </pre>
             </div>
         </div>
@@ -163,7 +163,7 @@
         <!--<div ui-grid="gridOptions" class="grid"></div>-->
         <div ng-show="currentCategory && currentCategory !== null">
 
-            <div ng-if="currentCategory.data != null && currentCategory.data.length > 0">
+            <div ng-show="currentCategory.data != null && currentCategory.data.length > 0">
                 <div class="">
                     <input type="checkbox" title="Highlight All in editor"
                            ng-model="checkboxConfig[currentType][currentCategory.title]"
@@ -190,14 +190,14 @@
                     <tbody>
                     <tr ng-repeat="row in tmpData">
                         <td st-ratio="30">
-                            <a class="point" ng-if="row.path" ng-click="select(row)" ng-bind="row.path"></a>
+                            <a class="point" ng-if="row.path" ng-click="select(row)" ng-bind="::row.path"></a>
                             <span ng-if="row.path == null">N/A</span>
                         </td>
                         <td st-ratio="60">
-                            <span ng-bind="row.description"></span>
+                            <span ng-bind="::row.description"></span>
                         </td>
                         <td st-ratio="10">
-                            <span ng-if="row.line" ng-bind="row.line"></span>
+                            <span ng-if="row.line" ng-bind="::row.line"></span>
                             <span ng-if="row.line == null">N/A</span>
                         </td>
                         <!--<td st-ratio="10">-->
@@ -221,7 +221,7 @@
                 </table>
                     </div>
              </div>
-            <div ng-if="currentCategory.data == null || currentCategory.data.length == 0">
+            <div ng-show="currentCategory.data == null || currentCategory.data.length == 0">
                 No {{currentType}} found.
             </div>
 
