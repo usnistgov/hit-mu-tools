@@ -1,0 +1,59 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <style id="antiClickjack">body{display:none !important;}</style>
+      <script type="text/javascript">
+          if (self === top) {
+              var antiClickjack = document.getElementById("antiClickjack");
+              antiClickjack.parentNode.removeChild(antiClickjack);
+          } else {
+              top.location = self.location;
+          }
+      </script>
+    <title>Page Not Found :(</title>
+      <style>
+          div#error {
+              padding: 30px 10px;
+              font-size: 20px;
+              line-height: 1.4;
+              color: #737373;
+              background: #f0f0f0;
+              -webkit-text-size-adjust: 100%;
+              -ms-text-size-adjust: 100%;
+              max-width: 380px;
+              _width: 380px;
+              margin: 0 auto;
+          }
+          div#error > h1 {
+              margin: 0 10px;
+              font-size: 24px;
+              text-align: center;
+          }
+
+          div#error > h1 span {
+              color: #bbb;
+          }
+
+
+          div#error > p {
+              margin: 1em 0;
+          }
+
+          div#error  > ul {
+              padding: 0 0 0 40px;
+              margin: 1em 0;
+          }
+      </style>
+  </head>
+  <body>
+  <div id="exception">
+      <h1>Not found <span>:(</span></h1>
+      <p>Sorry, but the page you were trying to view does not exist.</p>
+      <p>It looks like this was the result of either:</p>
+      <ul>
+        <li>a mistyped address</li>
+        <li>an out-of-date link</li>
+      </ul>
+     </div>
+  </body>
+</html>
