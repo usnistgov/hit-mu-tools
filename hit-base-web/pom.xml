@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 		<artifactId>edos-r2</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<distributionManagement>
@@ -97,9 +97,8 @@
 		</repository>
 	</repositories>
 	
-	<version>0.1.0-SNAPSHOT</version>
 	<groupId>gov.nist.healthcare.mu.edos</groupId>
 	<properties>
-		<config.version>0.1.0-SNAPSHOT</config.version>
+		<config.version>1.0.0</config.version>
 	</properties>
 </project>
