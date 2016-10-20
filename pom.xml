@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 	<artifactId>edos-r2</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>edos-r2</name>
 	<description>Electronic Directory of Service tool</description>
 	<packaging>pom</packaging>
@@ -60,7 +59,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
 		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
-	  	<tag>HEAD</tag>
+	  	<tag>edos-r2-1.0.0</tag>
   	</scm>
 	<distributionManagement>
 		<repository>
