@@ -116,7 +116,12 @@
                     <i class="fa fa-file-o"></i>Report
                 </tab-heading>
 
-                <div ng-include="'views/cb/report.html'"></div>
+                <div ng-show="testStep.testContext && testStep.testContext != null">
+                    <div ng-include="'views/cb/auto/report.html'"></div>
+                </div>
+                <div ng-show="!testStep.testContext || testStep.testContext === null">
+                    <div ng-include="'views/cb/manual/report.html'"></div>
+                </div>
             </tab>
 
             <tab disabled="disabled()" select="setTestStepExecutionTab(2)" active="tabs[2]" ng-show="testStep.testContext && testStep.testContext != null && testStep.testContext.profile && testStep.testContext.profile!= null">
