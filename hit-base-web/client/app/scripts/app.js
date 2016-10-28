@@ -4,10 +4,10 @@ angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
-angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
 angular.module('documentation', []);
+angular.module('upload', ['common']);
 var app = angular.module('hit-app', [
     'ngRoute',
     'ui.bootstrap',
@@ -30,7 +30,6 @@ var app = angular.module('hit-app', [
     'edi',
     'soap',
     'cf',
-    'cb',
     'ngTreetable',
     'blueimp.fileupload',
     'hit-tool-directives',
@@ -49,7 +48,9 @@ var app = angular.module('hit-app', [
     'account',
     'main',
     'hit-manual-report-viewer',
-     'ociFixedHeader'
+     'ociFixedHeader',
+     'upload',
+     'angularFileUpload'
  ]);
 
 var httpHeaders,
@@ -91,8 +92,8 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
         })
-        .when('/cb', {
-            templateUrl: 'views/cb/cb.html'
+        .when('/upload', {
+            templateUrl: 'views/upload/upload.html'
         })
         .when('/error', {
             templateUrl: 'error.html'
