@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.lri-r2</groupId>
 	<artifactId>lri-r2</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>lri-r2</name>
 	<description>Laboratory Results Interface tool</description>
 	<packaging>pom</packaging>
