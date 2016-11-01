@@ -70,10 +70,10 @@
 
 	</build>
 	<dependencies>
- <dependency>
+ 	<dependency>
 			<groupId>gov.nist.healthcare.mu.lri-r2</groupId>
 			<artifactId>lri-r2-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${config.version}</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -82,4 +82,8 @@
 			<url>http://repo.springsource.org/libs-milestone/</url>
 		</repository>
 	</repositories>
+	
+	<properties>
+		<config.version>0.0.1</config.version>
+	</properties>
 </project>
