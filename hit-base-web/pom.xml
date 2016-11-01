@@ -98,6 +98,6 @@
 		</dependency>
 	</dependencies>
 	<properties>
-		<config.version>0.1.0-SNAPSHOT</config.version>
+		<config.version>0.1.0</config.version>
 	</properties>
 </project>

@@ -22,7 +22,11 @@
 		<pluginManagement>
 			<plugins>
 
-
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
 				<!-- plugin to handle compile version -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -52,5 +56,20 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
+	<scm>
+		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
+		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
+	  	<tag>HEAD</tag>
+  	</scm>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://vm-070.nist.gov:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
