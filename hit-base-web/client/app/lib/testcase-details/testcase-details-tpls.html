@@ -58,6 +58,14 @@
                     </tab-heading>
                     <div example-message target="{{target}}"></div>
                 </tab>
+                <tab active="tabs[5]"
+                     ng-show="testCase['supplements'] && testCase['supplements'] !== null && testCase['supplements'].length > 0"
+                     ng-click="tabs[5] = true;">
+                    <tab-heading>
+                        <i class="fa fa-list-alt"></i>Supplements
+                    </tab-heading>
+                    <div supplement-documents target="{{target}}"></div>
+                </tab>
             </tabset>
         </div>
     </div>
@@ -213,6 +221,43 @@
                         <div id="{{target}}-jurorDocument"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="SupplementDocuments.html">
+    <div class="panel panel-info">
+        <div class="panel-body">
+                         <div class="">
+                            <table class="table table-striped table-bordered table-condensed">
+                                <thead>
+                                <tr class="tbl-header">
+                                    <th st-ratio="40">Document Title</th>
+                                    <th st-ratio="35">File Name/Link</th>
+                                    <th st-ratio="25">Date Posted</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="doc in supplements | orderBy:'position'">
+                                    <td st-ratio="40">{{::doc.title}}</td>
+                                    <td st-ratio="35">
+                                        <span ng-if="doc.path == null">-</span>
+                    <span ng-if="doc.path != null">
+                    <a class="point" ng-if="isLink(doc.path)" target="_blank" ng-href="{{::doc.path}}">{{::doc.title}}</a>
+                    <a class="point" ng-if="!isLink(doc.path)" ng-click="downloadDocument(doc.path)">{{::doc.name}}</a>
+                    </span>
+                                    </td>
+                                    <td st-ratio="25">
+                                        <span ng-if="doc.date == null">-</span>
+                                        <span ng-if="doc.date != null">{{::doc.date}}</span>
+                                    </td>
+
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
             </div>
         </div>
     </div>
