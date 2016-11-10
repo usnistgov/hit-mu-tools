@@ -3,7 +3,22 @@
 
 angular.module('upload')
 .controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','FileUploader','Notification', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification){
+		
+	
+		FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+	        return true;
+	    };
+	    
+	    FileUploader.FileSelect.prototype.onChange = function() {
+            var files = this.uploader.isHTML5 ? this.element[0].files : this.element[0];
+            var options = this.getOptions();
+            var filters = this.getFilters();
 
+            if (!this.uploader.isHTML5) this.destroy();
+            this.uploader.addToQueue(files, options, filters);
+            if (this.isEmptyAfterSelection()) this.element.prop('value', "yo");
+        };
+	
 		$scope.profileCheckToggleStatus = false;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
@@ -15,7 +30,7 @@ angular.module('upload')
         var constraintsUploader = $scope.constraintsUploader = new FileUploader({
             url: 'api/gvtupload/uploadcontraints'
         });
-        
+         
 
         $http.get('../../resources/upload/uploadprofile.json').then(
                 function (object) {
@@ -26,7 +41,6 @@ angular.module('upload')
             );
         
         
-       
         
 
         profileUploader.onErrorItem = function(fileItem, response, status, headers) {
@@ -36,7 +50,13 @@ angular.module('upload')
         profileUploader.onCompleteItem = function(fileItem, response, status, headers) {
         	$scope.profileMessages = response.profiles;
         };
-
+        
+        profileUploader.onAfterAddingAll = function(fileItem) {
+        	if (profileUploader.queue.length > 1)
+        	  {
+        		profileUploader.removeFromQueue(0);
+        	  }
+        };
 
 
         $scope.getSelectedTestcases = function () {

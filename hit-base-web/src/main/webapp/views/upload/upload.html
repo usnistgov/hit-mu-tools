@@ -136,7 +136,13 @@
 	                <th width="30px">
 	                    <input ng-click="profileCheckToggle()" ng-model="profileCheckToggleStatus" ng-checked="{{profileCheckToggleStatus}}" type="checkbox">
 	                </th>
-	                <th>TestCase Name</th>
+	                <th>Name</th>
+	                <th>Id</th>
+	                <th>Description</th>
+	                <th>Type</th>
+	                <th>Event</th>
+	                <th>StructID</th>
+	                <th>Identifier</th>
 	                 </thead>
 	                <tbody>
 		                <tr ng-repeat="item in profileMessages">
@@ -144,7 +150,25 @@
 		                        <input ng-disabled="false" type="checkbox" ng-model="item.activated" ng-checked="{{item.activated}}">
 		                   	</td>
 		                    <td>
-		                    <input ng-model="item.name">
+		                    	<input ng-model="item.name">
+		                    </td>
+		                    <td>
+		                    	{{item.id}}
+		                    </td>
+		                    <td>
+		                    	{{item.description}}
+		                    </td>
+		                    <td>
+		                    	{{item.type}}
+		                    </td>
+		                    <td>
+		                    	{{item.event}}
+		                    </td>
+		                    <td>
+		                    	{{item.structID}}
+		                    </td>
+		                    <td>
+		                    	{{item.identifier}}
 		                    </td>
 		                </tr>
                 	</tbody>

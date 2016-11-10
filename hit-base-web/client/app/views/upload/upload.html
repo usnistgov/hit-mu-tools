@@ -13,18 +13,20 @@
 
         <div  class="col-md-4" >
             <div class="panel panel-info">
-	            <div class="panel-heading">Upload Test Steps</div>
-	            
+	            <div class="panel-heading">Upload Test Steps</div>      
 	            <div class="panel-body">
-	            Profile file
-	            <input type="file" nv-file-select="" uploader="profileUploader" multiple /><br/>
-	            ValueSet files
-	            <input type="file" nv-file-select="" uploader="vsUploader" multiple  /><br/>
-				Constraints files
-	            <input type="file" nv-file-select="" uploader="constraintsUploader" multiple  /><br/>
-	            
-	            
-	           
+	            <label class="btn btn-default btn-file" style="width:200px; text-align:left">
+				    <i class="fa fa-file" aria-hidden="true"></i> Select profile file <input type="file" nv-file-select uploader="profileUploader" style="display: none;">
+				</label>
+				<br>
+				<label class="btn btn-default btn-file" style="width:200px; text-align:left">
+				    <i class="fa fa-file" aria-hidden="true"></i> Select value set file(s) <input type="file" nv-file-select uploader="vsUploader" multiple style="display: none;">
+				</label>
+				<br>
+				<label class="btn btn-default btn-file" style="width:200px; text-align:left">
+				    <i class="fa fa-file" aria-hidden="true"></i> Select constraint file(s) <input type="file" nv-file-select uploader="constraintsUploader" multiple style="display: none;">
+				</label>
+	                     
 	           <div>
                     <h3>Upload queue:</h3>
                     <div>
@@ -54,9 +56,6 @@
 	                                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
 	                                </td>
 	                                <td style="word-wrap:break-all; vertical-align:middle">
-		                                <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
-	                                        <span class="glyphicon glyphicon-upload"></span> Upload
-	                                    </button>
 	                                    <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
 	                                        <span class="glyphicon glyphicon-trash"></span> Remove
 	                                    </button>
@@ -76,10 +75,7 @@
 	                                    <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
 	                                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
 	                                </td>
-	                                <td style="word-break:break-all; vertical-align:middle">
-	                                	<button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
-                                        	<span class="glyphicon glyphicon-upload"></span> Upload
-                                    	</button>
+	                                <td style="word-break:break-all; vertical-align:middle">                               	
 	                                    <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
 	                                        <span class="glyphicon glyphicon-trash"></span> Remove
 	                                    </button>
@@ -99,10 +95,7 @@
 	                                    <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
 	                                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
 	                                </td>
-	                                <td style="word-break:break-all; vertical-align:middle" >
-	                                	<button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
-                                        	<span class="glyphicon glyphicon-upload"></span> Upload
-                                    	</button>
+	                                <td style="word-break:break-all; vertical-align:middle" >                                
 	                                    <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
 	                                        <span class="glyphicon glyphicon-trash"></span> Remove
 	                                    </button>
@@ -117,7 +110,7 @@
 	                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': getTotalProgress() + '%' }"></div>
 	                            </div>
 	                        </div>
-	                        <button type="button" class="btn btn-success btn-s" ng-click="upload()" ng-disabled="!(profileUploader.getNotUploadedItems().length + vsUploader.getNotUploadedItems().length +constraintsUploader.getNotUploadedItems().length)">
+	                        <button type="button" class="btn btn-success btn-s" ng-click="upload()" ng-disabled="!(profileUploader.getNotUploadedItems().length)">
 	                            <span class="glyphicon glyphicon-upload"></span> Upload all
 	                        </button>
 	                         <button type="button" class="btn btn-danger btn-s" ng-click="remove()" ng-disabled="!(profileUploader.queue.length + vsUploader.queue.length +constraintsUploader.queue.length)">
@@ -136,7 +129,13 @@
 	                <th width="30px">
 	                    <input ng-click="profileCheckToggle()" ng-model="profileCheckToggleStatus" ng-checked="{{profileCheckToggleStatus}}"   type="checkbox">
 	                </th>
-	                <th>TestCase Name</th>
+	                <th>Name</th>
+	                <th>Id</th>
+	                <th>Description</th>
+	                <th>Type</th>
+	                <th>Event</th>
+	                <th>StructID</th>
+	                <th>Identifier</th>
 	                 </thead>
 	                <tbody>
 		                <tr ng-repeat="item in profileMessages">
@@ -144,7 +143,25 @@
 		                        <input ng-disabled="false" type="checkbox" ng-model="item.activated" ng-checked="{{item.activated}}">
 		                   	</td>
 		                    <td>
-		                    <input ng-model="item.name">
+		                    	<input ng-model="item.name">
+		                    </td>
+		                    <td>
+		                    	{{item.id}}
+		                    </td>
+		                    <td>
+		                    	{{item.description}}
+		                    </td>
+		                    <td>
+		                    	{{item.type}}
+		                    </td>
+		                    <td>
+		                    	{{item.event}}
+		                    </td>
+		                    <td>
+		                    	{{item.structID}}
+		                    </td>
+		                    <td>
+		                    	{{item.identifier}}
 		                    </td>
 		                </tr>
                 	</tbody>
