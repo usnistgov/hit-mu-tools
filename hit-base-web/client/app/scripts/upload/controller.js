@@ -9,15 +9,7 @@ angular.module('upload')
 	        return true;
 	    };
 	    
-	    FileUploader.FileSelect.prototype.onChange = function() {
-            var files = this.uploader.isHTML5 ? this.element[0].files : this.element[0];
-            var options = this.getOptions();
-            var filters = this.getFilters();
-
-            if (!this.uploader.isHTML5) this.destroy();
-            this.uploader.addToQueue(files, options, filters);
-            if (this.isEmptyAfterSelection()) this.element.prop('value', "yo");
-        };
+	  
 	
 		$scope.profileCheckToggleStatus = false;
 
@@ -32,13 +24,13 @@ angular.module('upload')
         });
          
 
-        $http.get('../../resources/upload/uploadprofile.json').then(
-                function (object) {
-                	$scope.profileMessages = angular.fromJson(object.data.profiles);
-                },
-                function (response) {
-                }
-            );
+//        $http.get('../../resources/upload/uploadprofile.json').then(
+//                function (object) {
+//                	$scope.profileMessages = angular.fromJson(object.data.profiles);
+//                },
+//                function (response) {
+//                }
+//            );
         
         
         
