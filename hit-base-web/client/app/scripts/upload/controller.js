@@ -10,7 +10,11 @@ angular.module('upload')
 	    };
 	    
 	  
-	
+	    $scope.profileValidationErrors = [];
+	    $scope.valueSetValidationErrors = [];
+	    $scope.constraintValidationErrors = [];
+	    
+	    
 		$scope.profileCheckToggleStatus = false;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
@@ -31,17 +35,49 @@ angular.module('upload')
 //                function (response) {
 //                }
 //            );
-        
+//        $http.get('../../resources/upload/resourceError.json').then(
+//                function (object) {
+//                	
+//                	$scope.profileValidationErrors = angular.fromJson(object.data.errors);
+//                	$scope.constraintValidationErrors = angular.fromJson(object.data.errors);
+//                },
+//                function (response) {
+//                }
+//            );
         
         
 
         profileUploader.onErrorItem = function(fileItem, response, status, headers) {
         	Notification.error({message: "There was an error while uploading "+fileItem.file.name, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         };
-
+        
+        vsUploader.onCompleteItem = function(fileItem, response, status, headers) {
+        	if (response.success ==false){
+        		Notification.error({message: "The value set file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+        		$scope.valueSetValidationErrors = angular.fromJson(response.errors);
+        	}
+        		
+        };
+        
+        constraintsUploader.onCompleteItem = function(fileItem, response, status, headers) {
+        	if (response.success ==false){
+        		Notification.error({message: "The constraint file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+        		$scope.constraintValidationErrors = angular.fromJson(response.errors);
+        	}
+        	
+        };
+        
         profileUploader.onCompleteItem = function(fileItem, response, status, headers) {
         	$scope.profileMessages = response.profiles;
+        	if (response.success ==false){
+        		Notification.error({message: "The profile file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+        		$scope.profileValidationErrors = angular.fromJson(response.errors);
+        	}
         };
+        
+        
+        
+       
         
         profileUploader.onAfterAddingAll = function(fileItem) {
         	if (profileUploader.queue.length > 1)
@@ -49,8 +85,22 @@ angular.module('upload')
         		profileUploader.removeFromQueue(0);
         	  }
         };
+        
+        vsUploader.onAfterAddingAll = function(fileItem) {
+        	if (vsUploader.queue.length > 1)
+        	  {
+        		vsUploader.removeFromQueue(0);
+        	  }
+        };
 
-
+        constraintsUploader.onAfterAddingAll = function(fileItem) {
+        	if (constraintsUploader.queue.length > 1)
+        	  {
+        		constraintsUploader.removeFromQueue(0);
+        	  }
+        };
+        
+        
         $scope.getSelectedTestcases = function () {
         	return _.where($scope.profileMessages,{activated:true});
         };	
@@ -62,10 +112,12 @@ angular.module('upload')
         };	
         
         $scope.upload = function (value) {
+        	$scope.profileValidationErrors = [];
+    	    $scope.valueSetValidationErrors = [];
+    	    $scope.constraintValidationErrors = [];
+        	vsUploader.uploadAll();  	
+        	constraintsUploader.uploadAll();     
         	profileUploader.uploadAll();
-        	vsUploader.uploadAll();
-        	constraintsUploader.uploadAll();
-        	
         };
         
         $scope.remove = function (value) {
