@@ -8,7 +8,7 @@ angular.module('upload')
 		FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
 	        return true;
 	    };
-	    
+	    $scope.testcase = {};
 	  
 	    $scope.profileValidationErrors = [];
 	    $scope.valueSetValidationErrors = [];
@@ -112,12 +112,17 @@ angular.module('upload')
         };	
         
         $scope.upload = function (value) {
-        	$scope.profileValidationErrors = [];
-    	    $scope.valueSetValidationErrors = [];
-    	    $scope.constraintValidationErrors = [];
-        	vsUploader.uploadAll();  	
-        	constraintsUploader.uploadAll();     
-        	profileUploader.uploadAll();
+        	$http.post('api/gvtupload/cleartestcases').then(function (result) {  	
+        		$scope.profileValidationErrors = [];
+        	    $scope.valueSetValidationErrors = [];
+        	    $scope.constraintValidationErrors = [];
+            	vsUploader.uploadAll();  	
+            	constraintsUploader.uploadAll();     
+            	profileUploader.uploadAll();
+            }, function (error) {
+            	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+            });
+        	
         };
         
         $scope.remove = function (value) {
@@ -127,7 +132,7 @@ angular.module('upload')
         };
 
         $scope.addSelectedTestCases = function(){
-        	$http.post('api/gvtupload/addtestcases', $scope.getSelectedTestcases()).then(function (result) {  		
+        	$http.post('api/gvtupload/addtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases()}).then(function (result) {  		
                 Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             }, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
@@ -141,7 +146,6 @@ angular.module('upload')
             }, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             });
-        	
         }
         
         $scope.getTotalProgress = function () {

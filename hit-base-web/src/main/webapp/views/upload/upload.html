@@ -250,22 +250,23 @@
           	 <div class="panel panel-info" ng-show="profileMessages.length  && constraintValidationErrors.length == 0 && valueSetValidationErrors.length == 0 ">
           	 <div class="panel-heading">Test Case</div>  
           	  <div class="panel-body">
+          	  	<form name="tsForm">
           	 	<div class="row">
           	 		<div class="col-md-12">
-	          	 		<label for="testcasename">Test Case Name:</label>     
-	          	 		<input id="testcasename" ng-model="testcase.name" class="input-sm form-control ng-pristine ng-valid ng-empty ng-touched"><br>
+	          	 		<label for="testcasename">Test Case Name: <span class="red" title="required field">*</span></label>     
+	          	 		<input id="testcasename" required="" name="name" ng-model="testcase.name" class="input-sm form-control ng-pristine ng-valid ng-empty ng-touched"><br>
           	 		</div>
           	 	</div>
           		<div class="row">
           			<div class="col-md-12">
           				<label for="testcasedescription">Test Case Description:</label>
-          				<textarea id="testcasedescription" ng-model="testcase.description" class="form-control ng-pristine ng-valid ng-empty ng-touched"></textarea><br>
+          				<textarea id="testcasedescription" name="description" ng-model="testcase.description" class="form-control ng-pristine ng-valid ng-empty ng-touched"></textarea><br>
           			</div>
           		</div>
           		
 				<div class="row">
 					<div class="col-md-12">
-						<label>Test Steps:</label>
+						<label>Test Steps:</label>  <span class="red" title="Select at least one">*</span>
 						<table class="table table-striped table-condensed table-bordered">
 		                <thead class="tbl-header">
 		                <th width="30px">
@@ -285,7 +286,7 @@
 			                        <input ng-disabled="false" type="checkbox" ng-model="item.activated" ng-checked="{{item.activated}}">
 			                   	</td>
 			                    <td>
-			                    	<input ng-model="item.name" style="width: 100%">
+			                    	<input ng-model="item.name" ng-required="item.activated" style="width: 100%">
 			                    </td>
 			                    <td>
 			                    	{{item.id}}
@@ -311,12 +312,14 @@
 	            	</div>
 	            </div>
             	<br>
-            	<button type="button" class="btn btn-success btn-s" ng-click="addSelectedTestCases()" ng-show="profileMessages.length" ng-disabled="!getSelectedTestcases().length">
-					Add selected test cases
+            	
+            	<button type="button" class="btn btn-success btn-s" ng-click="addSelectedTestCases()" ng-show="profileMessages.length" ng-disabled="!getSelectedTestcases().length || !tsForm.$valid">
+					Add selected test cases 
                 </button>
                 <button type="button" class="btn btn-success btn-s" ng-click="clearTestCases()" ng-show="profileMessages.length">
 					Clear all test cases
                 </button>
+                </form>
             </div>
             </div>
         </div>
