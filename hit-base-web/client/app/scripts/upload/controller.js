@@ -126,6 +126,9 @@ angular.module('upload')
         };
         
         $scope.remove = function (value) {
+        	$scope.profileValidationErrors = [];
+    	    $scope.valueSetValidationErrors = [];
+    	    $scope.constraintValidationErrors = [];
         	profileUploader.clearQueue();
         	vsUploader.clearQueue();
         	constraintsUploader.clearQueue();	
