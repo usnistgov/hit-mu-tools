@@ -7,28 +7,37 @@
         top.location = self.location;
     }
 </script>
-<div ng-controller="UploadCtrl" style="margin:10px">
-
+<div style="margin:10px">
+<div class="modal-header">
+	<span style="font-weight: bold; font-size: 20px">
+		Add Test Cases
+    </span>
+	<span class="pull-right">
+		<button class="btn btn-xs btn-primary" ng-click="closeModal()"><i class="fa fa-times"></i>Close</button>
+  	</span>
+</div>
+<div class="modal-body" style="padding:10px 0px 0px 0px">
 	<div class="row">
 
         <div class="col-md-4">
             <div class="panel panel-info">
-	            <div class="panel-heading">Upload Test Steps</div>      
+	            <div class="panel-heading">Upload files</div>      
 	            <div class="panel-body">
-	            <label class="btn btn-default btn-info" style="width:200px; text-align:left">
-				    <i class="fa fa-file" aria-hidden="true"></i> Select profile file <input type="file" nv-file-select="" uploader="profileUploader" style="display: none">
-				</label> {{profileUploader.queue.length}} profile file selected
-				<br>
-				<br>
-				<label class="btn btn-default btn-info" style="width:200px; text-align:left">
-				    <i class="fa fa-file" aria-hidden="true"></i> Select value set file <input type="file" nv-file-select="" uploader="vsUploader" multiple="multiple" style="display: none">
-				</label> {{vsUploader.queue.length}} value set file<span ng-show="vsUploader.queue.length >1">s</span> selected
-				<br>
-				<br>
-				<label class="btn btn-default btn-info" style="width:200px; text-align:left">
-				    <i class="fa fa-file" aria-hidden="true"></i> Select constraint file <input type="file" nv-file-select="" uploader="constraintsUploader" multiple="multiple" style="display: none">
-				</label> {{constraintsUploader.queue.length}} contraint file<span ng-show="constraintsUploader.queue.length >1">s</span> selected
-	                     
+	            <div class="upload-drop-box" nv-file-over="" nv-file-drop="" over-class="upload-drop-box-file-over" uploader="profileUploader">
+		            <label class="btn btn-default btn-info" style="width:270px; text-align:left">
+					    <i class="fa fa-file" aria-hidden="true"></i> Select profile file or drag in box <input type="file" nv-file-select="" uploader="profileUploader" style="display: none">
+					</label><br>{{profileUploader.queue.length}} profile file selected
+				</div>
+				<div class="upload-drop-box" nv-file-over="" nv-file-drop="" over-class="upload-drop-box-file-over" uploader="vsUploader">
+					<label class="btn btn-default btn-info" style="width:270px; text-align:left">
+					    <i class="fa fa-file" aria-hidden="true"></i> Select value set file or drag in box <input type="file" nv-file-select="" uploader="vsUploader" multiple="multiple" style="display: none">
+					</label><br>{{vsUploader.queue.length}} value set file<span ng-show="vsUploader.queue.length >1">s</span> selected
+				</div>
+				<div class="upload-drop-box" nv-file-over="" nv-file-drop="" over-class="upload-drop-box-file-over" uploader="constraintsUploader">
+					<label class="btn btn-default btn-info" style="width:270px; text-align:left">
+					    <i class="fa fa-file" aria-hidden="true"></i> Select constraint file or drag in box <input type="file" nv-file-select="" uploader="constraintsUploader" multiple="multiple" style="display: none">
+					</label><br>{{constraintsUploader.queue.length}} contraint file<span ng-show="constraintsUploader.queue.length >1">s</span> selected
+	           </div> 
 	           <div>
                     <h3>Upload queue:</h3>
                     <div>
@@ -116,7 +125,7 @@
 	                            <span class="glyphicon glyphicon-upload"></span> Upload all
 	                        </button>
 	                         <button type="button" class="btn btn-danger btn-s" ng-click="remove()" ng-disabled="!(profileUploader.queue.length + vsUploader.queue.length +constraintsUploader.queue.length)">
-	                            <span class="glyphicon glyphicon-trash"></span> Remove all
+	                            <span class="glyphicon glyphicon-trash"></span> Clear queue
 	                        </button>
 	                    </div>
 	                 </div>
@@ -292,7 +301,7 @@
 			                    	{{item.id}}
 			                    </td>
 			                    <td>
-			                    	{{item.description}}
+			                    	<input ng-model="item.description" style="width: 100%">
 			                    </td>
 			                    <td>
 			                    	{{item.type}}
@@ -325,6 +334,6 @@
         </div>
 
     </div>
-
+</div>
 
 </div>

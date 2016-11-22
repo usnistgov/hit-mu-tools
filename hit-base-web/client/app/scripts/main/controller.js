@@ -671,7 +671,7 @@ angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'use
     };
 
     $scope.login = function () {
-//        console.log("logging in...");
+        console.log("logging in...");
         $modalInstance.close($scope.user);
     };
 }]);

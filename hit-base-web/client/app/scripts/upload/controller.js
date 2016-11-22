@@ -2,7 +2,7 @@
 
 
 angular.module('upload')
-.controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','FileUploader','Notification', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification){
+.controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','FileUploader','Notification','$modalInstance', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification,$modalInstance){
 		
 	
 		FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
@@ -133,11 +133,16 @@ angular.module('upload')
         	vsUploader.clearQueue();
         	constraintsUploader.clearQueue();	
         };
+        
+        $scope.closeModal = function(){
+        	$modalInstance.close();
+        }
 
         $scope.addSelectedTestCases = function(){
         	$http.post('api/gvtupload/addtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases()}).then(function (result) {  		
                 Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
-            }, function (error) {
+                $modalInstance.close();
+        	}, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             });
         }
@@ -173,5 +178,6 @@ angular.module('upload')
 
 
     }]);
+
 
 

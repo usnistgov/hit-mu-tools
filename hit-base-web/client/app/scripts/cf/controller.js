@@ -8,11 +8,15 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         $scope.loadingTC = false;
         $scope.error = null;
         $scope.testCases = [];
+       
         $scope.testCase = null;
         $scope.tree = {};
         $scope.tabs = new Array();
         $scope.error = null;
         $scope.collapsed = false;
+        
+        $scope.userTestCases = [];
+        $scope.userTree = {};
 
         var testCaseService = new TestCaseService();
 
@@ -67,11 +71,39 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
                                 }
                             }
                         }
-
                         if (testCase != null) {
                             $scope.selectNode(testCase.id, testCase.type);
                         }
                         $scope.expandAll();
+                        $scope.error = null;
+                    } else {
+                        $scope.error = "Ooops, Something went wrong. Please refresh your page again.";
+                    }
+                }
+                $scope.loading = false;
+            },1000);
+        };
+        
+        $scope.refreshUserTree = function () {
+            $timeout(function () {
+                if ($scope.userTestCases != null) {
+                    if (typeof $scope.userTree.build_all == 'function') {
+                        $scope.userTree.build_all($scope.userTestCases);
+                        var testCase = null;
+                        var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
+                        if (id != null) {
+                            for (var i = 0; i < $scope.userTestCases.length; i++) {
+                                var found = testCaseService.findOneById(id, $scope.userTestCases[i]);
+                                if (found != null) {
+                                    testCase = found;
+                                    break;
+                                }
+                            }
+                        }
+                        if (testCase != null) {
+                            $scope.selectUserNode(testCase.id, testCase.type);
+                        }
+                        $scope.expandUserAll();
                         $scope.error = null;
                     } else {
                         $scope.error = "Ooops, Something went wrong. Please refresh your page again.";
@@ -85,18 +117,32 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             StorageService.remove(StorageService.ACTIVE_SUB_TAB_KEY);
             $scope.error = null;
             $scope.testCases = [];
+            $scope.userTestCases = [];
             $scope.loading = true;
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
-                angular.forEach(testCases, function (testPlan) {
+                angular.forEach(testCases.preloaded, function (testPlan) {
                     testCaseService.buildCFTestCases(testPlan);
                 });
-                $scope.testCases = $filter('orderBy')(testCases, 'position');
+                $scope.testCases = $filter('orderBy')(testCases.preloaded, 'position');
                 $scope.refreshTree();
             }, function (error) {
                 $scope.error = "Sorry, Cannot load the profiles. Try again";
                 $scope.loading = false;
             });
+            
+            
+            tcLoader.then(function (testCases) {
+                angular.forEach(testCases.user, function (testPlan) {
+                    testCaseService.buildCFTestCases(testPlan);
+                });
+                $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
+                $scope.refreshUserTree();
+            }, function (error) {
+                $scope.error = "Sorry, Cannot load the user profiles. Try again";
+                $scope.loading = false;
+            });
+            
 
             $scope.$on("$destroy", function () {
                 var testStepId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
@@ -108,6 +154,12 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         $scope.selectNode = function (id, type) {
             $timeout(function () {
                 testCaseService.selectNodeByIdAndType($scope.tree, id, type);
+            }, 0);
+        };
+        
+        $scope.selectUserNode = function (id, type) {
+            $timeout(function () {
+                testCaseService.selectNodeByIdAndType($scope.userTree, id, type);
             }, 0);
         };
 
@@ -129,12 +181,29 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             if ($scope.tree != null)
                 $scope.tree.expand_all();
         };
+        
+        $scope.expandUserAll = function () {
+            if ($scope.userTree != null)
+                $scope.userTree.expand_all();
+        };
 
         $scope.collapseAll = function () {
             if ($scope.tree != null)
                 $scope.tree.collapse_all();
         };
+        
+        $scope.collapseUserAll = function () {
+            if ($scope.userTree != null)
+                $scope.userTree.collapse_all();
+        };
 
+        $scope.openUploadModal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/upload/upload.html',
+                controller: 'UploadCtrl',
+                windowClass: 'upload-modal'
+            });
+        };
 
     }]);
 
