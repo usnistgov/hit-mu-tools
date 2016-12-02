@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.lri-r2</groupId>
 	<artifactId>lri-r2</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>lri-r2</name>
 	<description>Laboratory Results Interface tool</description>
 	<packaging>pom</packaging>
@@ -58,7 +58,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
 		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
-	  	<tag>lri-r2-1.0.0</tag>
+	  	<tag>HEAD</tag>
   	</scm>
 	<distributionManagement>
 		<repository>
