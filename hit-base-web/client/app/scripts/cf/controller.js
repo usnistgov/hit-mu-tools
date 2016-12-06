@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService) {
+angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -121,34 +121,42 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             $scope.loading = true;
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
-                angular.forEach(testCases.preloaded, function (testPlan) {
+                angular.forEach(testCases, function (testPlan) {
                     testCaseService.buildCFTestCases(testPlan);
                 });
-                $scope.testCases = $filter('orderBy')(testCases.preloaded, 'position');
+                $scope.testCases = $filter('orderBy')(testCases, 'position');
                 $scope.refreshTree();
             }, function (error) {
                 $scope.error = "Sorry, Cannot load the profiles. Try again";
                 $scope.loading = false;
             });
             
-            
-            tcLoader.then(function (testCases) {
+            var userTcLoader = new CFUserTestCaseListLoader(); 
+            userTcLoader.then(function (testCases) {
                 angular.forEach(testCases.user, function (testPlan) {
                     testCaseService.buildCFTestCases(testPlan);
                 });
+                angular.forEach(testCases.preloaded, function (testPlan) {
+                    testCaseService.buildCFTestCases(testPlan);
+                });
                 $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
+                //$filter('orderBy')(testCases.preloaded, 'position')
                 $scope.refreshUserTree();
             }, function (error) {
                 $scope.error = "Sorry, Cannot load the user profiles. Try again";
                 $scope.loading = false;
             });
             
+            
+        };
+            
+            
 
             $scope.$on("$destroy", function () {
                 var testStepId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                 if (testStepId != null) TestStepService.clearRecords(testStepId);
             });
-        };
+        
 
 
         $scope.selectNode = function (id, type) {

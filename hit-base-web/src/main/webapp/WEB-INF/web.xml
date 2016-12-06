@@ -44,5 +44,9 @@
 		<location>/InvalidAppState.html</location>
 	</error-page>
 
+	<context-param>
+           <param-name>spring.profiles.default</param-name>
+           <param-value>development</param-value>
+    </context-param>
 </web-app>
 	
