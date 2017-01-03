@@ -18,15 +18,47 @@ angular.module('upload')
 		$scope.profileCheckToggleStatus = false;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
-            url: 'api/gvtupload/uploadprofile'
+            url: 'api/gvtupload/uploadprofile',
+            filters: [{
+            	name: 'xmlFilter',
+                fn: function(item) {
+                    return /\/(xml)$/.test(item.type);
+                }
+            }]
         });
+       
         var vsUploader = $scope.vsUploader = new FileUploader({
-            url: 'api/gvtupload/uploadvs'
+            url: 'api/gvtupload/uploadvs',
+            filters: [{
+            	name: 'xmlFilter',
+                fn: function(item) {
+                    return /\/(xml)$/.test(item.type);
+                }
+            }]
         });
+        
         var constraintsUploader = $scope.constraintsUploader = new FileUploader({
-            url: 'api/gvtupload/uploadcontraints'
+            url: 'api/gvtupload/uploadcontraints',
+            filters: [{
+            	name: 'xmlFilter',
+                fn: function(item) {
+                    return /\/(xml)$/.test(item.type);
+                }
+            }]
         });
-         
+        
+        
+        var zipUploader = $scope.zipUploader = new FileUploader({
+            url: 'api/gvtupload/uploadzip',
+            autoUpload: true,
+            filters: [{
+            	name: 'zipFilter',
+                fn: function(item) {
+                    return /\/(zip)$/.test(item.type);
+                }
+            }]
+        });
+     
 
 //        $http.get('../../resources/upload/uploadprofile.json').then(
 //                function (object) {
@@ -68,14 +100,26 @@ angular.module('upload')
         };
         
         profileUploader.onCompleteItem = function(fileItem, response, status, headers) {
-        	$scope.profileMessages = response.profiles;
         	if (response.success ==false){
         		Notification.error({message: "The profile file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         		$scope.profileValidationErrors = angular.fromJson(response.errors);
+        	}else{
+        		$scope.profileMessages = response.profiles;
         	}
+        	
         };
         
         
+        zipUploader.onCompleteItem = function(fileItem, response, status, headers) {      	
+        	if (response.success ==false){
+        		Notification.error({message: "The zip file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+        		$scope.profileValidationErrors = angular.fromJson(response.profileErrors);
+        		$scope.valueSetValidationErrors = angular.fromJson(response.constraintsErrors);
+        		$scope.constraintValidationErrors = angular.fromJson(response.vsErrors);
+        	}else{
+        		$scope.profileMessages = response.profiles;
+        	}
+        };
         
        
         
@@ -125,6 +169,17 @@ angular.module('upload')
         	
         };
         
+        zipUploader.onBeforeUploadItem = function(fileItem) {
+        	$http.post('api/gvtupload/cleartestcases').then(function (result) {  	
+        		$scope.profileValidationErrors = [];
+        	    $scope.valueSetValidationErrors = [];
+        	    $scope.constraintValidationErrors = [];
+            }, function (error) {
+            	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+            });
+        	
+        };
+        
         $scope.remove = function (value) {
         	$scope.profileValidationErrors = [];
     	    $scope.valueSetValidationErrors = [];
@@ -134,14 +189,15 @@ angular.module('upload')
         	constraintsUploader.clearQueue();	
         };
         
-        $scope.closeModal = function(){
-        	$modalInstance.close();
+        $scope.dismissModal = function(){
+        	$modalInstance.dismiss();
         }
 
         $scope.addSelectedTestCases = function(){
         	$http.post('api/gvtupload/addtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases()}).then(function (result) {  		
                 Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
                 $modalInstance.close();
+                
         	}, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             });

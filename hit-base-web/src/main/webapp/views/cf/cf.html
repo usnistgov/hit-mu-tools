@@ -15,9 +15,9 @@
                 <i class="fa fa-caret-right"></i>
             </button>
         </div>
-        <div ng-show="!collapsed" class="col-md-2">
+        <div ng-show="!collapsed" class="col-md-2 gvt-left-panel">
         
-        <div class="panel panel-info" ng-show="isAuthenticated()">
+        <div class="panel panel-info">
                 <!-- Default panel contents -->
                 <div class="panel-heading panel-heading-collapsable">
                      <i class="fa fa-list"></i>User Profiles	
@@ -33,7 +33,7 @@
                     <button ng-show="userTestCases != null && userTestCases.length > 0" title="Expand All" class="btn btn-xs btn-info pull-right" style="margin-right:5px" ng-click="expandUserAll()">
                         <i class="point fa fa-expand"></i>
                     </button>
-                    <button title="Upload and add profiles" class="btn btn-xs btn-info pull-right" style="margin-right:5px" ng-click="openUploadModal()">
+                    <button title="Upload and add profiles" class="btn btn-xs btn-info" ng-click="openUploadModal()">
                         <i class="point fa fa-upload"></i> Add user test cases
                     </button>
 
@@ -111,7 +111,7 @@
             
             
         </div>
-        <div ng-class="{'col-md-10': !collapsed, 'col-md-11 col-98-5-percent':collapsed}">
+        <div ng-class="{'col-md-10': !collapsed, 'col-md-11 col-98-5-percent':collapsed}" class="gvt-right-panel"> 
             <div ng-show="loadingTC" style="text-align:center">
                 <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
             </div>

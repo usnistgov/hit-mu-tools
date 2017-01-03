@@ -29,7 +29,7 @@ angular.module('cf').factory('CFTestCaseListLoader', ['$q', '$http', 'StorageSer
                         delay.reject(response.data);
                     }
                 );
-//                $http.get('../../resources/cf/globalAndUserTestCasesWith.json').then(
+//                $http.get('../../resources/cf/testCases.json').then(
 //                    function (object) {
 //                         delay.resolve(angular.fromJson(object.data));
 //                    },

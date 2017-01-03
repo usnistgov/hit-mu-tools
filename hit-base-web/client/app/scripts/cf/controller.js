@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService) {
+angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -115,9 +115,36 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 
         $scope.initTesting = function () {
             StorageService.remove(StorageService.ACTIVE_SUB_TAB_KEY);
+            $scope.initPreLoadedTesting();
+            $scope.initUserTesting();
+        };
+        
+        $scope.initUserTesting = function () {
+            $scope.error = null;
+            $scope.userTestCases = [];
+            $scope.loading = true;
+            if (userInfoService.isAuthenticated()) {
+	            var userTcLoader = new CFUserTestCaseListLoader(); 
+	            userTcLoader.then(function (testCases) {
+	                angular.forEach(testCases.user, function (testPlan) {
+	                    testCaseService.buildCFTestCases(testPlan);
+	                });
+	                angular.forEach(testCases.preloaded, function (testPlan) {
+	                    testCaseService.buildCFTestCases(testPlan);
+	                });
+	                $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
+	                $scope.refreshUserTree();
+	            }, function (error) {
+	                $scope.error = "Sorry, Cannot load the user profiles. Try again";
+	                $scope.loading = false;
+	            });
+            }
+            
+        };
+        
+        $scope.initPreLoadedTesting = function () {
             $scope.error = null;
             $scope.testCases = [];
-            $scope.userTestCases = [];
             $scope.loading = true;
             var tcLoader = new CFTestCaseListLoader();
             tcLoader.then(function (testCases) {
@@ -130,24 +157,6 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
                 $scope.error = "Sorry, Cannot load the profiles. Try again";
                 $scope.loading = false;
             });
-            
-            var userTcLoader = new CFUserTestCaseListLoader(); 
-            userTcLoader.then(function (testCases) {
-                angular.forEach(testCases.user, function (testPlan) {
-                    testCaseService.buildCFTestCases(testPlan);
-                });
-                angular.forEach(testCases.preloaded, function (testPlan) {
-                    testCaseService.buildCFTestCases(testPlan);
-                });
-                $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
-                //$filter('orderBy')(testCases.preloaded, 'position')
-                $scope.refreshUserTree();
-            }, function (error) {
-                $scope.error = "Sorry, Cannot load the user profiles. Try again";
-                $scope.loading = false;
-            });
-            
-            
         };
             
             
@@ -209,8 +218,20 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             var modalInstance = $modal.open({
                 templateUrl: 'views/upload/upload.html',
                 controller: 'UploadCtrl',
-                windowClass: 'upload-modal'
+                windowClass: 'upload-modal',
+                backdrop  : 'static',
+                keyboard  : false
+                
             });
+            
+            modalInstance.result.then(
+                    function(result) {
+                    	 $scope.initUserTesting()                    
+                    },
+                    function(result) {
+                    	
+                    }
+                );
         };
 
     }]);
