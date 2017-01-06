@@ -172,7 +172,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 app.factory('interceptor1', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
-        console.log("interceptor1");
+//        console.log("interceptor1");
         if (response.status === 440) {
             response.data = "Session timeout";
             $rootScope.openSessionExpiredDlg();
@@ -241,7 +241,7 @@ app.factory('interceptor3', function ($q, $rootScope, $location, StorageService,
 
 app.factory('interceptor4', function ($q, $rootScope, $location, StorageService, $window) {
     var setMessage = function (response) {
-        console.log("interceptor4");
+//        console.log("interceptor4");
         //if the response has a text and a type property, it is a message to be shown
         if (response.data && response.data.text && response.data.type) {
             if (response.status === 401) {

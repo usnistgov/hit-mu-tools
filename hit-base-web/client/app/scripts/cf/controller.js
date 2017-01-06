@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService) {
+angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -33,14 +33,24 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             return testCase.parentName + " - " + testCase.label;
         };
 
-        $scope.selectTestCase = function (testCase) {
+        
+        $scope.selectTestCase = function (testCase,isUser) {
+        	
             $scope.loadingTC = true;
             $timeout(function () {
                 var previousId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                 if (previousId != null)TestStepService.clearRecords(previousId);
                 if (testCase.testContext && testCase.testContext != null) {
-                    CF.testCase = testCase;
+                	if (isUser){
+                		$scope.tree.select_branch(null);
+                		testCase.isUserDefined = true;
+                	}else{
+                		$scope.userTree.select_branch(null);
+                		testCase.isUserDefined = false;
+                	}
+                	CF.testCase = testCase;
                     $scope.testCase = CF.testCase;
+                    
                     var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                     if (id != testCase.id) {
                         StorageService.set(StorageService.CF_LOADED_TESTCASE_ID_KEY, testCase.id);
@@ -226,12 +236,38 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             
             modalInstance.result.then(
                     function(result) {
-                    	 $scope.initUserTesting()                    
+                    	 $scope.initUserTesting();                    
                     },
                     function(result) {
                     	
                     }
                 );
+        };
+        
+        $scope.deleteTestCase = function (testCase) {
+        	
+
+
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Delete test case',
+                headerText: 'Delete ' + testCase.Name + '?',
+                bodyText: 'Are you sure you want to delete this test case?'
+            };
+
+            modalService.showModal({}, modalOptions).then(function (result) {
+            	$http.post('api/gvtupload/deletetestcase',{id: testCase.id}).then(function (result) {  	
+            		$scope.initUserTesting();
+            	}, function (error) {
+                	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                }); 
+            	
+            });
+            
+        	
+
+        	
+        	
         };
 
     }]);

@@ -2504,6 +2504,29 @@ color:#FFFFFF;
     text-align: center;
 }
 
+.overlay {
+    position: absolute;
+    z-index: 1051;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: #3a4a4e;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+.loading {
+    position: absolute;
+    z-index: 1052;
+    top: 50%;
+    left: 50%;
+    margin: -28px 0 0 -25px;
+    text-align: center;
+    color: white;
+}
+
+
+
 @media screen and (min-width: 992px) {
   .gvt-left-panel {
 //    min-width: 350px;

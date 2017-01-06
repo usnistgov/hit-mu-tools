@@ -7,6 +7,7 @@
         top.location = self.location;
     }
 </script>
+<loading-testcases></loading-testcases>
 <div style="margin:10px">
 <div class="modal-header">
 	<span style="font-weight: bold; font-size: 20px">
@@ -16,10 +17,10 @@
 		<button class="btn btn-xs btn-primary" ng-click="dismissModal()"><i class="fa fa-times"></i>Close</button>
   	</span>
 </div>
-<div class="modal-body" style="padding:10px 0px 0px 0px;">
-	<div class="row">
+<div class="modal-body " style="padding:10px 0px 0px 0px;">
 
-        <div class="col-md-4" style="min-height: 550px;">
+	<div class="row">
+        <div class="col-md-4" style="min-height: 550px;">        
         	<tabset>
 				<tab>
 	                <tab-heading>
@@ -130,7 +131,7 @@
 			                        </button>
 			                         <button type="button" class="btn btn-danger btn-s" ng-click="remove()" ng-disabled="!(profileUploader.queue.length + vsUploader.queue.length +constraintsUploader.queue.length)">
 			                            <span class="glyphicon glyphicon-trash"></span> Clear queue
-			                        </button>
+			                        </button>			                
 			                    </div>
 			                 </div>
 		                    </div>

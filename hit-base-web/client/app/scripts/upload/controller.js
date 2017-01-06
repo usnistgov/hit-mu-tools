@@ -194,11 +194,13 @@ angular.module('upload')
         }
 
         $scope.addSelectedTestCases = function(){
+        	$scope.loading = true;
         	$http.post('api/gvtupload/addtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases()}).then(function (result) {  		
                 Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+                $scope.loading = false;
                 $modalInstance.close();
-                
         	}, function (error) {
+        		$scope.loading = false;
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             });
         }
@@ -231,6 +233,9 @@ angular.module('upload')
         	return (progress)/numberOfactiveQueue;
         }	
         
+        $scope.test = function () {
+        	
+        }	
 
 
     }]);
