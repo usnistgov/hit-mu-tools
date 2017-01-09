@@ -139,9 +139,6 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 	                angular.forEach(testCases.user, function (testPlan) {
 	                    testCaseService.buildCFTestCases(testPlan);
 	                });
-	                angular.forEach(testCases.preloaded, function (testPlan) {
-	                    testCaseService.buildCFTestCases(testPlan);
-	                });
 	                $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
 	                $scope.refreshUserTree();
 	            }, function (error) {
@@ -245,9 +242,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         };
         
         $scope.deleteTestCase = function (testCase) {
-        	
-
-
+        
             var modalOptions = {
                 closeButtonText: 'Cancel',
                 actionButtonText: 'Delete test case',
@@ -257,16 +252,12 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 
             modalService.showModal({}, modalOptions).then(function (result) {
             	$http.post('api/gvtupload/deletetestcase',{id: testCase.id}).then(function (result) {  	
-            		$scope.initUserTesting();
+            		$scope.initUserTesting();          		
             	}, function (error) {
                 	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                 }); 
             	
-            });
-            
-        	
-
-        	
+            });        	
         	
         };
 
