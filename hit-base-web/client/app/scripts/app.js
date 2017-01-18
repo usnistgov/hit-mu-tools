@@ -262,7 +262,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
                     manualHandle: true
                 };
             } else {
-                console.log(response.status);
+//                console.log(response.status);
                 msg = {
                     text: response.data.text,
                     type: response.data.type,
@@ -411,10 +411,10 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.createGuestIfNotExist = function(){
-        console.log("creating guest user");
+//        console.log("creating guest user");
         User.createGuestIfNotExist().then(function (guest) {
             initUser(guest);
-            console.log("guest user created");
+//            console.log("guest user created");
 
         }, function (error) {
             $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
@@ -575,7 +575,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
-        console.log("currentUser=" + angular.toJson(currentUser));
+//        console.log("currentUser=" + angular.toJson(currentUser));
         if(currentUser !== null && currentUser.accountId != null && currentUser.accountId != undefined) {
             initUser(currentUser);
         }else{

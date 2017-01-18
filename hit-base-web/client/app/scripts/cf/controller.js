@@ -35,7 +35,6 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 
         
         $scope.selectTestCase = function (testCase,isUser) {
-        	
             $scope.loadingTC = true;
             $timeout(function () {
                 var previousId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
@@ -119,7 +118,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
                         $scope.error = "Ooops, Something went wrong. Please refresh your page again.";
                     }
                 }
-                $scope.loading = false;
+                $scope.userLoading = false;
             },1000);
         };
 
@@ -132,7 +131,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         $scope.initUserTesting = function () {
             $scope.error = null;
             $scope.userTestCases = [];
-            $scope.loading = true;
+            $scope.userLoading = true;
             if (userInfoService.isAuthenticated()) {
 	            var userTcLoader = new CFUserTestCaseListLoader(); 
 	            userTcLoader.then(function (testCases) {
@@ -143,7 +142,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 	                $scope.refreshUserTree();
 	            }, function (error) {
 	                $scope.error = "Sorry, Cannot load the user profiles. Try again";
-	                $scope.loading = false;
+	                $scope.userLoading = false;
 	            });
             }
             
@@ -251,8 +250,9 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             };
 
             modalService.showModal({}, modalOptions).then(function (result) {
-            	$http.post('api/gvtupload/deletetestcase',{id: testCase.id}).then(function (result) {  	
-            		$scope.initUserTesting();          		
+            	$http.post('api/gvt/deletetestcase',{id: testCase.id}).then(function (result) {  	
+            		$scope.initUserTesting();     
+            		CF.testCase = null;
             	}, function (error) {
                 	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
                 }); 
@@ -276,6 +276,7 @@ angular.module('cf')
         $scope.message = CF.message;
         $scope.selectedMessage = {};
         $scope.loading = true;
+        $scope.userLoading = true;
         $scope.error = null;
         $scope.vError = null;
         $scope.vLoading = true;
