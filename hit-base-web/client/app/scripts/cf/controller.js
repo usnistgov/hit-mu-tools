@@ -1,19 +1,22 @@
 'use strict';
 
 
-angular.module('cf')
-    .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService) {
+angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService) {
 
         $scope.cf = CF;
         $scope.loading = false;
         $scope.loadingTC = false;
         $scope.error = null;
         $scope.testCases = [];
+       
         $scope.testCase = null;
         $scope.tree = {};
         $scope.tabs = new Array();
         $scope.error = null;
         $scope.collapsed = false;
+        
+        $scope.userTestCases = [];
+        $scope.userTree = {};
 
         var testCaseService = new TestCaseService();
 
@@ -30,14 +33,23 @@ angular.module('cf')
             return testCase.parentName + " - " + testCase.label;
         };
 
-        $scope.selectTestCase = function (testCase) {
+        
+        $scope.selectTestCase = function (testCase,isUser) {
             $scope.loadingTC = true;
             $timeout(function () {
                 var previousId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                 if (previousId != null)TestStepService.clearRecords(previousId);
                 if (testCase.testContext && testCase.testContext != null) {
-                    CF.testCase = testCase;
+                	if (isUser){
+                		$scope.tree.select_branch(null);
+                		testCase.isUserDefined = true;
+                	}else{
+                		$scope.userTree.select_branch(null);
+                		testCase.isUserDefined = false;
+                	}
+                	CF.testCase = testCase;
                     $scope.testCase = CF.testCase;
+                    
                     var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                     if (id != testCase.id) {
                         StorageService.set(StorageService.CF_LOADED_TESTCASE_ID_KEY, testCase.id);
@@ -68,7 +80,6 @@ angular.module('cf')
                                 }
                             }
                         }
-
                         if (testCase != null) {
                             $scope.selectNode(testCase.id, testCase.type);
                         }
@@ -81,9 +92,63 @@ angular.module('cf')
                 $scope.loading = false;
             },1000);
         };
+        
+        $scope.refreshUserTree = function () {
+            $timeout(function () {
+                if ($scope.userTestCases != null) {
+                    if (typeof $scope.userTree.build_all == 'function') {
+                        $scope.userTree.build_all($scope.userTestCases);
+                        var testCase = null;
+                        var id = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
+                        if (id != null) {
+                            for (var i = 0; i < $scope.userTestCases.length; i++) {
+                                var found = testCaseService.findOneById(id, $scope.userTestCases[i]);
+                                if (found != null) {
+                                    testCase = found;
+                                    break;
+                                }
+                            }
+                        }
+                        if (testCase != null) {
+                            $scope.selectUserNode(testCase.id, testCase.type);
+                        }
+                        $scope.expandUserAll();
+                        $scope.error = null;
+                    } else {
+                        $scope.error = "Ooops, Something went wrong. Please refresh your page again.";
+                    }
+                }
+                $scope.userLoading = false;
+            },1000);
+        };
 
         $scope.initTesting = function () {
             StorageService.remove(StorageService.ACTIVE_SUB_TAB_KEY);
+            $scope.initPreLoadedTesting();
+            $scope.initUserTesting();
+        };
+        
+        $scope.initUserTesting = function () {
+            $scope.error = null;
+            $scope.userTestCases = [];
+            $scope.userLoading = true;
+            if (userInfoService.isAuthenticated()) {
+	            var userTcLoader = new CFUserTestCaseListLoader(); 
+	            userTcLoader.then(function (testCases) {
+	                angular.forEach(testCases.user, function (testPlan) {
+	                    testCaseService.buildCFTestCases(testPlan);
+	                });
+	                $scope.userTestCases = $filter('orderBy')(testCases.user, 'position');
+	                $scope.refreshUserTree();
+	            }, function (error) {
+	                $scope.error = "Sorry, Cannot load the user profiles. Try again";
+	                $scope.userLoading = false;
+	            });
+            }
+            
+        };
+        
+        $scope.initPreLoadedTesting = function () {
             $scope.error = null;
             $scope.testCases = [];
             $scope.loading = true;
@@ -98,17 +163,26 @@ angular.module('cf')
                 $scope.error = "Sorry, Cannot load the profiles. Try again";
                 $scope.loading = false;
             });
+        };
+            
+            
 
             $scope.$on("$destroy", function () {
                 var testStepId = StorageService.get(StorageService.CF_LOADED_TESTCASE_ID_KEY);
                 if (testStepId != null) TestStepService.clearRecords(testStepId);
             });
-        };
+        
 
 
         $scope.selectNode = function (id, type) {
             $timeout(function () {
                 testCaseService.selectNodeByIdAndType($scope.tree, id, type);
+            }, 0);
+        };
+        
+        $scope.selectUserNode = function (id, type) {
+            $timeout(function () {
+                testCaseService.selectNodeByIdAndType($scope.userTree, id, type);
             }, 0);
         };
 
@@ -130,12 +204,62 @@ angular.module('cf')
             if ($scope.tree != null)
                 $scope.tree.expand_all();
         };
+        
+        $scope.expandUserAll = function () {
+            if ($scope.userTree != null)
+                $scope.userTree.expand_all();
+        };
 
         $scope.collapseAll = function () {
             if ($scope.tree != null)
                 $scope.tree.collapse_all();
         };
+        
+        $scope.collapseUserAll = function () {
+            if ($scope.userTree != null)
+                $scope.userTree.collapse_all();
+        };
 
+        $scope.openUploadModal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/upload/upload.html',
+                controller: 'UploadCtrl',
+                windowClass: 'upload-modal',
+                backdrop  : 'static',
+                keyboard  : false
+                
+            });
+            
+            modalInstance.result.then(
+                    function(result) {
+                    	 $scope.initUserTesting();                    
+                    },
+                    function(result) {
+                    	
+                    }
+                );
+        };
+        
+        $scope.deleteTestCase = function (testCase) {
+        
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Delete test case',
+                headerText: 'Delete ' + testCase.Name + '?',
+                bodyText: 'Are you sure you want to delete this test case?'
+            };
+
+            modalService.showModal({}, modalOptions).then(function (result) {
+            	$http.post('api/gvt/deletetestcase',{id: testCase.id}).then(function (result) {  	
+            		$scope.initUserTesting();     
+            		CF.testCase = null;
+            	}, function (error) {
+                	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+                }); 
+            	
+            });        	
+        	
+        };
 
     }]);
 
@@ -146,12 +270,13 @@ angular.module('cf').controller('CFProfileInfoCtrl', function ($scope, $modalIns
 });
 
 angular.module('cf')
-    .controller('CFValidatorCtrl',[ '$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService','MessageUtil',function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService,MessageUtil) {
+    .controller('CFValidatorCtrl',[ '$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService','MessageUtil','FileUpload','Notification',function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService,MessageUtil,FileUpload,Notification) {
         $scope.cf = CF;
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
         $scope.selectedMessage = {};
         $scope.loading = true;
+        $scope.userLoading = true;
         $scope.error = null;
         $scope.vError = null;
         $scope.vLoading = true;
@@ -201,41 +326,25 @@ angular.module('cf')
             }, 1000);
         };
 
-
-        $scope.options = {
-//            acceptFileTypes: /(\.|\/)(txt|text|hl7|json)$/i,
-            paramName: 'file',
-            formAcceptCharset: 'utf-8',
-            autoUpload: true,
-            type: 'POST'
-        };
-
-        $scope.$on('fileuploadadd', function (e, data) {
-            if (data.autoUpload || (data.autoUpload !== false &&
-                $(this).fileupload('option', 'autoUpload'))) {
-                data.process().done(function () {
-                    var fileName = data.files[0].name;
-                    data.url = 'api/message/upload';
-                    var jqXHR = data.submit()
-                        .success(function (result, textStatus, jqXHR) {
-                            $scope.nodelay = true;
-                            var tmp = angular.fromJson(result);
-                            $scope.cf.message.name = fileName;
-                            $scope.cf.editor.instance.doc.setValue(tmp.content);
-                            $scope.mError = null;
-                            $scope.execute();
-                        })
-                        .error(function (jqXHR, textStatus, errorThrown) {
-                            $scope.cf.message.name = fileName;
-                            $scope.mError = 'Sorry, Cannot upload file: ' + fileName + ", Error: " + errorThrown;
-                        })
-                        .complete(function (result, textStatus, jqXHR) {
-
-                        });
+        $scope.uploadMessage = function(file, errFiles) {
+            $scope.f = file;
+            FileUpload.uploadMessage(file,errFiles).then(function(response){
+                $timeout(function () {
+                    file.result = response.data;
+                    var result = response.data;
+                    var fileName = file.name;
+                    $scope.nodelay = true;
+                    var tmp = angular.fromJson(result);
+                    $scope.cf.message.name = fileName;
+                    $scope.cf.editor.instance.doc.setValue(tmp.content);
+                    $scope.mError = null;
+                    $scope.execute();
+                    Notification.success({message: "File " + fileName + " successfully uploaded!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 30000});
                 });
-
-            }
-        });
+            }, function(response){
+                $scope.mError = response.data;
+            });
+        };
 
         $scope.loadMessage = function () {
             if ($scope.cf.testCase.testContext.message && $scope.cf.testCase.testContext.message != null) {

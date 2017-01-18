@@ -4,10 +4,10 @@ angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
 angular.module('doc', ['common']);
-angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
 angular.module('documentation', []);
+angular.module('upload', ['common']);
 var app = angular.module('hit-app', [
     'ngRoute',
     'ui.bootstrap',
@@ -30,10 +30,8 @@ var app = angular.module('hit-app', [
     'edi',
     'soap',
     'cf',
-    'cb',
     'ngTreetable',
-    'blueimp.fileupload',
-    'hit-tool-directives',
+     'hit-tool-directives',
     'hit-tool-services',
     'commonServices',
     'smart-table',
@@ -49,8 +47,12 @@ var app = angular.module('hit-app', [
     'account',
     'main',
     'hit-manual-report-viewer',
-     'ociFixedHeader'
- ]);
+    'ociFixedHeader',
+    'upload',
+    'angularFileUpload',
+    'ngFileUpload'
+
+]);
 
 var httpHeaders,
 
@@ -65,7 +67,11 @@ var httpHeaders,
 
 //the message to be shown to the user
 var msg = {};
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider) {
+
+
+
+
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider,$provide) {
 
 
     localStorageServiceProvider
@@ -91,9 +97,9 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
         })
-        .when('/cb', {
-            templateUrl: 'views/cb/cb.html'
-        })
+//        .when('/upload', {
+//            templateUrl: 'views/upload/upload.html'
+//        })
         .when('/error', {
             templateUrl: 'error.html'
         })
@@ -141,6 +147,24 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     });
     httpHeaders = $httpProvider.defaults.headers;
 
+    
+    //file upload file over bug fix
+    $provide.decorator('nvFileOverDirective',['$delegate', function ($delegate) {
+        var directive = $delegate[0],
+            link = directive.link;
+
+        directive.compile = function () {
+            return function (scope, element, attrs) {
+                var overClass = attrs.overClass || 'nv-file-over';
+                link.apply(this, arguments);
+                element.on('dragleave', function () {
+                    element.removeClass(overClass);
+                });
+            };
+        };
+
+        return $delegate;
+    }]);
 });
 
 
@@ -148,7 +172,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 app.factory('interceptor1', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
-        console.log("interceptor1");
+//        console.log("interceptor1");
         if (response.status === 440) {
             response.data = "Session timeout";
             $rootScope.openSessionExpiredDlg();
@@ -217,7 +241,7 @@ app.factory('interceptor3', function ($q, $rootScope, $location, StorageService,
 
 app.factory('interceptor4', function ($q, $rootScope, $location, StorageService, $window) {
     var setMessage = function (response) {
-        console.log("interceptor4");
+//        console.log("interceptor4");
         //if the response has a text and a type property, it is a message to be shown
         if (response.data && response.data.text && response.data.type) {
             if (response.status === 401) {
@@ -238,7 +262,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
                     manualHandle: true
                 };
             } else {
-                console.log(response.status);
+//                console.log(response.status);
                 msg = {
                     text: response.data.text,
                     type: response.data.type,
@@ -310,7 +334,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     AppInfo.get().then(function (appInfo) {
         $rootScope.appInfo = appInfo;
-        $rootScope.apiLink = $window.location.protocol + "//" + $window.location.host + getContextPath() + $rootScope.appInfo.apiDocsPath;
+        $rootScope.apiLink = $rootScope.appInfo.url + $rootScope.appInfo.apiDocsPath;
         httpHeaders.common['rsbVersion'] = appInfo.rsbVersion;
         var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
         if (previousToken != null && previousToken !== appInfo.rsbVersion) {
@@ -387,10 +411,10 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.createGuestIfNotExist = function(){
-        console.log("creating guest user");
+//        console.log("creating guest user");
         User.createGuestIfNotExist().then(function (guest) {
             initUser(guest);
-            console.log("guest user created");
+//            console.log("guest user created");
 
         }, function (error) {
             $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
@@ -551,8 +575,8 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
-        console.log("currentUser=" + angular.toJson(currentUser));
-        if(currentUser !== null && currentUser.id != null && currentUser.id != undefined) {
+//        console.log("currentUser=" + angular.toJson(currentUser));
+        if(currentUser !== null && currentUser.accountId != null && currentUser.accountId != undefined) {
             initUser(currentUser);
         }else{
             $rootScope.createGuestIfNotExist();
