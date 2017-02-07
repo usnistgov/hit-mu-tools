@@ -35,7 +35,7 @@
                         <i class="point fa fa-expand"></i>
                     </button>
                     <button title="Upload and add profiles" class="btn btn-xs btn-info" ng-click="openUploadModal()">
-                        <i class="point fa fa-upload"></i> Add user test cases
+                        <i class="point fa fa-plus"></i>
                     </button>
 
                 </div>
@@ -48,7 +48,7 @@
                                     <testcase-tree tree-control="userTree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch,true)"></testcase-tree>
                                 </div>
                                 <div ng-show="userTestCases == null || userTestCases.length == 0">
-                                    No TestCase Available
+                                    No Profiles Available
                                 </div>
 
                             </div>
@@ -93,7 +93,7 @@
                                     <testcase-tree tree-control="tree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch,false)"></testcase-tree>
                                 </div>
                                 <div ng-show="testCases == null || testCases.length == 0">
-                                    No TestCase Available
+                                    No Profiles Available
                                 </div>
 
                             </div>

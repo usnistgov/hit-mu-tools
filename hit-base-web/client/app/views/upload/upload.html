@@ -11,10 +11,10 @@
 <div style="margin:10px">
 <div class="modal-header">
 	<span style="font-weight: bold; font-size: 20px">
-		Add Test Cases
+		Add Profiles
     </span>
 	<span class="pull-right">
-		<button class="btn btn-xs btn-primary" ng-click="dismissModal()"><i class="fa fa-times"></i>Close</button>
+		<button class="btn btn-xs btn-danger" ng-click="dismissModal()"><i class="fa fa-times"></i>Close</button>
   	</span>
 </div>
 <div class="modal-body " style="padding:10px 0px 0px 0px;">
@@ -22,6 +22,32 @@
 	<div class="row">
         <div class="col-md-4" style="min-height: 550px;">        
         	<tabset>
+				<tab>
+				    <tab-heading>
+				        Upload zip file
+				    </tab-heading>
+				    <div class="panel panel-info">
+			            <div class="panel-body">
+			            <div class="upload-drop-box" nv-file-over nv-file-drop over-class="upload-drop-box-file-over" uploader="zipUploader">
+				            <label class="btn btn-default btn-info" style="width:270px; text-align:left">
+							    <i class="fa fa-file" aria-hidden="true"></i> Select zip file or drag in box <input type="file" accept="application/zip" nv-file-select uploader="zipUploader"  style="display: none;">
+							</label>
+						</div>
+			           <div>
+		                    <div>
+			                    <div>
+			                        <div>
+			                            Queue progress:
+			                            <div class="progress" style="">
+			                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': zipUploader.progress + '%' }"></div>
+			                            </div>
+			                        </div>				                        
+			                    </div>
+			                 </div>
+		                    </div>
+		        		</div>
+		        	</div>
+				</tab>
 				<tab>
 	                <tab-heading>
 	                    Upload individual files
@@ -31,17 +57,17 @@
 			            <div class="upload-drop-box" nv-file-over nv-file-drop over-class="upload-drop-box-file-over" uploader="profileUploader">
 				            <label class="btn btn-default btn-info" style="width:270px; text-align:left">
 							    <i class="fa fa-file" aria-hidden="true"></i> Select profile file or drag in box <input type="file" accept="text/xml" nv-file-select uploader="profileUploader" style="display: none;">
-							</label><br>{{profileUploader.queue.length}} profile file selected
+							</label><br><span ng-show="profileUploader.queue.length">{{profileUploader.queue[0].file.name}} file selected</span>
 						</div>
 						<div class="upload-drop-box" nv-file-over nv-file-drop over-class="upload-drop-box-file-over" uploader="vsUploader">
 							<label class="btn btn-default btn-info" style="width:270px; text-align:left">
 							    <i class="fa fa-file" aria-hidden="true"></i> Select value set file or drag in box <input type="file" accept="text/xml" nv-file-select uploader="vsUploader" multiple style="display: none;">
-							</label><br>{{vsUploader.queue.length}} value set file<span ng-show="vsUploader.queue.length >1">s</span> selected
+							</label><br><span ng-show="vsUploader.queue.length">{{vsUploader.queue[0].file.name}} files selected</span>
 						</div>
 						<div class="upload-drop-box" nv-file-over nv-file-drop over-class="upload-drop-box-file-over" uploader="constraintsUploader">
 							<label class="btn btn-default btn-info" style="width:270px; text-align:left">
 							    <i class="fa fa-file" aria-hidden="true"></i> Select constraint file or drag in box <input type="file" accept="text/xml" nv-file-select uploader="constraintsUploader" multiple style="display: none;">
-							</label><br>{{constraintsUploader.queue.length}} contraint file<span ng-show="constraintsUploader.queue.length >1">s</span> selected
+							</label><br><span ng-show="constraintsUploader.queue.length">{{constraintsUploader.queue[0].file.name}} file selected</span>
 			           </div> 
 			           <div>
 		                    <h3>Upload queue:</h3>
@@ -132,32 +158,6 @@
 			                         <button type="button" class="btn btn-danger btn-s" ng-click="remove()" ng-disabled="!(profileUploader.queue.length + vsUploader.queue.length +constraintsUploader.queue.length)">
 			                            <span class="glyphicon glyphicon-trash"></span> Clear queue
 			                        </button>			                
-			                    </div>
-			                 </div>
-		                    </div>
-		        		</div>
-		        	</div>
-				</tab>
-				<tab>
-				    <tab-heading>
-				        Upload IGAMT zip file
-				    </tab-heading>
-				    <div class="panel panel-info">
-			            <div class="panel-body">
-			            <div class="upload-drop-box" nv-file-over nv-file-drop over-class="upload-drop-box-file-over" uploader="zipUploader">
-				            <label class="btn btn-default btn-info" style="width:270px; text-align:left">
-							    <i class="fa fa-file" aria-hidden="true"></i> Select IGAMT zip file or drag in box <input type="file" accept="application/zip" nv-file-select uploader="zipUploader"  style="display: none;">
-							</label>
-						</div>
-			           <div>
-		                    <div>
-			                    <div>
-			                        <div>
-			                            Queue progress:
-			                            <div class="progress" style="">
-			                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': zipUploader.progress + '%' }"></div>
-			                            </div>
-			                        </div>				                        
 			                    </div>
 			                 </div>
 		                    </div>
@@ -301,7 +301,7 @@
           	 	</div>
           		<div class="row">
           			<div class="col-md-12">
-          				<label for="testcasedescription">Test Case Description:</label>
+          				<label for="testcasedescription">Test Case Description: <span class="red" title="required field">*</span></label>
           				<textarea id="testcasedescription" required name="description" ng-model="testcase.description" class="form-control ng-pristine ng-valid ng-empty ng-touched"></textarea><br>
           			</div>
           		</div>
@@ -355,13 +355,14 @@
 	            	</div>
 	            </div>
             	<br>
-            	
-            	<button type="button" class="btn btn-success btn-s" ng-click="addSelectedTestCases()" ng-show="profileMessages.length" ng-disabled="!getSelectedTestcases().length || !tsForm.$valid">
-					Add selected test cases 
-                </button>
-                <button type="button" class="btn btn-success btn-s" ng-click="clearTestCases()" ng-show="profileMessages.length">
-					Clear all test cases
-                </button>
+            	<div style="text-align:right">
+	            	<button type="button" class="btn btn-success btn-s" ng-click="addSelectedTestCases()" ng-show="profileMessages.length" ng-disabled="!getSelectedTestcases().length || !tsForm.$valid">
+						Save
+	                </button>
+	                <button type="button" class="btn btn-warning btn-s" ng-click="clearTestCases()" ng-show="profileMessages.length">
+						Cancel
+	                </button>
+                </div>
                 </form>
             </div>
             </div>
