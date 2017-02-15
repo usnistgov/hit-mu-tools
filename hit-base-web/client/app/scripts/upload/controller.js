@@ -254,3 +254,116 @@ angular.module('upload')
 
 
 
+angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
+	$scope.testcase = {};
+	  
+    $scope.profileValidationErrors = [];
+    $scope.valueSetValidationErrors = [];
+    $scope.constraintValidationErrors = [];
+    
+    $scope.profileCheckToggleStatus = false;
+    
+	$scope.token = $routeParams.token;	
+	console.log($scope.token);
+	
+	if ($scope.token !== undefined){
+		//check login
+		console.log("check login");
+		if (!userInfoService.isAuthenticated()) {
+			console.log("not loged in");
+            $rootScope.showUploadLoginDialog($scope.token);
+		}
+		//check we have token and user
+		
+		if (userInfoService.isAuthenticated()) {
+		  console.log("get profiles from token");
+		  $http.post('api/gvt/upload/igamtuploadzipprofiles', {token: $scope.token}).then(
+		          function (response) {
+		        	  if (response.data.success ==false){
+		          		if (response.data.debugError === undefined){
+		          			Notification.error({message: "The zip file you uploaded is not valid, please check and correct the error(s)", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+		              		$scope.profileValidationErrors = angular.fromJson(response.data.profileErrors);
+		              		$scope.valueSetValidationErrors = angular.fromJson(response.data.constraintsErrors);
+		              		$scope.constraintValidationErrors = angular.fromJson(response.data.vsErrors);
+		              	}else{
+		          			Notification.error({message: "The tool could not process your file.<br>"+response.data.message+'<br>'+response.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+		          		}
+		          	}else{
+		          		$scope.profileMessages = response.data.profiles;
+		          	}
+		          },
+		          function (response) {
+		            
+		          }
+		      );
+		}
+	  
+//	  $http.get('../../resources/upload/uploadprofile.json').then(
+//            function (object) {
+//            	$scope.profileMessages = angular.fromJson(object.data.profiles);
+//            },
+//            function (response) {
+//            }
+//        );
+		
+		
+	}
+	
+	
+	$scope.addSelectedTestCases = function(){
+    	$scope.loading = true;
+    	$http.post('api/gvt/igamtaddtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
+    		if (result.data.status === "FAILURE"){
+            	Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+            }else if (result.data.status === "FAILURE"){
+            	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});                
+            }   		
+            $scope.loading = false;
+            $location.url('/cf');
+    	}, function (error) {
+    		$scope.loading = false;
+        	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+        });
+    }
+	
+	$scope.profileCheckToggle = function () {
+    	$scope.profileMessages.forEach(function(p) {
+    	    p.activated = $scope.profileCheckToggleStatus;
+    	});
+    };	
+    
+    $scope.getSelectedTestcases = function () {
+    	return _.where($scope.profileMessages,{activated:true});
+    };	
+
+}]);
+
+angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
+	$scope.testcase = {};
+	  
+    $scope.profileValidationErrors = [];
+    $scope.valueSetValidationErrors = [];
+    $scope.constraintValidationErrors = [];
+    
+    $scope.profileCheckToggleStatus = false;
+    
+	$scope.token = $routeParams.token;	
+	console.log($scope.token);
+	
+	if ($scope.token !== undefined){
+		//check login
+		if (!userInfoService.isAuthenticated()) {
+            $rootScope.showUploadLoginDialog($scope.token);
+		}else{
+			console.log("redirect");
+			$location.url('/addprofiles/'+$scope.token);
+		}
+	}
+		
+
+	
+
+
+}]);
+
+

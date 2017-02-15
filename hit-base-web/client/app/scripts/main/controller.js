@@ -42,6 +42,10 @@ angular.module('main').controller('MainCtrl',
         $scope.login = function () {
             $scope.$emit('event:loginRequest', $scope.username, $scope.password);
         };
+        
+        $scope.loginAndRedirect = function (path) {
+            $scope.$emit('event:loginRedirectRequest', $scope.username, $scope.password, path);
+        };
 
         $scope.loginReq = function () {
             if ($rootScope.loginMessage()) {
@@ -136,6 +140,39 @@ angular.module('main').controller('MainCtrl',
                 }
             });
         };
+        
+        
+        $rootScope.showUploadLoginDialog = function (token) {
+        	$scope.token = token;
+            if ($rootScope.loginDialog && $rootScope.loginDialog != null && $rootScope.loginDialog.opened) {
+                $rootScope.loginDialog.dismiss('cancel');
+            }
+
+            $rootScope.loginDialog = $modal.open({
+                backdrop: 'static',
+                keyboard: 'false',
+                controller: 'LoginCtrl',
+                size: 'lg',
+                templateUrl: 'views/account/loginUpload.html',
+                resolve: {
+                    user: function () {
+                        return {username: $scope.username, password: $scope.password};
+                    }
+                }
+            });
+            console.log($scope.token);
+            $rootScope.loginDialog.result.then(function (result) {
+                if (result) {
+                    $scope.username = result.username;
+                    $scope.password = result.password;                    
+                    $scope.loginAndRedirect('/addprofiles/'+$scope.token);
+                    
+                } else {
+                    $scope.cancel();
+                }
+            });
+        };
+        
 
         $rootScope.started = false;
 
@@ -663,17 +700,34 @@ angular.module('main').controller('MainCtrl',
 
     });
 
-angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', function ($scope, $modalInstance, user) {
+angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', '$location','$route', function ($scope, $modalInstance, user, $location, $route) {
     $scope.user = user;
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+    
+    $scope.cancelAndRedirect = function (path) {
+        $modalInstance.dismiss('cancel');
+        $location.url(path);
+    }
 
     $scope.login = function () {
-//        console.log("logging in...");
         $modalInstance.close($scope.user);
     };
+    
+    $scope.loginAndRedirect = function (path) {
+      $modalInstance.close($scope.user);
+      console.log(path);
+      $location.url(path);
+    };
+    
+    $scope.loginAndReload = function () {
+        $modalInstance.close($scope.user);
+        $route.reload()
+     };
+    
+  
 }]);
 
 
