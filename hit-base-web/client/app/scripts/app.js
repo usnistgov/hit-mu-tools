@@ -98,11 +98,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
             templateUrl: 'views/cf/cf.html',
             controller: 'CFTestingCtrl'
         })
-        .when('/uploadTokens/:token', {
+        .when('/uploadTokens', {
             templateUrl: 'views/home.html',
             controller: 'UploadTokenCheckCtrl'
         })
-        .when('/addprofiles/:token', {
+        .when('/addprofiles', {
             templateUrl: 'views/upload/uploadTokens.html',
             controller: 'UploadTokenCtrl'
         })

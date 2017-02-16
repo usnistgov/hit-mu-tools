@@ -348,15 +348,16 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
     $scope.profileCheckToggleStatus = false;
     
 	$scope.token = $routeParams.token;	
+	$scope.s = $routeParams.s;	
 	console.log($scope.token);
-	
+	console.log($scope.s);
 	if ($scope.token !== undefined){
 		//check login
 		if (!userInfoService.isAuthenticated()) {
             $rootScope.showUploadLoginDialog($scope.token);
 		}else{
 			console.log("redirect");
-			$location.url('/addprofiles/'+$scope.token);
+			$location.url('/addprofiles?token='+$scope.token);
 		}
 	}
 		

@@ -165,7 +165,7 @@ angular.module('main').controller('MainCtrl',
                 if (result) {
                     $scope.username = result.username;
                     $scope.password = result.password;                    
-                    $scope.loginAndRedirect('/addprofiles/'+$scope.token);
+                    $scope.loginAndRedirect('/addprofiles?token='+$scope.token);
                     
                 } else {
                     $scope.cancel();
