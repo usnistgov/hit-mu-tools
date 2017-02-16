@@ -309,6 +309,15 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 		
 	}
 	
+	 $scope.clearTestCases = function(){
+     	$http.post('api/gvt/igamtcleartestcases',{token: $scope.token}).then(function (result) {  	
+     		$scope.profileMessages.length =0;
+             Notification.success({message: "Test Case cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+         }, function (error) {
+         	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+         });
+     }
+	
 	
 	$scope.addSelectedTestCases = function(){
     	$scope.loading = true;
