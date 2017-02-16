@@ -276,7 +276,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 		//check we have token and user
 		
 		if (userInfoService.isAuthenticated()) {
-		  console.log("get profiles from token");
+		  console.log("get profiles from token " + $scope.token);
 		  $http.post('api/gvt/upload/igamtuploadzipprofiles', {token: $scope.token}).then(
 		          function (response) {
 		        	  if (response.data.success ==false){
@@ -347,8 +347,8 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
     
     $scope.profileCheckToggleStatus = false;
     
-	$scope.token = $routeParams.x;	
-	$scope.auth = $routeParams.y;	
+	$scope.token = decodeURIComponent($routeParams.x);	
+	$scope.auth = decodeURIComponent($routeParams.y);	
 	console.log($scope.token);
 	console.log($scope.auth);
 	
