@@ -263,7 +263,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
     
     $scope.profileCheckToggleStatus = false;
     
-	$scope.token = $routeParams.token;	
+	$scope.token = $routeParams.x;	
 	console.log($scope.token);
 	
 	if ($scope.token !== undefined){
@@ -347,17 +347,27 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
     
     $scope.profileCheckToggleStatus = false;
     
-	$scope.token = $routeParams.token;	
-	$scope.s = $routeParams.s;	
+	$scope.token = $routeParams.x;	
+	$scope.auth = $routeParams.y;	
 	console.log($scope.token);
-	console.log($scope.s);
-	if ($scope.token !== undefined){
-		//check login
+	console.log($scope.auth);
+	
+	
+	if ($scope.token !== undefined & $scope.auth !== undefined){
+		
+		//check if logged in
 		if (!userInfoService.isAuthenticated()) {
-            $rootScope.showUploadLoginDialog($scope.token);
+            //$rootScope.showUploadLoginDialog($scope.token);
+			
+			
+			 $scope.$emit('event:loginRequestWithAuth', $scope.auth,'/addprofiles?x='+$scope.token);
+			
+			
+			
+			
 		}else{
 			console.log("redirect");
-			$location.url('/addprofiles?token='+$scope.token);
+			$location.url('/addprofiles?x='+$scope.token);
 		}
 	}
 		

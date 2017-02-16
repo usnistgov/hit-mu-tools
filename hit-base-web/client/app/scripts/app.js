@@ -486,6 +486,35 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
         });
     });
     
+    
+    /**
+     * On 'event:loginRequest' send credentials to the server.
+     */
+    $rootScope.$on('event:loginRequestWithAuth', function (event, auth,path) {
+    	httpHeaders.common['Accept'] = 'application/json';
+        httpHeaders.common['Authorization'] = 'Basic ' + auth;
+        console.log("logging in...");
+        $http.get('api/accounts/login').success(function () {
+        	console.log("logging success...");
+            httpHeaders.common['Authorization'] = null;
+            $http.get('api/accounts/cuser').then(function (result) {
+                if (result.data && result.data != null) {
+                    var rs = angular.fromJson(result.data);         
+                    initUser(rs);
+                    $rootScope.$broadcast('event:loginConfirmed');
+                    console.log("redirect after login");
+                    $location.url(path);
+                } else {
+                    userInfoService.setCurrentUser(null);
+                }
+            }, function () {
+                userInfoService.setCurrentUser(null);
+            });
+        });
+    });
+    
+    
+    
     /*jshint sub: true */
     /**
      * On 'event:loginRequest' send credentials to the server.
