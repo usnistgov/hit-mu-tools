@@ -322,13 +322,13 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 	$scope.addSelectedTestCases = function(){
     	$scope.loading = true;
     	$http.post('api/gvt/igamtaddtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
-    		if (result.data.status === "FAILURE"){
-            	Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
-            }else if (result.data.status === "FAILURE"){
-            	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});                
-            }   		
+    		if (result.data.status === "SUCCESS"){
+            	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+                $location.url('/cf');
+            }else{
+                Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+            }
             $scope.loading = false;
-            $location.url('/cf');
     	}, function (error) {
     		$scope.loading = false;
         	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
@@ -365,10 +365,10 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
 	if ($scope.token !== undefined & $scope.auth !== undefined){
 		
 //		logout whoever is logged in
-		if (userInfoService.isAuthenticated()){
-			console.log("logout");
-			$scope.$emit('event:logoutRequest');	
-		}
+//		if (userInfoService.isAuthenticated()){
+//			console.log("logout");
+//			$scope.$emit('event:logoutRequest');
+//		}
 		
 		
 		//check if logged in
