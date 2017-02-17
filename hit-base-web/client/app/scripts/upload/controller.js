@@ -268,11 +268,11 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 	
 	if ($scope.token !== undefined){
 		//check login
-		console.log("check login");
-		if (!userInfoService.isAuthenticated()) {
-			console.log("not loged in");
-            $rootScope.showUploadLoginDialog($scope.token);
-		}
+//		console.log("check login");
+//		if (!userInfoService.isAuthenticated()) {
+//			console.log("not loged in");
+//            $rootScope.showUploadLoginDialog($scope.token);
+//		}
 		//check we have token and user
 		
 		if (userInfoService.isAuthenticated()) {
@@ -364,15 +364,17 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
 	
 	if ($scope.token !== undefined & $scope.auth !== undefined){
 		
+//		logout whoever is logged in
+		if (userInfoService.isAuthenticated()){
+			console.log("logout");
+			$scope.$emit('event:logoutRequest');	
+		}
+		
+		
 		//check if logged in
 		if (!userInfoService.isAuthenticated()) {
-            //$rootScope.showUploadLoginDialog($scope.token);
-			
-			
-			 $scope.$emit('event:loginRequestWithAuth', $scope.auth,'/addprofiles?x='+$scope.token);
-			
-			
-			
+            //$rootScope.showUploadLoginDialog($scope.token);	
+			 $scope.$emit('event:loginRequestWithAuth', $scope.auth,'/addprofiles?x='+$scope.token);		
 			
 		}else{
 			console.log("redirect");
