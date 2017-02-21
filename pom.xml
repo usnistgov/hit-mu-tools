@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.loi-r1</groupId>
 	<artifactId>loi-r1</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>loi-r1</name>
 	<description>Laboratory Orders Interface tool</description>
 	<packaging>pom</packaging>
