@@ -111,8 +111,7 @@ angular.module('main').controller('MainCtrl',
             return '';
         };
 
-        $rootScope.showLoginDialog = function (username, password) {
-
+        $rootScope.showLoginDialog = function (path) {
             if ($rootScope.loginDialog && $rootScope.loginDialog != null && $rootScope.loginDialog.opened) {
                 $rootScope.loginDialog.dismiss('cancel');
             }
@@ -134,44 +133,21 @@ angular.module('main').controller('MainCtrl',
                 if (result) {
                     $scope.username = result.username;
                     $scope.password = result.password;
-                    $scope.login();
-                } else {
-                    $scope.cancel();
-                }
-            });
-        };
-        
-        
-        $rootScope.showUploadLoginDialog = function (token) {
-        	$scope.token = token;
-            if ($rootScope.loginDialog && $rootScope.loginDialog != null && $rootScope.loginDialog.opened) {
-                $rootScope.loginDialog.dismiss('cancel');
-            }
-
-            $rootScope.loginDialog = $modal.open({
-                backdrop: 'static',
-                keyboard: 'false',
-                controller: 'LoginCtrl',
-                size: 'lg',
-                templateUrl: 'views/account/loginUpload.html',
-                resolve: {
-                    user: function () {
-                        return {username: $scope.username, password: $scope.password};
+                   
+                    if (path !== undefined){
+                    	console.log(path);
+                    	$scope.loginAndRedirect(path+"&loggedin=true");
+                    }else{
+                    	$scope.login();
                     }
-                }
-            });
-            console.log($scope.token);
-            $rootScope.loginDialog.result.then(function (result) {
-                if (result) {
-                    $scope.username = result.username;
-                    $scope.password = result.password;                    
-                    $scope.loginAndRedirect('/addprofiles?token='+$scope.token);
-                    
                 } else {
                     $scope.cancel();
                 }
             });
         };
+        
+        
+
         
 
         $rootScope.started = false;

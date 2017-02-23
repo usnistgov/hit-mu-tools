@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService) {
+angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
 
         $scope.cf = CF;
         $scope.loading = false;
@@ -20,6 +20,10 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
 
         var testCaseService = new TestCaseService();
 
+        $scope.token = $routeParams.x;	
+    	
+         
+        
         $scope.setActiveTab = function (value) {
             $scope.tabs[0] = false;
             $scope.tabs[1] = false;
@@ -240,6 +244,31 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
                 );
         };
         
+        $scope.openUploadFromRemotedModal = function (){
+        	var modalInstance = $modal.open({
+                templateUrl: 'views/upload/uploadFromRemote.html',
+                controller: 'UploadTokenCtrl',
+                windowClass: 'upload-modal',
+                backdrop  : 'static',
+                keyboard  : false
+                
+            });
+            
+        	modalInstance.result.then(
+                    function(result) {
+                    	$location.url("/cf");                
+                    },
+                    function(result) {
+                    	$location.url("/cf");  
+                    }
+                );
+        };
+  
+        	
+        
+        
+       
+        
         $scope.deleteTestCase = function (testCase) {
         
             var modalOptions = {
@@ -250,7 +279,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             };
 
             modalService.showModal({}, modalOptions).then(function (result) {
-            	$http.post('api/gvt/deletetestcase',{id: testCase.id}).then(function (result) {  	
+            	$http.post('api/upload/deleteprofile',{id: testCase.id}).then(function (result) {  	
             		$scope.initUserTesting();     
             		CF.testCase = null;
             	}, function (error) {
@@ -260,6 +289,19 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             });        	
         	
         };
+        
+        
+        if ($scope.token !== undefined && $location.path() === '/addprofiles'){
+        	if (!userInfoService.isAuthenticated()) {
+        		$scope.$emit('event:loginRequiredWithRedirect',$location.url());
+        		
+        	}else{
+        		$scope.openUploadFromRemotedModal();
+        	}
+        	
+        	
+        }
+       
 
     }]);
 

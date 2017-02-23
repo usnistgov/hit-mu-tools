@@ -18,7 +18,7 @@ angular.module('upload')
 		$scope.profileCheckToggleStatus = false;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
-            url: 'api/gvt/upload/uploadprofile',
+            url: 'api/upload/uploadprofile',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -28,7 +28,7 @@ angular.module('upload')
         });
        
         var vsUploader = $scope.vsUploader = new FileUploader({
-            url: 'api/gvt/upload/uploadvs',
+            url: 'api/upload/uploadvs',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -38,7 +38,7 @@ angular.module('upload')
         });
         
         var constraintsUploader = $scope.constraintsUploader = new FileUploader({
-            url: 'api/gvt/upload/uploadcontraints',
+            url: 'api/upload/uploadcontraints',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -49,7 +49,7 @@ angular.module('upload')
         
         
         var zipUploader = $scope.zipUploader = new FileUploader({
-            url: 'api/gvt/upload/uploadzip',
+            url: 'api/upload/uploadzip',
             autoUpload: true,
             filters: [{
             	name: 'zipFilter',
@@ -87,8 +87,7 @@ angular.module('upload')
         	if (response.success ==false){
         		Notification.error({message: "The value set file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         		$scope.valueSetValidationErrors = angular.fromJson(response.errors);
-        	}
-        		
+        	}        		
         };
         
         constraintsUploader.onCompleteItem = function(fileItem, response, status, headers) {
@@ -96,7 +95,6 @@ angular.module('upload')
         		Notification.error({message: "The constraint file you uploaded is not valid, please check and correct the error(s) and try again", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         		$scope.constraintValidationErrors = angular.fromJson(response.errors);
         	}
-        	
         };
         
         profileUploader.onCompleteItem = function(fileItem, response, status, headers) {
@@ -105,9 +103,19 @@ angular.module('upload')
         		$scope.profileValidationErrors = angular.fromJson(response.errors);
         	}else{
         		$scope.profileMessages = response.profiles;
-        	}
-        	
+        	}      	
         };
+        
+        profileUploader.onBeforeUploadItem = function(fileItem) {
+            fileItem.formData.push({token: $scope.token});
+        };
+        constraintsUploader.onBeforeUploadItem = function(fileItem) {
+            fileItem.formData.push({token: $scope.token});
+        };
+        vsUploader.onBeforeUploadItem = function(fileItem) {
+            fileItem.formData.push({token: $scope.token});
+        };
+        
         
         
         zipUploader.onCompleteItem = function(fileItem, response, status, headers) {      	
@@ -117,11 +125,13 @@ angular.module('upload')
             		$scope.profileValidationErrors = angular.fromJson(response.profileErrors);
             		$scope.valueSetValidationErrors = angular.fromJson(response.constraintsErrors);
             		$scope.constraintValidationErrors = angular.fromJson(response.vsErrors);
+            		
             	}else{
         			Notification.error({message: "The tool could not upload and process your file.<br>"+response.message+'<br>'+response.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         		}
         	}else{
         		$scope.profileMessages = response.profiles;
+        		$scope.token = response.token;
         	}
         };
         
@@ -160,28 +170,20 @@ angular.module('upload')
         };	
         
         $scope.upload = function (value) {
-        	$http.post('api/gvt/cleartestcases').then(function (result) {  	
+                $scope.token = $scope.generateUUID();
+        		
         		$scope.profileValidationErrors = [];
         	    $scope.valueSetValidationErrors = [];
         	    $scope.constraintValidationErrors = [];
             	vsUploader.uploadAll();  	
             	constraintsUploader.uploadAll();     
-            	profileUploader.uploadAll();
-            }, function (error) {
-            	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
-            });
-        	
+            	profileUploader.uploadAll();      	
         };
         
-        zipUploader.onBeforeUploadItem = function(fileItem) {
-        	$http.post('api/gvt/cleartestcases').then(function (result) {  	
+        zipUploader.onBeforeUploadItem = function(fileItem) { 	
         		$scope.profileValidationErrors = [];
         	    $scope.valueSetValidationErrors = [];
         	    $scope.constraintValidationErrors = [];
-            }, function (error) {
-            	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
-            });
-        	
         };
         
         $scope.remove = function (value) {
@@ -199,14 +201,15 @@ angular.module('upload')
 
         $scope.addSelectedTestCases = function(){
         	$scope.loading = true;
-        	$http.post('api/gvt/addtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases()}).then(function (result) {  		
-        		if (result.data.status === "FAILURE"){
-                	Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
-                }else if (result.data.status === "FAILURE"){
-                	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});                
-                }   		
+        	$http.post('api/upload/addprofiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token}).then(function (result) {  		
+        		
+        		if (result.data.status === "SUCCESS"){
+                	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+                	$modalInstance.close();
+                }else{
+                    Notification.error({message: result.data.message +'<br><br>Debug message:<br>'+result.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 20000});
+                }	
                 $scope.loading = false;
-                $modalInstance.close();
         	}, function (error) {
         		$scope.loading = false;
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
@@ -214,13 +217,13 @@ angular.module('upload')
         }
         
         $scope.clearTestCases = function(){
-        	$http.post('api/gvt/cleartestcases').then(function (result) {  	
+        	$http.post('api/upload/clearfiles',{token: $scope.token}).then(function (result) {  	
         		$scope.profileMessages.length =0;
         		zipUploader.clearQueue();
         		profileUploader.clearQueue();
             	vsUploader.clearQueue();
             	constraintsUploader.clearQueue();	
-                Notification.success({message: "Test Case cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
+                Notification.success({message: "Profiles cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             }, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             });
@@ -245,39 +248,41 @@ angular.module('upload')
         	return (progress)/numberOfactiveQueue;
         }	
         
-        $scope.test = function () {
-        	
-        }	
+        $scope.generateUUID = function() {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random()*16)%16 | 0;
+                d = Math.floor(d/16);
+                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+            return uuid;
+        };
 
 
     }]);
 
 
 
-angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
+angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location','$modalInstance', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location,$modalInstance) {
 	$scope.testcase = {};
 	  
     $scope.profileValidationErrors = [];
     $scope.valueSetValidationErrors = [];
     $scope.constraintValidationErrors = [];
     
-    $scope.profileCheckToggleStatus = false;
+    $scope.profileCheckToggleStatus = true;
     
 	$scope.token = $routeParams.x;	
-	console.log($scope.token);
+	
+	$scope.dismissModal = function(){
+    	$modalInstance.dismiss();
+    }
 	
 	if ($scope.token !== undefined){
-		//check login
-//		console.log("check login");
-//		if (!userInfoService.isAuthenticated()) {
-//			console.log("not loged in");
-//            $rootScope.showUploadLoginDialog($scope.token);
-//		}
-		//check we have token and user
+
 		
 		if (userInfoService.isAuthenticated()) {
-		  console.log("get profiles from token " + $scope.token);
-		  $http.post('api/gvt/upload/igamtuploadzipprofiles', {token: $scope.token}).then(
+		  $http.post('api/upload/remoteuploadedprofiles', {token: $scope.token}).then(
 		          function (response) {
 		        	  if (response.data.success ==false){
 		          		if (response.data.debugError === undefined){
@@ -286,10 +291,12 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 		              		$scope.valueSetValidationErrors = angular.fromJson(response.data.constraintsErrors);
 		              		$scope.constraintValidationErrors = angular.fromJson(response.data.vsErrors);
 		              	}else{
-		          			Notification.error({message: "The tool could not process your file.<br>"+response.data.message+'<br>'+response.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+		          			Notification.error({message: "  "+response.data.message+'<br>'+response.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+		          			$modalInstance.close();
 		          		}
 		          	}else{
 		          		$scope.profileMessages = response.data.profiles;
+		          		$scope.profileCheckToggle();
 		          	}
 		          },
 		          function (response) {
@@ -297,34 +304,18 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 		          }
 		      );
 		}
-	  
-//	  $http.get('../../resources/upload/uploadprofile.json').then(
-//            function (object) {
-//            	$scope.profileMessages = angular.fromJson(object.data.profiles);
-//            },
-//            function (response) {
-//            }
-//        );
-		
+	  		
 		
 	}
 	
-	 $scope.clearTestCases = function(){
-     	$http.post('api/gvt/igamtcleartestcases',{token: $scope.token}).then(function (result) {  	
-     		$scope.profileMessages.length =0;
-             Notification.success({message: "Test Case cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
-         }, function (error) {
-         	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
-         });
-     }
 	
 	
 	$scope.addSelectedTestCases = function(){
     	$scope.loading = true;
-    	$http.post('api/gvt/igamtaddtestcases', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
+    	$http.post('api/upload/addprofiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
     		if (result.data.status === "SUCCESS"){
             	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
-                $location.url('/cf');
+            	$modalInstance.close();
             }else{
                 Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             }
@@ -358,26 +349,17 @@ angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 
     
 	$scope.token = decodeURIComponent($routeParams.x);	
 	$scope.auth = decodeURIComponent($routeParams.y);	
-	console.log($scope.token);
-	console.log($scope.auth);
+
 	
 	
 	if ($scope.token !== undefined & $scope.auth !== undefined){
-		
-//		logout whoever is logged in
-//		if (userInfoService.isAuthenticated()){
-//			console.log("logout");
-//			$scope.$emit('event:logoutRequest');
-//		}
-		
+				
 		
 		//check if logged in
 		if (!userInfoService.isAuthenticated()) {
-            //$rootScope.showUploadLoginDialog($scope.token);	
 			 $scope.$emit('event:loginRequestWithAuth', $scope.auth,'/addprofiles?x='+$scope.token);		
 			
 		}else{
-			console.log("redirect");
 			$location.url('/addprofiles?x='+$scope.token);
 		}
 	}
