@@ -279,7 +279,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             };
 
             modalService.showModal({}, modalOptions).then(function (result) {
-            	$http.post('api/upload/deleteprofile',{id: testCase.id}).then(function (result) {  	
+            	$http.post('api/upload/deleteProfile',{id: testCase.id}).then(function (result) {  	
             		$scope.initUserTesting();     
             		CF.testCase = null;
             	}, function (error) {

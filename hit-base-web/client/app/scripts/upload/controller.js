@@ -18,7 +18,7 @@ angular.module('upload')
 		$scope.profileCheckToggleStatus = false;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
-            url: 'api/upload/uploadprofile',
+            url: 'api/upload/uploadProfile',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -28,7 +28,7 @@ angular.module('upload')
         });
        
         var vsUploader = $scope.vsUploader = new FileUploader({
-            url: 'api/upload/uploadvs',
+            url: 'api/upload/uploadVS',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -38,7 +38,7 @@ angular.module('upload')
         });
         
         var constraintsUploader = $scope.constraintsUploader = new FileUploader({
-            url: 'api/upload/uploadcontraints',
+            url: 'api/upload/uploadContraints',
             filters: [{
             	name: 'xmlFilter',
                 fn: function(item) {
@@ -49,7 +49,7 @@ angular.module('upload')
         
         
         var zipUploader = $scope.zipUploader = new FileUploader({
-            url: 'api/upload/uploadzip',
+            url: 'api/upload/uploadZip',
             autoUpload: true,
             filters: [{
             	name: 'zipFilter',
@@ -201,7 +201,7 @@ angular.module('upload')
 
         $scope.addSelectedTestCases = function(){
         	$scope.loading = true;
-        	$http.post('api/upload/addprofiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token}).then(function (result) {  		
+        	$http.post('api/upload/addProfiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token}).then(function (result) {  		
         		
         		if (result.data.status === "SUCCESS"){
                 	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
@@ -217,7 +217,7 @@ angular.module('upload')
         }
         
         $scope.clearTestCases = function(){
-        	$http.post('api/upload/clearfiles',{token: $scope.token}).then(function (result) {  	
+        	$http.post('api/upload/clearFiles',{token: $scope.token}).then(function (result) {  	
         		$scope.profileMessages.length =0;
         		zipUploader.clearQueue();
         		profileUploader.clearQueue();
@@ -282,7 +282,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 
 		
 		if (userInfoService.isAuthenticated()) {
-		  $http.post('api/upload/remoteuploadedprofiles', {token: $scope.token}).then(
+		  $http.post('api/upload/remoteUploadedProfiles', {token: $scope.token}).then(
 		          function (response) {
 		        	  if (response.data.success ==false){
 		          		if (response.data.debugError === undefined){
@@ -312,7 +312,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 	
 	$scope.addSelectedTestCases = function(){
     	$scope.loading = true;
-    	$http.post('api/upload/addprofiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
+    	$http.post('api/upload/addProfiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
     		if (result.data.status === "SUCCESS"){
             	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             	$modalInstance.close();
