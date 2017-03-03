@@ -15,7 +15,7 @@ angular.module('upload')
 	    $scope.constraintValidationErrors = [];
 	    
 	    
-		$scope.profileCheckToggleStatus = false;
+		$scope.profileCheckToggleStatus = true;
 
         var profileUploader = $scope.profileUploader = new FileUploader({
             url: 'api/upload/uploadProfile',
@@ -103,6 +103,7 @@ angular.module('upload')
         		$scope.profileValidationErrors = angular.fromJson(response.errors);
         	}else{
         		$scope.profileMessages = response.profiles;
+        		$scope.profileCheckToggle();
         	}      	
         };
         
@@ -113,6 +114,9 @@ angular.module('upload')
             fileItem.formData.push({token: $scope.token});
         };
         vsUploader.onBeforeUploadItem = function(fileItem) {
+            fileItem.formData.push({token: $scope.token});
+        };
+        zipUploader.onBeforeUploadItem = function(fileItem) {
             fileItem.formData.push({token: $scope.token});
         };
         
@@ -130,8 +134,33 @@ angular.module('upload')
         			Notification.error({message: "The tool could not upload and process your file.<br>"+response.message+'<br>'+response.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
         		}
         	}else{
-        		$scope.profileMessages = response.profiles;
         		$scope.token = response.token;
+        		$http.post('api/upload/uploadedProfiles', {token: $scope.token}).then(
+      		          function (response) {
+      		        	  if (response.data.success ==false){
+      		          		if (response.data.debugError === undefined){
+      		          			Notification.error({message: "The zip file you uploaded is not valid, please check and correct the error(s)", templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+      		              		$scope.profileValidationErrors = angular.fromJson(response.data.profileErrors);
+      		              		$scope.valueSetValidationErrors = angular.fromJson(response.data.constraintsErrors);
+      		              		$scope.constraintValidationErrors = angular.fromJson(response.data.vsErrors);
+      		              	}else{
+      		          			Notification.error({message: "  "+response.data.message+'<br>'+response.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
+      		          			$modalInstance.close();
+      		          		}
+      		          	}else{
+      		          		$scope.profileMessages = response.data.profiles;
+      		          		$scope.profileCheckToggle();
+      		          	}
+      		          },
+      		          function (response) {
+      		            
+      		          }
+      		      );	
+        		
+        		
+        		
+//        		$scope.profileMessages = response.profiles;
+//        		$scope.token = response.token;
         	}
         };
         
@@ -282,7 +311,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 
 		
 		if (userInfoService.isAuthenticated()) {
-		  $http.post('api/upload/remoteUploadedProfiles', {token: $scope.token}).then(
+		  $http.post('api/upload/uploadedProfiles', {token: $scope.token}).then(
 		          function (response) {
 		        	  if (response.data.success ==false){
 		          		if (response.data.debugError === undefined){
