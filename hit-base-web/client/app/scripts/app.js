@@ -3,6 +3,7 @@ angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 
 angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
+angular.module('cb', ['common']);
 angular.module('doc', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
@@ -30,6 +31,7 @@ var app = angular.module('hit-app', [
     'edi',
     'soap',
     'cf',
+    'cb',
     'ngTreetable',
      'hit-tool-directives',
     'hit-tool-services',
@@ -97,6 +99,9 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/cf', {
             templateUrl: 'views/cf/cf.html',
             controller: 'CFTestingCtrl'
+        })
+        .when('/cb', {
+            templateUrl: 'views/cb/cb.html'
         })
         .when('/uploadTokens', {
             templateUrl: 'views/home.html',
