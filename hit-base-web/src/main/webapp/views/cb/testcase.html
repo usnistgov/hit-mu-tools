@@ -80,7 +80,7 @@
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <span>
-                               {{selectedTestCase.type}}: {{selectedTestCase.name}}
+                              <span>{{selectedTestCase.type}}:</span> <span ng-bind-html="selectedTestCase.name"></span>
                             </span>
                             <span class="pull-right">
                                 <button title="Download Test Package" type="button" class="btn btn-xs btn-info" ng-show="selectedTestCase.testPackage && selectedTestCase.testPackage != null && selectedTestCase.testPackage.pdfPath != null" ng-click="downloadArtifact(selectedTestCase.testPackage.pdfPath)">
