@@ -7,7 +7,7 @@
         top.location = self.location;
     }
 </script>
-<div ng-controller="CFTestingCtrl" ng-init="initTesting()" class="" style="margin-top:10px;margin-left: 10px;margin-right: 10px">
+<div ng-init="initTesting()" class="" style="margin-top:10px;margin-left: 10px;margin-right: 10px">
     <div class="row" style="">
 
         <div class="col-md-1 col-1-percent" ng-show="collapsed">
@@ -15,11 +15,59 @@
                 <i class="fa fa-caret-right"></i>
             </button>
         </div>
-        <div ng-show="!collapsed" class="col-md-2">
+        <div ng-show="!collapsed" class="col-md-2 gvt-left-panel">
+        
+       <div class="panel panel-info" ng-show="isAuthenticated()">
+       <!-- <div class="panel panel-info"> -->
+                <!-- Default panel contents -->
+                <div class="panel-heading panel-heading-collapsable">
+                     <i class="fa fa-list"></i>User Profiles	
+
+					
+                    <button title="Hide Profiles" class="btn btn-xs btn-info pull-right" ng-click="collapsed = !collapsed">
+                        <i class="fa fa-caret-left"></i>
+                    </button>
+
+                    <button ng-show="userTestCases != null && userTestCases.length > 0" title="Collapse All" class="btn btn-xs btn-info pull-right" style="margin-right:5px" ng-click="collapseUserAll()">
+                        <i class="point fa fa-compress"></i>
+                    </button>
+                    <button ng-show="userTestCases != null && userTestCases.length > 0" title="Expand All" class="btn btn-xs btn-info pull-right" style="margin-right:5px" ng-click="expandUserAll()">
+                        <i class="point fa fa-expand"></i>
+                    </button>
+                    <button title="Upload and add profiles" class="btn btn-xs btn-info" ng-click="openUploadModal()">
+                        <i class="point fa fa-plus"></i>
+                    </button>
+
+                </div>
+
+                <div class="panel-body">
+                    <div ng-show="!userLoading">
+                        <div ng-show="error === null">
+                            <div class="container-testcase">
+                                <div ng-show="userTestCases != null && userTestCases.length > 0">
+                                    <testcase-tree tree-control="userTree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch,true)"></testcase-tree>
+                                </div>
+                                <div ng-show="userTestCases == null || userTestCases.length == 0">
+                                    No Profiles Available
+                                </div>
+
+                            </div>
+                        </div>
+                        <div ng-show="error != null">
+                            <div class="alert alert-danger" role="alert" ng-bind="error"></div>
+                        </div>
+                    </div>
+                    <div ng-show="userLoading" style="text-align:center">
+                        <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        
+        
             <div class="panel panel-info">
                 <!-- Default panel contents -->
                 <div class="panel-heading panel-heading-collapsable">
-                     <i class="fa fa-list"></i>Profiles
+                     <i class="fa fa-list"></i>Global Profiles
                     <button title="View Profiles Information" class="btn btn-xs btn-info" ng-click="openProfileInfo()">
                         <i class="point fa fa-info-circle"></i>Help
                     </button>
@@ -42,10 +90,10 @@
                         <div ng-show="error === null">
                             <div class="container-testcase">
                                 <div ng-show="testCases != null && testCases.length > 0">
-                                    <testcase-tree tree-control="tree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch)"></testcase-tree>
+                                    <testcase-tree tree-control="tree" icon-leaf="" is-selectable="isSelectable(branch)" on-select="selectTestCase(branch,false)"></testcase-tree>
                                 </div>
                                 <div ng-show="testCases == null || testCases.length == 0">
-                                    No TestCase Available
+                                    No Profiles Available
                                 </div>
 
                             </div>
@@ -59,8 +107,12 @@
                     </div>
                 </div>
             </div>
+            
+            
+            
+            
         </div>
-        <div ng-class="{'col-md-10': !collapsed, 'col-md-11 col-98-5-percent':collapsed}">
+        <div ng-class="{'col-md-10': !collapsed, 'col-md-11 col-98-5-percent':collapsed}" class="gvt-right-panel"> 
             <div ng-show="loadingTC" style="text-align:center">
                 <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
             </div>
@@ -70,7 +122,7 @@
                     <div class="panel panel-info">
                         <!-- Default panel contents -->
                         <div class="panel-heading"><i class="glyphicon glyphicon-list"></i>Profile:
-                            {{cf.testCase.label}}
+                            {{cf.testCase.label}} <button ng-show="cf.testCase.isUserDefined" title="Delete Test Case" class="btn btn-xs btn-danger pull-right" style="margin-right:5px" ng-click="deleteTestCase(cf.testCase)"><i class="fa fa-times"></i>Delete Test Case</button>
                         </div>
                         <div class="panel-body">
                             <tabset>
@@ -118,6 +170,25 @@
         </div>
 
     </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="text/ng-template" id="CFProfileInfoCtrl.html">
