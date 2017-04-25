@@ -132,11 +132,21 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
             $scope.initUserTesting();
         };
         
+        $scope.$watch(
+        		  function() { return userInfoService.isAuthenticated(); },
+        		  function(newValue, oldValue) {
+        		    if ( newValue === true && oldValue ===false ) {
+        		    	$scope.initTesting();
+        		    }
+        		  }
+        		);
+        
+        
         $scope.initUserTesting = function () {
             $scope.error = null;
             $scope.userTestCases = [];
-            $scope.userLoading = true;
             if (userInfoService.isAuthenticated()) {
+            	$scope.userLoading = true;
 	            var userTcLoader = new CFUserTestCaseListLoader(); 
 	            userTcLoader.then(function (testCases) {
 	                angular.forEach(testCases.user, function (testPlan) {
