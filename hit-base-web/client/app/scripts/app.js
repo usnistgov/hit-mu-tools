@@ -108,7 +108,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
             controller: 'UploadTokenCheckCtrl'
         })
         .when('/addprofiles', {
-            templateUrl: 'views/cf/cf.html',
+            templateUrl: 'views/home.html',
             controller: 'CFTestingCtrl'
         })
 //        .when('/upload', {

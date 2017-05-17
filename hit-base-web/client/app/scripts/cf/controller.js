@@ -133,13 +133,13 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         };
         
         $scope.$watch(
-        		  function() { return userInfoService.isAuthenticated(); },
-        		  function(newValue, oldValue) {
-        		    if ( newValue === true && oldValue ===false ) {
-        		    	$scope.initTesting();
-        		    }
-        		  }
-        		);
+		  function() { return userInfoService.isAuthenticated(); },
+		  function(newValue, oldValue) {
+		    if ( newValue === true && oldValue ===false ) {
+		    	$scope.initTesting();
+		    }
+		  }
+		);
         
         
         $scope.initUserTesting = function () {
@@ -307,9 +307,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
         		
         	}else{
         		$scope.openUploadFromRemotedModal();
-        	}
-        	
-        	
+        	}  	
         }
        
 
