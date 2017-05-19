@@ -848,42 +848,79 @@ angular.module('cb')
 
 
 angular.module('cb')
-    .controller('CBTestCaseCtrl', ['$scope', '$window', '$filter', '$rootScope', 'CB', '$timeout', 'CBTestCaseListLoader', '$sce', 'StorageService', 'TestCaseService', 'TestStepService', 'TestExecutionService', function ($scope, $window, $filter, $rootScope, CB, $timeout, CBTestCaseListLoader, $sce, StorageService, TestCaseService, TestStepService, TestExecutionService) {
+    .controller('CBTestCaseCtrl', ['$scope', '$window', '$filter', '$rootScope', 'CB', '$timeout', 'CBTestCaseListLoader', '$sce', 'StorageService', 'TestCaseService', 'TestStepService', 'TestExecutionService', 'CBTestPlanLoader', function ($scope, $window, $filter, $rootScope, CB, $timeout, CBTestCaseListLoader, $sce, StorageService, TestCaseService, TestStepService, TestExecutionService,CBTestPlanLoader) {
         $scope.selectedTestCase = CB.selectedTestCase;
         $scope.testCase = CB.testCase;
+        $scope.selectedTP = {id: null};
         $scope.testCases = [];
+        $scope.testPlans = [];
         $scope.tree = {};
-        $scope.loading = true;
-        $scope.loadingTC = false;
+      $scope.loading = true;
+      $scope.loadingTP = false;
+      $scope.loadingTC = false;
+      $scope.loadingTPs = false;
         $scope.error = null;
         $scope.collapsed = false;
 
         var testCaseService = new TestCaseService();
 
-        $scope.initTestCase = function () {
-            $scope.error = null;
-            $scope.loading = true;
-            var tcLoader = new CBTestCaseListLoader();
-            tcLoader.then(function (testCases) {
-                $scope.error = null;
-                angular.forEach(testCases, function (testPlan) {
-                    testCaseService.buildTree(testPlan);
-                });
-                $scope.testCases = testCases;
-                $scope.refreshTree();
-            }, function (error) {
-                $scope.loading = false;
-                $scope.error = "Sorry, Cannot load the test cases. Please try again";
-            });
+      $scope.initTestCase = function () {
+        $scope.error = null;
+        $scope.loading = true;
+        $scope.testPlans = null;
+        var previousTpId = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
+        $scope.selectedTP.id = previousTpId == undefined ? "": previousTpId;
+        var tcLoader = new CBTestCaseListLoader();
+        tcLoader.then(function (testPlans) {
+          $scope.error = null;
+          $scope.testPlans = $filter('orderBy')(testPlans, 'position');
+          if($scope.testPlans.length === 1){
+            $scope.selectedTP.id = $scope.testPlans[0].id;
+          }
+          $scope.selectTP();
+          $scope.loading = false;
+        }, function (error) {
+          $scope.loading = false;
+          $scope.error = "Sorry, Cannot load the test cases. Please try again";
+        });
+      };
 
-        };
+      $scope.selectTP = function () {
+        $scope.loadingTP = true;
+        $scope.errorTP = null;
+        $scope.selectedTestCase = null;
+        console.log("$scope.selectedTP.id=" + $scope.selectedTP.id);
+        if ($scope.selectedTP.id && $scope.selectedTP.id !== null && $scope.selectedTP.id !== "") {
+          var tcLoader = new CBTestPlanLoader($scope.selectedTP.id);
+          tcLoader.then(function (testPlan) {
+            $scope.testCases = [testPlan];
+            testCaseService.buildTree(testPlan);
+            $scope.refreshTree();
+            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, $scope.selectedTP.id);
+            $scope.loadingTP = false;
+          }, function (error) {
+            $scope.loadingTP = false;
+            $scope.errorTP = "Sorry, Cannot load the test plan. Please try again";
+          });
+        }else{
+          $scope.testCases = null;
+          StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, "");
+          $scope.loadingTP = false;
+        }
+      };
 
 
-        $scope.refreshTree = function () {
+
+
+      $scope.refreshTree = function () {
             $timeout(function () {
                 if ($scope.testCases != null) {
                     if (typeof $scope.tree.build_all == 'function') {
                         $scope.tree.build_all($scope.testCases);
+                      var b = $scope.tree.get_first_branch();
+                      if(b != null && b) {
+                        $scope.tree.expand_branch(b);
+                      }
                         var testCase = null;
                         var id = StorageService.get(StorageService.CB_SELECTED_TESTCASE_ID_KEY);
                         var type = StorageService.get(StorageService.CB_SELECTED_TESTCASE_TYPE_KEY);

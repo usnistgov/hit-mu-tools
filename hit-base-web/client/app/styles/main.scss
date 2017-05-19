@@ -2526,16 +2526,15 @@ color:#FFFFFF;
 }
 
 
-
-@media screen and (min-width: 992px) {
-  .gvt-left-panel {
-//    min-width: 350px;
-  }
+.test-plan-select-container {
+  padding: 8px 15px 0px;
+  //margin-bottom: 20px;
+  //list-style: none;
+  background-color: #f5f5f5;
+  border-radius: 4px;
 }
 
-@media screen and (max-width: 991px) {
-  .gvt-left-panel {
-//    width: 100%;
-  }
-
+.test-plan-select {
+  background-color: white;
 }
+
