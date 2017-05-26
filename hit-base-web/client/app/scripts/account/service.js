@@ -141,86 +141,92 @@ angular.module('account').factory('userLoaderService', ['userInfo', '$q',
     }
 ]);
 
+
 angular.module('account').factory('userInfoService', ['StorageService', 'userLoaderService','User','Transport','$q','$timeout','$rootScope',
-    function(StorageService,userLoaderService,User,Transport,$q,$timeout,$rootScope) {
-        var currentUser = null;
-        var supervisor = false,
-            tester = false,
-            admin = false,
-            id = null,
-            username = '',
-            fullName= '';
+  function(StorageService,userLoaderService,User,Transport,$q,$timeout,$rootScope) {
+    var currentUser = null;
+    var supervisor = false,
+      tester = false,
+      admin = false,
+      id = null,
+      username = '',
+      fullName= '',
+      lastTestPlanPersistenceId = null;
 
-        //console.log("USER ID=", StorageService.get('userID'));
+    //console.log("USER ID=", StorageService.get('userID'));
 
-        var loadFromCookie = function() {
-            //console.log("UserID=", StorageService.get('userID'));
+    var loadFromCookie = function() {
+      //console.log("UserID=", StorageService.get('userID'));
 
-            id = StorageService.get('userID');
-            username = StorageService.get('username');
-            tester = StorageService.get('tester');
-            supervisor = StorageService.get('supervisor');
-            admin = StorageService.get('admin');
-        };
+      id = StorageService.get('userID');
+      username = StorageService.get('username');
+      tester = StorageService.get('tester');
+      supervisor = StorageService.get('supervisor');
+      admin = StorageService.get('admin');
+      lastTestPlanPersistenceId = StorageService.get('lastTestPlanPersistenceId');
 
-        var saveToCookie = function() {
-            StorageService.set('accountID', id);
-            StorageService.set('username', username);
-            StorageService.set('tester', tester);
-            StorageService.set('supervisor', supervisor);
-            StorageService.set('admin', admin);
-            StorageService.set('fullName', fullName);
-        };
+    };
 
-        var clearCookie = function() {
-            StorageService.remove('accountID');
-            StorageService.remove('username');
-            StorageService.remove('tester');
-            StorageService.remove('supervisor');
-            StorageService.remove('admin');
-            StorageService.remove('hthd');
-            StorageService.remove('fullName');
+    var saveToCookie = function() {
+      StorageService.set('accountID', id);
+      StorageService.set('username', username);
+      StorageService.set('tester', tester);
+      StorageService.set('supervisor', supervisor);
+      StorageService.set('admin', admin);
+      StorageService.set('fullName', fullName);
+      StorageService.set('lastTestPlanPersistenceId', lastTestPlanPersistenceId);
 
-        };
+    };
 
-        var saveHthd = function(header) {
-            StorageService.set('hthd', header);
-        };
+    var clearCookie = function() {
+      StorageService.remove('accountID');
+      StorageService.remove('username');
+      StorageService.remove('tester');
+      StorageService.remove('supervisor');
+      StorageService.remove('admin');
+      StorageService.remove('hthd');
+      StorageService.remove('fullName');
+      StorageService.remove('lastTestPlanPersistenceId');
+    };
 
-        var getHthd = function(header) {
-            return StorageService.get('hthd');
-        };
+    var saveHthd = function(header) {
+      StorageService.set('hthd', header);
+    };
 
-        var hasCookieInfo =  function() {
-            if ( StorageService.get('username') === '' ) {
-                return false;
-            }
-            else {
-                return true;
-            }
-        };
+    var getHthd = function(header) {
+      return StorageService.get('hthd');
+    };
 
-        var getAccountID = function() {
-            if ( isAuthenticated() ) {
-                return currentUser.accountId.toString();
-            }
-            return '0';
-        };
+    var hasCookieInfo =  function() {
+      if ( StorageService.get('username') === '' ) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    };
 
-        var isAdmin = function() {
-          if (!admin && $rootScope.appInfo.adminEmails != null && $rootScope.appInfo.adminEmails) {
-            if (Array.isArray($rootScope.appInfo.adminEmails)) {
-              admin = $rootScope.appInfo.adminEmails.indexOf(currentUser.email) >= 0;
-            } else {
-              admin = $rootScope.appInfo.adminEmails === currentUser.email;
-            }
-          }
-          return admin;
-        };
+    var getAccountID = function() {
+      if ( isAuthenticated() ) {
+        return currentUser.accountId.toString();
+      }
+      return '0';
+    };
 
-        var isTester = function() {
-            return tester;
-        };
+    var isAdmin = function() {
+      if (!admin && $rootScope.appInfo.adminEmails != null && $rootScope.appInfo.adminEmails) {
+        if (Array.isArray($rootScope.appInfo.adminEmails)) {
+          admin = $rootScope.appInfo.adminEmails.indexOf(currentUser.email) >= 0;
+        } else {
+          admin = $rootScope.appInfo.adminEmails === currentUser.email;
+        }
+      }
+      return admin;
+    };
+
+    var isTester = function() {
+      return tester;
+    };
 
 //        var isAuthorizedVendor = function() {
 //            return authorizedVendor;
@@ -230,97 +236,107 @@ angular.module('account').factory('userInfoService', ['StorageService', 'userLoa
 //            return (author || authorizedVendor);
 //        };
 
-        var isSupervisor = function() {
-            return supervisor;
-        };
+    var isSupervisor = function() {
+      return supervisor;
+    };
 
-        var isPending = function() {
-            return isAuthenticated() && currentUser != null ? currentUser.pending: false;
-        };
+    var isPending = function() {
+      return isAuthenticated() && currentUser != null ? currentUser.pending: false;
+    };
 
-        var isAuthenticated = function() {
-            var res =  currentUser !== undefined && currentUser != null && currentUser.authenticated === true;
-            return res;
+    var isAuthenticated = function() {
+      var res =  currentUser !== undefined && currentUser != null && currentUser.authenticated === true;
+      return res;
 //            return true;
-        };
+    };
 
-        var loadFromServer = function() {
-             if ( !isAuthenticated() ) {
-                 return userLoaderService.load();
-             }else{
-                 var delay = $q.defer();
-                 $timeout(function(){
-                     delay.resolve(currentUser);
-                 });
-                 return delay.promise;
-             }
-        };
+    var loadFromServer = function() {
+      if ( !isAuthenticated() ) {
+        return userLoaderService.load();
+      }else{
+        var delay = $q.defer();
+        $timeout(function(){
+          delay.resolve(currentUser);
+        });
+        return delay.promise;
+      }
+    };
 
 
-        var getCurrentUser = function() {
-            return currentUser;
-        };
+    var getCurrentUser = function() {
+      return currentUser;
+    };
 
-        var setCurrentUser = function(newUser) {
-            currentUser = newUser;
-            if ( currentUser !== null && currentUser !== undefined ) {
-                username = currentUser.username;
-                id = currentUser.accountId;
-                fullName = currentUser.fullName;
-                if ( angular.isArray(currentUser.authorities)) {
-                    angular.forEach(currentUser.authorities, function(value, key){
-                        switch(value.authority)
-                        {
-                            case 'user':
-                                break;
-                            case 'admin':
-                                admin = true;
-                                break;
-                            case 'tester':
-                                tester = true;
-                                break;
-                            default:
-                        }
-                    });
-                }
-                //saveToCookie();
+    var setCurrentUser = function(newUser) {
+      currentUser = newUser;
+      if ( currentUser !== null && currentUser !== undefined ) {
+        username = currentUser.username;
+        id = currentUser.accountId;
+        fullName = currentUser.fullName;
+        lastTestPlanPersistenceId = currentUser.lastTestPlanPersistenceId;
+
+        if ( angular.isArray(currentUser.authorities)) {
+          angular.forEach(currentUser.authorities, function(value, key){
+            switch(value.authority)
+            {
+              case 'user':
+                break;
+              case 'admin':
+                admin = true;
+                break;
+              case 'tester':
+                tester = true;
+                break;
+              default:
             }
-            else {
-                supervisor = false;
-                tester = false;
-                admin = false;
-                username = '';
-                id = null;
-                fullName = '';
-                //clearCookie();
-            }
-        };
+          });
+        }
+        //saveToCookie();
+      }
+      else {
+        supervisor = false;
+        tester = false;
+        admin = false;
+        username = '';
+        id = null;
+        fullName = '';
+        lastTestPlanPersistenceId = null;
+        //clearCookie();
+      }
+    };
 
-        var getUsername = function() {
-            return username;
-        };
+    var getUsername = function() {
+      return username;
+    };
 
-        var getFullName = function() {
-            return fullName;
-        };
+    var getFullName = function() {
+      return fullName;
+    };
 
-        return {
-            saveHthd: saveHthd,
-            getHthd: getHthd,
-            hasCookieInfo: hasCookieInfo,
-            loadFromCookie: loadFromCookie,
-            getAccountID: getAccountID,
-            isAdmin: isAdmin,
-            isTester: isTester,
-            isAuthenticated: isAuthenticated,
-            isPending: isPending,
-            isSupervisor: isSupervisor,
-            setCurrentUser: setCurrentUser,
-            getCurrentUser: getCurrentUser,
-            loadFromServer: loadFromServer,
-            getUsername: getUsername,
-            getFullName: getFullName
+    var getLastTestPlanPersistenceId = function() {
+      return lastTestPlanPersistenceId;
+    };
 
-        };
-    }
+
+
+    return {
+      saveHthd: saveHthd,
+      getHthd: getHthd,
+      hasCookieInfo: hasCookieInfo,
+      loadFromCookie: loadFromCookie,
+      getAccountID: getAccountID,
+      isAdmin: isAdmin,
+      isTester: isTester,
+      isAuthenticated: isAuthenticated,
+      isPending: isPending,
+      isSupervisor: isSupervisor,
+      setCurrentUser: setCurrentUser,
+      getCurrentUser: getCurrentUser,
+      loadFromServer: loadFromServer,
+      getUsername: getUsername,
+      getFullName: getFullName,
+      getLastTestPlanPersistenceId: getLastTestPlanPersistenceId
+
+    };
+  }
 ]);
