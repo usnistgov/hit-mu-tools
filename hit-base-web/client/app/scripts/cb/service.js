@@ -6,6 +6,7 @@ angular.module('cb').factory('CB',
         var CB = {
             testCase: null,
             selectedTestCase: null,
+            selectedTestPlan: null,
             editor: null,
             tree: new Tree(),
             cursor: null,
@@ -24,19 +25,18 @@ angular.module('cb').factory('CB',
         return CB;
     }]);
 
-
 angular.module('cb').factory('CBTestCaseListLoader', ['$q', '$http',
-  function ($q, $http) {
-    return function () {
-      var delay = $q.defer();
-      $http.get("api/cb/testplans", {timeout: 180000}).then(
-        function (object) {
-          delay.resolve(angular.fromJson(object.data));
-        },
-        function (response) {
-          delay.reject(response.data);
-        }
-      );
+    function ($q, $http) {
+        return function () {
+            var delay = $q.defer();
+            $http.get("api/cb/testplans", {timeout: 180000}).then(
+                function (object) {
+                    delay.resolve(angular.fromJson(object.data));
+                },
+                function (response) {
+                    delay.reject(response.data);
+                }
+            );
 
 
 //            $http.get("../../resources/cb/testPlans.json").then(
@@ -47,9 +47,9 @@ angular.module('cb').factory('CBTestCaseListLoader', ['$q', '$http',
 //                    delay.reject(response.data);
 //                }
 //            );
-      return delay.promise;
-    };
-  }
+            return delay.promise;
+        };
+    }
 ]);
 
 
@@ -79,14 +79,6 @@ angular.module('cb').factory('CBTestPlanLoader', ['$q', '$http',
     };
   }
 ]);
-
-
-
-
-
-
-
-
 
 
 
