@@ -90,7 +90,7 @@ angular.module('cf').controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$win
                         $scope.expandAll();
                         $scope.error = null;
                     } else {
-                        $scope.error = "Ooops, Something went wrong. Please refresh your page again.";
+                        $scope.error = "Error: Something went wrong. Please refresh your page again.";
                     }
                 }
                 $scope.loading = false;
@@ -320,7 +320,7 @@ angular.module('cf').controller('CFProfileInfoCtrl', function ($scope, $modalIns
 });
 
 angular.module('cf')
-    .controller('CFValidatorCtrl',[ '$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService','MessageUtil','FileUpload','Notification',function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService,MessageUtil,FileUpload,Notification) {
+    .controller('CFValidatorCtrl',[ '$scope', '$http', 'CF', '$window', '$timeout', '$modal', 'NewValidationResult', '$rootScope', 'ServiceDelegator', 'StorageService', 'TestStepService','MessageUtil', 'FileUpload','Notification',function ($scope, $http, CF, $window, $timeout, $modal, NewValidationResult, $rootScope, ServiceDelegator, StorageService, TestStepService,MessageUtil,FileUpload,Notification) {
         $scope.cf = CF;
         $scope.testCase = CF.testCase;
         $scope.message = CF.message;
@@ -394,7 +394,7 @@ angular.module('cf')
             }, function(response){
                 $scope.mError = response.data;
             });
-        };
+     };
 
         $scope.loadMessage = function () {
             if ($scope.cf.testCase.testContext.message && $scope.cf.testCase.testContext.message != null) {
@@ -589,7 +589,6 @@ angular.module('cf')
             $scope.vError = null;
             $scope.initCodemirror();
             $scope.refreshEditor();
-
             $scope.$on('cf:testCaseLoaded', function (event, testCase) {
                 $scope.testCase = testCase;
                 if ($scope.testCase != null) {
