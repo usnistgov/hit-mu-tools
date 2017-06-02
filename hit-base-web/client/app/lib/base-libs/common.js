@@ -1720,7 +1720,6 @@ angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, 
 
 
 
-
 angular.module('format').factory('TestExecutionService',
   ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService) {
 
@@ -2027,6 +2026,8 @@ angular.module('format').factory('TestExecutionService',
 
     return TestExecutionService;
   }]);
+
+
 
 
 angular.module('format').factory('TestExecutionClock', function ($interval, Clock) {
