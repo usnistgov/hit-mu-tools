@@ -315,12 +315,11 @@
 		                    <input ng-click="profileCheckToggle()" ng-model="profileCheckToggleStatus" ng-checked="{{profileCheckToggleStatus}}"  type="checkbox">
 		                </th>
 		                <th>Name</th>
-		                <th>Id</th>
+		                <th>Identifier</th>
 		                <th>Description</th>
 		                <th>Type</th>
 		                <th>Event</th>
 		                <th>StructID</th>
-		                <th>Identifier</th>
 		                 </thead>
 		                <tbody>
 			                <tr ng-repeat="item in profileMessages">
@@ -332,10 +331,10 @@
 			                    	<input ng-disabled="item.used" ng- ng-model="item.name" ng-required="item.activated" style="width: 100%;">
 			                    </td>
 			                    <td>
-			                    	{{item.id}}
+			                    	{{item.identifier}}
 			                    </td>
 			                    <td>
-			                    	<input ng-disabled="item.used" ng-model="item.description"  ng-required="item.activated" style="width: 100%;">
+			                    	{{item.description}}
 			                    </td>
 			                    <td>
 			                    	{{item.type}}
@@ -345,9 +344,6 @@
 			                    </td>
 			                    <td>
 			                    	{{item.structID}}
-			                    </td>
-			                    <td>
-			                    	{{item.identifier}}
 			                    </td>
 			                </tr>
 	                	</tbody>
