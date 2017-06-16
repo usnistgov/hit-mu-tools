@@ -2013,6 +2013,9 @@ tr.current {
 .console-modal .modal-dialog {
   top: 0px;
   position: absolute;
+  width: 70%;
+  height: 70%;
+  overflow-y: auto;
  }
 
 .col-98-5-percent {

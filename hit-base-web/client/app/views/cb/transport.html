@@ -67,8 +67,8 @@
 
                                      <div class="btn-group" role="group" >
     <button  ng-disabled="isTestCaseCompleted() || connecting || !transportButtonForm.protocolSelect.$valid" type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-             <span class="caret"></span>
-      <span>{{counterMax/60}} mn</span>
+             <i class="fa fa-cog"></i>
+      <span>{{counterMax/60}}mn</span>
     </button>
     <ul class="dropdown-menu point">
       <li><a class="point" ng-click="setTimeout(120)">2mn</a></li>

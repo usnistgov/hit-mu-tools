@@ -658,7 +658,7 @@ angular.module('cb')
               var execute = function () {
                 var remaining = parseInt($scope.counterMax) - parseInt($scope.counter);
                 if( remaining % 60 === 0) {
-                  $scope.logger.log("Waiting for Inbound Message....Remaining time:" + (remaining/60) + " mn");
+                  $scope.logger.log("Waiting for Inbound Message....Remaining time:" + (remaining/60) + "mn");
                 }
                 ++$scope.counter;
 
