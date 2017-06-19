@@ -14,7 +14,7 @@
 
   <div class="row test-plan-select-container" style="margin-left:10px; margin-right: 10px; margin-top: 0px">
 
-    <div class="col-md-12" style="height:35px">
+    <div class="col-md-12" style="height:40px">
       <form class="form-inline" style="margin:0; padding:0">
         <div class="form-group" ng-if="isAuthenticated()">
           <label class="control-label" style="text-align:left" for="selectedScope">Type: </label>
@@ -35,7 +35,7 @@
 
         <span ng-show="testPlans == null || testPlans.length  === 0">No Profile Found</span>
 			<div ng-show="isAuthenticated()" class="pull-right">
-				<button title="Upload and add profiles" class="btn btn-xs btn-info" ng-click="openUploadModal()">
+				<button title="Upload and add profiles" class="btn btn-info" ng-click="openUploadModal()">
 	                     <i class="point fa fa-upload"></i> Add user test cases
 	             </button>
 			</div>

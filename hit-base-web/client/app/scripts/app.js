@@ -52,7 +52,8 @@ var app = angular.module('hit-app', [
     'ociFixedHeader',
     'upload',
     'angularFileUpload',
-    'ngFileUpload'
+    'ngFileUpload',
+    'ui.select'
 
 ]);
 

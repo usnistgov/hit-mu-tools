@@ -2,18 +2,21 @@
 
 
 angular.module('upload')
-.controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','FileUploader','Notification','$modalInstance', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification,$modalInstance){
+.controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','FileUploader','Notification','$modalInstance','CFTestPlanListLoader', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification,$modalInstance,CFTestPlanListLoader){
 		
+
 	
 		FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
 	        return true;
 	    };
 	    $scope.testcase = {};
-	  
+	    $scope.existingTP = {};
+	    
 	    $scope.profileValidationErrors = [];
 	    $scope.valueSetValidationErrors = [];
 	    $scope.constraintValidationErrors = [];
 	    
+	    $scope.existingTestPlans = null;
 	    
 		$scope.profileCheckToggleStatus = true;
 
@@ -105,6 +108,13 @@ angular.module('upload')
         		$scope.profileMessages = response.profiles;
         		$scope.profileCheckToggle();
         	}      	
+        	
+        	var tcLoader = new CFTestPlanListLoader('USER');
+            tcLoader.then(function (testPlans) {
+              $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
+            }, function (error) {
+              $scope.error = "Sorry, Cannot load the test plans. Please try again";
+            });
         };
         
         profileUploader.onBeforeUploadItem = function(fileItem) {
@@ -157,6 +167,12 @@ angular.module('upload')
       		          }
       		      );	
         		
+        		var tcLoader = new CFTestPlanListLoader('USER');
+                tcLoader.then(function (testPlans) {
+                  $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
+                }, function (error) {
+                  $scope.error = "Sorry, Cannot load the test plans. Please try again";
+                });
         		
         		
 //        		$scope.profileMessages = response.profiles;
@@ -164,7 +180,26 @@ angular.module('upload')
         	}
         };
         
+        
+        $scope.selectTP = function() {
+
+            if ($scope.existingTP.selected !== null && $scope.existingTP.selected !== ""){
+            	$scope.testcase.name = $scope.existingTP.selected.name;
+            	$scope.testcase.description = $scope.existingTP.selected.description;
+            	$scope.testcase.groupId = $scope.existingTP.selected.id;
+            }else{
+            	$scope.testcase.name = "";
+            	$scope.testcase.description = "";
+            	$scope.testcase.groupId = null;
+            }
+          };
        
+          $scope.clearTestGroupForm = function(){
+        	$scope.testcase.name = "";
+          	$scope.testcase.description = "";
+          	$scope.testcase.groupId = null;
+          	$scope.existingTP.selected = undefined;
+          };
         
         profileUploader.onAfterAddingAll = function(fileItem) {
         	if (profileUploader.queue.length > 1)
@@ -230,7 +265,7 @@ angular.module('upload')
 
         $scope.addSelectedTestCases = function(){
         	$scope.loading = true;
-        	$http.post('api/upload/addProfiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token}).then(function (result) {  		
+        	$http.post('api/upload/addProfiles', {groupId: $scope.testcase.groupId, testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token}).then(function (result) {  		
         		
         		if (result.data.status === "SUCCESS"){
                 	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});

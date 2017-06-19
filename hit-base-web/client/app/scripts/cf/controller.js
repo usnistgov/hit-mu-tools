@@ -228,6 +228,7 @@ angular.module('cf')
         var modalInstance = $modal.open({
             templateUrl: 'views/upload/upload.html',
             controller: 'UploadCtrl',
+            controllerAs: 'ctrl',
             windowClass: 'upload-modal',
             backdrop  : 'static',
             keyboard  : false
@@ -255,6 +256,7 @@ angular.module('cf')
 
         modalService.showModal({}, modalOptions).then(function (result) {
         	$http.post('api/upload/deleteProfile',{id: profile.id}).then(function (result) {  	
+        		StorageService.remove(StorageService.CF_LOADED_TESTCASE_ID_KEY);
         		$scope.initTesting();     
         		CF.testCase = null;
         	}, function (error) {
