@@ -657,8 +657,8 @@ angular.module('cb')
               $scope.logger.log("Listener started.");
               var execute = function () {
                 var remaining = parseInt($scope.counterMax) - parseInt($scope.counter);
-                if( remaining % 60 === 0) {
-                  $scope.logger.log("Waiting for Inbound Message....Remaining time:" + (remaining/60) + "mn");
+                if( remaining % 20 === 0) {
+                  $scope.logger.log("Waiting for Inbound Message....Remaining time:" + (remaining) + "s");
                 }
                 ++$scope.counter;
 
