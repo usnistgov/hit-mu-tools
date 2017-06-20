@@ -1172,6 +1172,7 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
       configs: {},
       transactions: [],
       logs: {},
+      timeout: StorageService.get(StorageService.TRANSPORT_TIMEOUT) != null && StorageService.get(StorageService.TRANSPORT_TIMEOUT) != undefined ? StorageService.get(StorageService.TRANSPORT_TIMEOUT) : 120,
       disabled: StorageService.get(StorageService.TRANSPORT_DISABLED) != null ? StorageService.get(StorageService.TRANSPORT_DISABLED) : true,
 
       /**
@@ -1180,6 +1181,14 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
        */
       setDisabled: function (disabled) {
         this.disabled = disabled;
+      },
+      setTimeout: function (timeout) {
+        this.timeout = timeout;
+        StorageService.set(StorageService.TRANSPORT_TIMEOUT, timeout)
+      },
+
+      getTimeout: function () {
+        return this.timeout;
       },
 
       getAllConfigForms: function () {
