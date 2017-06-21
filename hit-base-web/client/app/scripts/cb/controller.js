@@ -519,7 +519,10 @@ angular.module('cb')
                 $scope.completeStep($scope.testStep);
                 var rspMessage = parseResponse(received);
                 $scope.logger.log(received);
-                $scope.setNextStepMessage(rspMessage);
+                var nextStep = $scope.findNextStep($scope.testStep.position);
+                if (nextStep != null && nextStep.testingType === 'SUT_RESPONDER') {
+                  $scope.setNextStepMessage(rspMessage);
+                }
               } catch (error) {
                 $scope.error = errors[0];
                 $scope.logger.log("An error occured: " + $scope.error);
@@ -691,8 +694,13 @@ angular.module('cb')
                       try {
                         var sentMessage = parseResponse(outbound);
                         $scope.log(sentMessage);
-                        $scope.setNextStepMessage(sentMessage);
-                      } catch (error) {
+
+                        var nextStep = $scope.findNextStep($scope.testStep.position);
+                        if (nextStep != null && nextStep.testingType === 'TA_RESPONDER') {
+                          $scope.setNextStepMessage(sentMessage);
+                        }
+
+                       } catch (error) {
                         $scope.error = errors[3];
                         $scope.logger.log("Incorrect outgoing message type");
                       }
