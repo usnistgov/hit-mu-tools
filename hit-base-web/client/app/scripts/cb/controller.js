@@ -352,7 +352,7 @@ angular.module('cb')
     };
 
     $scope.executeTestStep = function (testStep) {
-      //TestExecutionService.initTestStep(testStep).then(function (report) {
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = false;
       TestExecutionService.setTestStepValidationReport(testStep, null);
       CB.testStep = testStep;
       $scope.warning = null;
@@ -855,6 +855,25 @@ angular.module('cb')
         CB.editor.instance.setOption("readOnly", !disabled);
       }
     };
+
+    $scope.editTestStepComment = function (testStep) {
+      if(!$scope.testExecutionService.testStepComments[testStep.id]) {
+        $scope.testExecutionService.testStepComments[testStep.id] = '';
+      }
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = true;
+    };
+
+    $scope.deleteTestStepComment = function (testStep) {
+      $scope.testExecutionService.testStepComments[testStep.id] = null;
+      $scope.saveTestStepComment(testStep);
+    };
+
+    $scope.saveTestStepComment = function (testStep) {
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = false;
+      $scope.updateTestStepValidationReport(testStep);
+    };
+
+
 
   }]);
 
