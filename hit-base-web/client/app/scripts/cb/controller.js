@@ -352,7 +352,7 @@ angular.module('cb')
     };
 
     $scope.executeTestStep = function (testStep) {
-      //TestExecutionService.initTestStep(testStep).then(function (report) {
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = false;
       TestExecutionService.setTestStepValidationReport(testStep, null);
       CB.testStep = testStep;
       $scope.warning = null;
@@ -519,7 +519,10 @@ angular.module('cb')
                 $scope.completeStep($scope.testStep);
                 var rspMessage = parseResponse(received);
                 $scope.logger.log(received);
-                $scope.setNextStepMessage(rspMessage);
+                var nextStep = $scope.findNextStep($scope.testStep.position);
+                if (nextStep != null && nextStep.testingType === 'SUT_RESPONDER') {
+                  $scope.setNextStepMessage(rspMessage);
+                }
               } catch (error) {
                 $scope.error = errors[0];
                 $scope.logger.log("An error occured: " + $scope.error);
@@ -691,8 +694,13 @@ angular.module('cb')
                       try {
                         var sentMessage = parseResponse(outbound);
                         $scope.log(sentMessage);
-                        $scope.setNextStepMessage(sentMessage);
-                      } catch (error) {
+
+                        var nextStep = $scope.findNextStep($scope.testStep.position);
+                        if (nextStep != null && nextStep.testingType === 'TA_RESPONDER') {
+                          $scope.setNextStepMessage(sentMessage);
+                        }
+
+                       } catch (error) {
                         $scope.error = errors[3];
                         $scope.logger.log("Incorrect outgoing message type");
                       }
@@ -847,6 +855,25 @@ angular.module('cb')
         CB.editor.instance.setOption("readOnly", !disabled);
       }
     };
+
+    $scope.editTestStepComment = function (testStep) {
+      if(!$scope.testExecutionService.testStepComments[testStep.id]) {
+        $scope.testExecutionService.testStepComments[testStep.id] = '';
+      }
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = true;
+    };
+
+    $scope.deleteTestStepComment = function (testStep) {
+      $scope.testExecutionService.testStepComments[testStep.id] = null;
+      $scope.saveTestStepComment(testStep);
+    };
+
+    $scope.saveTestStepComment = function (testStep) {
+      $scope.testExecutionService.testStepCommentsChanged[testStep.id] = false;
+      $scope.updateTestStepValidationReport(testStep);
+    };
+
+
 
   }]);
 
