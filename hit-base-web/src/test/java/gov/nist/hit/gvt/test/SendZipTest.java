@@ -33,8 +33,20 @@ public class SendZipTest {
 	    assertNotNull(map.get("token"));
 	    System.out.println(map.get("token"));
 		System.out.println("http://localhost:8080/gvt/#/uploadTokens?x="+map.get("token")+"&y=bmljbzpUb3RvNjY2");
-	
 		
+	  }
+	
+	@Test
+	  public void testSendZipToHitDev() {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("igamtZip.zip").getFile());
+	
+	    ResponseEntity<?> response = send(file, "https://hit-dev.nist.gov:8099/gvt/api/upload/uploadZip", "bmljbzpUb3RvNjY2");
+	    Map<String, Object> map = (Map<String, Object>) response.getBody();
+	    assertNotNull(map);
+	    assertNotNull(map.get("token"));
+	    System.out.println(map.get("token"));
+		System.out.println("http://hit-dev.nist.gov:8099/gvt/#/uploadTokens?x="+map.get("token")+"&y=bmljbzpUb3RvNjY2");
 	  }
 	
 	

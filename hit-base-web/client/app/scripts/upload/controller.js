@@ -20,6 +20,14 @@ angular.module('upload')
 	    
 		$scope.profileCheckToggleStatus = true;
 
+		var tcLoader = new CFTestPlanListLoader('USER');
+        tcLoader.then(function (testPlans) {
+          $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
+        }, function (error) {
+          $scope.error = "Sorry, Cannot load the test plans. Please try again";
+        });
+		
+		
         var profileUploader = $scope.profileUploader = new FileUploader({
             url: 'api/upload/uploadProfile',
             filters: [{
@@ -108,13 +116,7 @@ angular.module('upload')
         		$scope.profileMessages = response.profiles;
         		$scope.profileCheckToggle();
         	}      	
-        	
-        	var tcLoader = new CFTestPlanListLoader('USER');
-            tcLoader.then(function (testPlans) {
-              $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
-            }, function (error) {
-              $scope.error = "Sorry, Cannot load the test plans. Please try again";
-            });
+        
         };
         
         profileUploader.onBeforeUploadItem = function(fileItem) {
@@ -167,12 +169,7 @@ angular.module('upload')
       		          }
       		      );	
         		
-        		var tcLoader = new CFTestPlanListLoader('USER');
-                tcLoader.then(function (testPlans) {
-                  $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
-                }, function (error) {
-                  $scope.error = "Sorry, Cannot load the test plans. Please try again";
-                });
+        		
         		
         		
 //        		$scope.profileMessages = response.profiles;
@@ -287,6 +284,9 @@ angular.module('upload')
         		profileUploader.clearQueue();
             	vsUploader.clearQueue();
             	constraintsUploader.clearQueue();	
+            	$scope.profileValidationErrors = [];
+        	    $scope.valueSetValidationErrors = [];
+        	    $scope.constraintValidationErrors = [];
                 Notification.success({message: "Profiles cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             }, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
@@ -327,20 +327,33 @@ angular.module('upload')
 
 
 
-angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location','$modalInstance', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location,$modalInstance) {
+angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location','$modalInstance','CFTestPlanListLoader', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location,$modalInstance,CFTestPlanListLoader) {
 	$scope.testcase = {};
+	$scope.existingTP = {};
 	  
     $scope.profileValidationErrors = [];
     $scope.valueSetValidationErrors = [];
     $scope.constraintValidationErrors = [];
     
-    $scope.profileCheckToggleStatus = true;
+    $scope.existingTestPlans = null;
+    
+	$scope.profileCheckToggleStatus = true;
+
+	var tcLoader = new CFTestPlanListLoader('USER');
+    tcLoader.then(function (testPlans) {
+      $scope.existingTestPlans = $filter('orderBy')(testPlans, 'position');
+    }, function (error) {
+      $scope.error = "Sorry, Cannot load the test plans. Please try again";
+    });
     
 	$scope.token = $routeParams.x;	
 	
 	$scope.dismissModal = function(){
     	$modalInstance.dismiss();
     }
+	
+	
+	
 	
 	if ($scope.token !== undefined){
 
@@ -376,7 +389,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 	
 	$scope.addSelectedTestCases = function(){
     	$scope.loading = true;
-    	$http.post('api/upload/addProfiles', {testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
+    	$http.post('api/upload/addProfiles', {groupId: $scope.testcase.groupId, testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
     		if (result.data.status === "SUCCESS"){
             	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             	$modalInstance.close();
@@ -390,6 +403,27 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
         });
     }
 	
+	
+	$scope.selectTP = function() {
+
+        if ($scope.existingTP.selected !== null && $scope.existingTP.selected !== ""){
+        	$scope.testcase.name = $scope.existingTP.selected.name;
+        	$scope.testcase.description = $scope.existingTP.selected.description;
+        	$scope.testcase.groupId = $scope.existingTP.selected.id;
+        }else{
+        	$scope.testcase.name = "";
+        	$scope.testcase.description = "";
+        	$scope.testcase.groupId = null;
+        }
+      };
+   
+      $scope.clearTestGroupForm = function(){
+    	$scope.testcase.name = "";
+      	$scope.testcase.description = "";
+      	$scope.testcase.groupId = null;
+      	$scope.existingTP.selected = undefined;
+      };
+	
 	$scope.profileCheckToggle = function () {
     	$scope.profileMessages.forEach(function(p) {
     	    p.activated = $scope.profileCheckToggleStatus;
@@ -402,7 +436,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 
 }]);
 
-angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestCaseListLoader','CFUserTestCaseListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestCaseListLoader, CFUserTestCaseListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
+angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService','userInfoService','Notification','modalService','$routeParams','$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService,userInfoService, Notification,modalService,$routeParams,$location) {
 	$scope.testcase = {};
 	  
     $scope.profileValidationErrors = [];

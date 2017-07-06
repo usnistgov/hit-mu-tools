@@ -2,7 +2,7 @@
 
 
 angular.module('cf')
-  .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestPlanListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'CFTestPlanLoader','Notification','modalService', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestPlanListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService,CFTestPlanLoader,Notification,modalService) {
+  .controller('CFTestingCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', 'CFTestPlanListLoader', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'CFTestPlanLoader','Notification','modalService','$routeParams','$location','$modalStack', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, CFTestPlanListLoader, $timeout, StorageService, TestCaseService, TestStepService,userInfoService,CFTestPlanLoader,Notification,modalService,$routeParams,$location,$modalStack) {
 
     $scope.cf = CF;
     $scope.loading = false;
@@ -19,7 +19,9 @@ angular.module('cf')
     $scope.testPlanScopes = [{key: 'USER', name: 'My Profiles'}, {key: 'GLOBAL', name: 'Global Profiles'}];
 
     var testCaseService = new TestCaseService();
-
+    
+    $scope.token = $routeParams.x;	
+    
     $scope.setActiveTab = function (value) {
       $scope.tabs[0] = false;
       $scope.tabs[1] = false;
@@ -225,6 +227,7 @@ angular.module('cf')
     });
 
     $scope.openUploadModal = function () {
+		$modalStack.dismissAll('close');
         var modalInstance = $modal.open({
             templateUrl: 'views/upload/upload.html',
             controller: 'UploadCtrl',
@@ -241,6 +244,28 @@ angular.module('cf')
                 },
                 function(result) {
                 	
+                }
+            );
+    };
+    
+    
+    $scope.openUploadFromRemotedModal = function (){
+		$modalStack.dismissAll('close');
+    	var modalInstance = $modal.open({
+            templateUrl: 'views/upload/uploadFromRemote.html',
+            controller: 'UploadTokenCtrl',
+            windowClass: 'upload-modal',
+            backdrop  : 'static',
+            keyboard  : false
+            
+        });
+        
+    	modalInstance.result.then(
+                function(result) {
+                	$location.url("/cf");                
+                },
+                function(result) {
+                	$location.url("/cf");  
                 }
             );
     };
@@ -266,7 +291,15 @@ angular.module('cf')
         });        	
     	
     };
-
+    
+    if ($scope.token !== undefined && $location.path() === '/addprofiles'){
+    	if (!userInfoService.isAuthenticated()) {
+    		$scope.$emit('event:loginRequiredWithRedirect',$location.url());
+    		
+    	}else{
+    		$scope.openUploadFromRemotedModal();
+    	}  	
+    }
 
   }]);
 

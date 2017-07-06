@@ -294,7 +294,7 @@
           	  <div class="panel-body" >
           	  	<form name="tsForm">
           	  	<div class="row">
-          	 		<div class="form-group" ng-if="existingTestPlans != null && existingTestPlans.length > 0">
+          	 		<div class="form-group" ng-show="existingTestPlans != null && existingTestPlans.length > 0">
           	 		<div class="col-md-12">
 			          <label class="control-label" for="UploadTPSelect">Profile Group <small>(Select or create Profile Group)</small></label>
 		                <div class="input-group" style="width:500px">
@@ -378,7 +378,7 @@
 						Save
 	                </button>
 	                <button type="button" class="btn btn-warning btn-s" ng-click="clearTestCases()" ng-show="profileMessages.length">
-						Cancel
+						Clear Upload
 	                </button>
                 </div>
                 </form>
