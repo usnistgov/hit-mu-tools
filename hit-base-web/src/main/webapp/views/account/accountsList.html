@@ -58,14 +58,15 @@
                           <span ng-show="!row.username">Guest</span>
                           <span ng-show="row.username">{{::row.fullName}}</span>
                         </td>
-                        <td st-ratio="10">
-                          <span ng-show="!row.username">N/A</span>
-                          <span ng-show="row.username">{{::row.email}}</span>
 
-                        </td>
                       <td st-ratio="10">
                         <span ng-show="!row.username">N/A</span>
                         <span ng-show="row.username">{{::row.username}}</span>
+                      </td>
+                      <td st-ratio="10">
+                        <span ng-show="!row.username">N/A</span>
+                        <span ng-show="row.username">{{::row.email}}</span>
+
                       </td>
                         <!--<td ng-bind="row.phone" st-ratio="10"></td>-->
                         <td st-ratio="10">

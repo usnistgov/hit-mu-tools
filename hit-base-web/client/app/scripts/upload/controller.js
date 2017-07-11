@@ -287,6 +287,7 @@ angular.module('upload')
             	$scope.profileValidationErrors = [];
         	    $scope.valueSetValidationErrors = [];
         	    $scope.constraintValidationErrors = [];
+        	    $scope.existingTP.selected = undefined;
                 Notification.success({message: "Profiles cleared!", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
             }, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
