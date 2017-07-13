@@ -91,6 +91,7 @@ angular.module('cf')
               var previousTpId = StorageService.get(StorageService.CF_SELECTED_TESTPLAN_ID_KEY);
               targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
             }
+            console.log("target id " + targetId);
             $scope.selectedTP.id = targetId.toString();
             $scope.selectTP();
           } else {
@@ -240,7 +241,15 @@ angular.module('cf')
         
         modalInstance.result.then(
                 function(result) {
-                	 $scope.initTesting();                    
+                	$scope.selectedScope.key = $scope.testPlanScopes[0].key; // User          
+                	if (result.testPlanId){
+                		$scope.selectedTP.id =result.testPlanId ;
+                		StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, result.testPlanId);
+                		$scope.selectedTP.id = result.testPlanId;
+                        $scope.selectTP();
+                	}
+                	$scope.selectScope();
+                	
                 },
                 function(result) {
                 	
@@ -261,12 +270,21 @@ angular.module('cf')
         });
         
     	modalInstance.result.then(
-                function(result) {
-                	$location.url("/cf");                
+    			function(result) {
+    				$location.url("/cf");
+                	$scope.selectedScope.key = $scope.testPlanScopes[0].key; // User          
+                	if (result.testPlanId){
+                		$scope.selectedTP.id =result.testPlanId ;
+                		StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, result.testPlanId);
+                		$scope.selectedTP.id = result.testPlanId;
+                        $scope.selectTP();
+                	}
+                	$scope.selectScope();
+                	
                 },
                 function(result) {
-                	$location.url("/cf");  
-                }
+                	$location.url("/cf");
+                }               
             );
     };
     
@@ -281,8 +299,14 @@ angular.module('cf')
 
         modalService.showModal({}, modalOptions).then(function (result) {
         	$http.post('api/upload/deleteProfile',{id: profile.id}).then(function (result) {  	
-        		StorageService.remove(StorageService.CF_LOADED_TESTCASE_ID_KEY);
-        		$scope.initTesting();     
+        		if (result.data){
+        			StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, "");
+        		}else{
+ 
+        		}
+        		$scope.selectScope();
+        		
+        		
         		CF.testCase = null;
         	}, function (error) {
             	Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});

@@ -266,7 +266,7 @@ angular.module('upload')
         		
         		if (result.data.status === "SUCCESS"){
                 	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
-                	$modalInstance.close();
+                	$modalInstance.close({testPlanId: result.data.testPlanId});
                 }else{
                     Notification.error({message: result.data.message +'<br><br>Debug message:<br>'+result.data.debugError, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 20000});
                 }	
@@ -393,7 +393,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
     	$http.post('api/upload/addProfiles', {groupId: $scope.testcase.groupId, testcasename: $scope.testcase.name,testcasedescription: $scope.testcase.description, testcases:$scope.getSelectedTestcases(), token: $scope.token }).then(function (result) {  		
     		if (result.data.status === "SUCCESS"){
             	Notification.success({message: "Test Cases saved !", templateUrl: "NotificationSuccessTemplate.html", scope: $rootScope, delay: 5000});
-            	$modalInstance.close();
+            	$modalInstance.close({testPlanId: result.data.testPlanId});
             }else{
                 Notification.error({message: result.data.message, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 10000});
             }
