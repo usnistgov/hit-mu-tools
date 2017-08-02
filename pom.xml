@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.edos-r2</groupId>
 	<artifactId>edos-r2</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>edos-r2</name>
 	<description>Electronic Directory of Service tool</description>
 	<packaging>pom</packaging>
@@ -59,7 +59,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</connection>
 		<developerConnection>scm:git:https://github.com/usnistgov/hit-mu-tools.git</developerConnection>
-	  	<tag>edos-r2-1.1.0</tag>
+	  	<tag>HEAD</tag>
   	</scm>
 	<distributionManagement>
 		<repository>
