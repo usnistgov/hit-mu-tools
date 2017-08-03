@@ -311,7 +311,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     AppInfo.get().then(function (appInfo) {
         $rootScope.appInfo = appInfo;
-        $rootScope.apiLink = $window.location.protocol + "//" + $window.location.host + getContextPath() + $rootScope.appInfo.apiDocsPath;
+        $rootScope.apiLink = $rootScope.appInfo.url + $rootScope.appInfo.apiDocsPath;
         httpHeaders.common['rsbVersion'] = appInfo.rsbVersion;
         var previousToken = StorageService.get(StorageService.APP_STATE_TOKEN);
         if (previousToken != null && previousToken !== appInfo.rsbVersion) {
@@ -442,11 +442,11 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
             httpHeaders.common['Authorization'] = null;
             $http.get('api/accounts/cuser').then(function (result) {
                 if (result.data && result.data != null) {
-                    var rs = angular.fromJson(result.data);
-                     initUser(rs);
-                    $rootScope.$broadcast('event:loginConfirmed');
+                  var rs = angular.fromJson(result.data);
+                   userInfoService.setCurrentUser(rs);
+                   $rootScope.$broadcast('event:loginConfirmed');
                 } else {
-                    userInfoService.setCurrentUser(null);
+                  userInfoService.setCurrentUser(null);
                 }
             }, function () {
                 userInfoService.setCurrentUser(null);
@@ -553,7 +553,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
         console.log("currentUser=" + angular.toJson(currentUser));
-        if(currentUser !== null && currentUser.id != null && currentUser.id != undefined) {
+        if(currentUser !== null && currentUser.accountId != null && currentUser.accountId != undefined) {
             initUser(currentUser);
         }else{
             $rootScope.createGuestIfNotExist();
