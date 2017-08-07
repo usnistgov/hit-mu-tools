@@ -209,29 +209,28 @@
           $scope.checkboxConfig['affirmatives'] = {};
           $scope.checkboxConfig['informationals'] = {};
 
-          // console.log("Validation ran");
-          // if(validationResult.errors && validationResult.errors.categories) {
-          //     angular.forEach(validationResult.errors.categories, function (category) {
+          // if($scope.validationResult.errors && $scope.validationResult.errors.categories) {
+          //     angular.forEach($scope.validationResult.errors.categories, function (category) {
           //         $scope.checkboxConfig['errors'][category.title] = false;
           //     });
           // }
-          // if(validationResult.alerts&& validationResult.alerts.categories) {
-          //     angular.forEach(validationResult.alerts.categories, function (category) {
+          // if($scope.validationResult.alerts&& $scope.validationResult.alerts.categories) {
+          //     angular.forEach($scope.validationResult.alerts.categories, function (category) {
           //         $scope.checkboxConfig['alerts'][category.title] = false;
           //     });
           // }
-          // if(validationResult.warnings&& validationResult.warnings.categories) {
-          //     angular.forEach(validationResult.warnings.categories, function (category) {
+          // if($scope.validationResult.warnings&& $scope.validationResult.warnings.categories) {
+          //     angular.forEach($scope.validationResult.warnings.categories, function (category) {
           //         $scope.checkboxConfig['warnings'][category.title] = false;
           //     });
           // }
-          // if(validationResult.affirmatives&& validationResult.affirmatives.categories) {
-          //     angular.forEach(validationResult.affirmatives.categories, function (category) {
+          // if($scope.validationResult.affirmatives&& $scope.validationResult.affirmatives.categories) {
+          //     angular.forEach($scope.validationResult.affirmatives.categories, function (category) {
           //         $scope.checkboxConfig['affirmatives'][category.title] = false;
           //     });
           // }
-          // if(validationResult.informationals && validationResult.informationals.categories) {
-          //     angular.forEach(validationResult.informationals.categories, function (category) {
+          // if($scope.validationResult.informationals && $scope.validationResult.informationals.categories) {
+          //     angular.forEach($scope.validationResult.informationals.categories, function (category) {
           //         $scope.checkboxConfig['informationals'][category.title] = false;
           //     });
           // }
@@ -450,6 +449,7 @@
       this.json = null;
       this.duplicatesRemoved = false;
       this.counter = 0;
+      this.timeStamp  = new Date().getTime();
     };
 
     var Entry = function () {
@@ -488,7 +488,7 @@
     };
 
     NewValidationResult.prototype.generateId = function () {
-      return this.counter++;
+      return this.timeStamp + this.counter++;
     };
 
 
