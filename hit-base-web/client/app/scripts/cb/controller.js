@@ -48,7 +48,7 @@ angular.module('cb')
     $scope.sent = null;
     $scope.received = null;
     $scope.configCollapsed = true;
-     $scope.counterMax = $scope.transport.getTimeout();
+    $scope.counterMax = $scope.transport.getTimeout();
     $scope.counter = 0;
     $scope.listenerReady = false;
     $scope.testStepListCollapsed = false;
@@ -75,11 +75,11 @@ angular.module('cb')
     ];
 
     var parseRequest = function (incoming) {
-       return incoming;
+      return incoming;
     };
 
     var parseResponse = function (outbound) {
-       return outbound;
+      return outbound;
     };
 
 
@@ -587,7 +587,7 @@ angular.module('cb')
         templateUrl: 'CurrentTestStepConsole.html',
         controller: 'CurrentTestStepConsoleCtrl',
         windowClass: 'console-modal',
-        size: 'sm',
+        size: 'lg',
         animation: true,
         keyboard: true,
         backdrop: true,
@@ -637,6 +637,7 @@ angular.module('cb')
       $scope.stopListener();
     };
 
+
     $scope.setTimeout = function (value) {
       $scope.transport.setTimeout(value);
       $scope.counterMax = value;
@@ -664,7 +665,6 @@ angular.module('cb')
                   $scope.logger.log("Waiting for Inbound Message....Remaining time:" + (remaining) + "s");
                 }
                 ++$scope.counter;
-
                 var sutInitiator = null;
                 try {
                   sutInitiator = $scope.transport.configs[$scope.domain][$scope.protocol].data.sutInitiator;
@@ -694,13 +694,11 @@ angular.module('cb')
                       try {
                         var sentMessage = parseResponse(outbound);
                         $scope.log(sentMessage);
-
                         var nextStep = $scope.findNextStep($scope.testStep.position);
                         if (nextStep != null && nextStep.testingType === 'TA_RESPONDER') {
                           $scope.setNextStepMessage(sentMessage);
                         }
-
-                       } catch (error) {
+                      } catch (error) {
                         $scope.error = errors[3];
                         $scope.logger.log("Incorrect outgoing message type");
                       }
@@ -872,6 +870,7 @@ angular.module('cb')
       $scope.testExecutionService.testStepCommentsChanged[testStep.id] = false;
       $scope.updateTestStepValidationReport(testStep);
     };
+
 
 
 
@@ -1237,9 +1236,8 @@ angular.module('cb')
         $timeout(function () {
           var coordinate = ServiceDelegator.getCursorService($scope.testStep.testContext.format).getCoordinate($scope.editor, $scope.cb.tree);
           if (coordinate && coordinate != null) {
-            coordinate.lineNumber = coordinate.line;
-            coordinate.startIndex = coordinate.startIndex + 1;
-            coordinate.endIndex = coordinate.endIndex + 1;
+            coordinate.start.index = coordinate.start.index + 1;
+            coordinate.end.index = coordinate.end.index + 1;
             $scope.cb.cursor.init(coordinate, true);
             ServiceDelegator.getTreeService($scope.testStep.testContext.format).selectNodeByIndex($scope.cb.tree.root, CB.cursor, CB.message.content);
           }
