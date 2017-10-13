@@ -356,8 +356,8 @@
               that.treeService.getEndIndex(node, content);
               var startLine = parseInt(node.data.start && node.data.start != null ? node.data.start.line : failure.line) - 1;
               var endLine = parseInt(node.data.end && node.data.end != null ? node.data.end.line : failure.line) - 1;
-              var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : node.data.startIndex) - 1;
-              var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : node.data.endIndex) - 1;
+              var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : - 1);
+              var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : - 1);
               var markText = editor.instance.doc.markText({
                 line: startLine,
                 ch: startIndex
@@ -409,8 +409,8 @@
                 that.treeService.getEndIndex(node, content);
                 var startLine = parseInt(node.data.start && node.data.start != null ? node.data.start.line : failure.line) - 1;
                 var endLine = parseInt(node.data.end && node.data.end != null ? node.data.end.line : failure.line) - 1;
-                var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : node.data.startIndex) - 1;
-                var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : node.data.endIndex) - 1;
+                var startIndex = parseInt(node.data.start.index) - 1;
+                var endIndex = parseInt(node.data.end.index)  - 1;
                 var markText = editor.instance.doc.markText({
                   line: startLine,
                   ch: startIndex
@@ -580,11 +580,14 @@
     NewValidationResult.prototype.processJson = function (json) {
       if(json && json != null && json != "null") {
         this.json = angular.fromJson(json);
-        this.loadDetection(this.json.detections['Error']);
-        this.loadDetection(this.json.detections['Alert']);
-        this.loadDetection(this.json.detections['Warning']);
-        this.loadDetection(this.json.detections['Informational']);
-        this.loadDetection(this.json.detections['Affirmative']);
+        console.log(this.json);
+        if(this.json.detections) {
+          this.loadDetection(this.json.detections['Error']);
+          this.loadDetection(this.json.detections['Alert']);
+          this.loadDetection(this.json.detections['Warning']);
+          this.loadDetection(this.json.detections['Informational']);
+          this.loadDetection(this.json.detections['Affirmative']);
+        }
       }else{
         this.json = null;
       }
