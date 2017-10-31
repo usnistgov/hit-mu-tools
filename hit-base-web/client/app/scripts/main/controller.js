@@ -159,7 +159,22 @@ angular.module('main').controller('MainCtrl',
                 $rootScope.$emit('event:execLogout');
                 $rootScope.timedout = $modal.open({
                     templateUrl: 'timedout-dialog.html',
-                    windowClass: 'modal-danger'
+                    windowClass: 'modal-danger',
+                    backdrop: true,
+                    keyboard: 'false',
+                    controller: 'FailureCtrl',
+                    resolve: {
+                        error: function () {
+                            return "";
+                        }
+                    }
+                });
+                $rootScope.timedout.result.then(function () {
+                    $rootScope.clearTemplate();
+                    $rootScope.reloadPage();
+                }, function () {
+                    $rootScope.clearTemplate();
+                    $rootScope.reloadPage();
                 });
             } else {
                 StorageService.clearAll();

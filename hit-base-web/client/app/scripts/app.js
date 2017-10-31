@@ -442,11 +442,11 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
             httpHeaders.common['Authorization'] = null;
             $http.get('api/accounts/cuser').then(function (result) {
                 if (result.data && result.data != null) {
-                    var rs = angular.fromJson(result.data);
-                     initUser(rs);
-                    $rootScope.$broadcast('event:loginConfirmed');
+                  var rs = angular.fromJson(result.data);
+                   userInfoService.setCurrentUser(rs);
+                   $rootScope.$broadcast('event:loginConfirmed');
                 } else {
-                    userInfoService.setCurrentUser(null);
+                  userInfoService.setCurrentUser(null);
                 }
             }, function () {
                 userInfoService.setCurrentUser(null);
