@@ -13,7 +13,7 @@ angular.module('format').factory('CursorService',
      * @param editor
      */
     CursorService.prototype.getCoordinate = function (editor) {
-      angular.fromJson({line: -1, startIndex: -1, endIndex: -1, index: -1, triggerTree: {}});
+       return angular.fromJson({start: {line : -1, index: -1}, end: {line: -1, index: -1}, triggerTree: {}});
     };
 
     /**
@@ -27,7 +27,7 @@ angular.module('format').factory('CursorService',
      */
     CursorService.prototype.createCoordinate = function (line, startIndex, endIndex, index, triggerTree) {
       try {
-        return angular.fromJson({line: -1, startIndex: -1, endIndex: -1, index: -1, triggerTree: {}});
+        return angular.fromJson({start: {line : line, index: startIndex}, end: {line: line, index: endIndex}, triggerTree: triggerTree});
       } catch (e) {
       }
     };
@@ -463,7 +463,7 @@ angular.module('format').factory('TestStepService', function ($filter, $q, $http
 
   TestStepService.clearRecords = function (id) {
     var delay = $q.defer();
-    $http.post('api/testStepValidationReport/' + id + '/clearRecords').then(
+    $http.post('api/tsReport/' + id + '/delete').then(
       function (object) {
         delay.resolve(angular.fromJson(object.data));
       },
@@ -485,7 +485,7 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
   TestCaseService.clearRecords = function (id) {
     var delay = $q.defer();
     if (id != null && id != undefined) {
-      $http.post('api/testCaseValidationReport/' + id + '/clearRecords').then(
+      $http.post('api/tcReport/' + id + '/delete').then(
         function (object) {
           delay.resolve(angular.fromJson(object.data));
         },
@@ -637,17 +637,27 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
 
 
   TestCaseService.prototype.buildCFTestCases = function (obj) {
-    obj.label = !obj.children ? obj.position + "." + obj.name : obj.name;
+    obj.label = !obj.children && !obj.testCases ? obj.position + "." + obj.name : obj.name;
     obj['nav'] = {};
     obj['nav']['testStep'] = obj.name;
     obj['nav']['testCase'] = null;
     obj['nav']['testPlan'] = null;
     obj['nav']['testGroup'] = null;
-
     if (obj.children) {
       var that = this;
       obj.children = $filter('orderBy')(obj.children, 'position');
       angular.forEach(obj.children, function (child) {
+        child['nav'] = {};
+        child['nav']['testStep'] = child.name;
+        child['nav']['testCase'] = obj.name;
+        child['nav']['testPlan'] = obj['nav'].testPlan;
+        child['nav']['testGroup'] = null;
+        that.buildCFTestCases(child);
+      });
+    }else if (obj.testCases) {
+      var that = this;
+      obj.testCases = $filter('orderBy')(obj.testCases, 'position');
+      angular.forEach(obj.testCases, function (child) {
         child['nav'] = {};
         child['nav']['testStep'] = child.name;
         child['nav']['testCase'] = obj.name;
@@ -1172,6 +1182,7 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
       configs: {},
       transactions: [],
       logs: {},
+      timeout: StorageService.get(StorageService.TRANSPORT_TIMEOUT) != null && StorageService.get(StorageService.TRANSPORT_TIMEOUT) != undefined ? StorageService.get(StorageService.TRANSPORT_TIMEOUT) : 120,
       disabled: StorageService.get(StorageService.TRANSPORT_DISABLED) != null ? StorageService.get(StorageService.TRANSPORT_DISABLED) : true,
 
       /**
@@ -1182,7 +1193,18 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
         this.disabled = disabled;
       },
 
-      getAllConfigForms: function () {
+
+  setTimeout: function (timeout) {
+    this.timeout = timeout;
+    StorageService.set(StorageService.TRANSPORT_TIMEOUT, timeout)
+  },
+
+  getTimeout: function () {
+    return this.timeout;
+  },
+
+
+  getAllConfigForms: function () {
         var delay = $q.defer();
         $http.get('api/transport/config/forms').then(
           function (response) {
@@ -1720,7 +1742,7 @@ angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, 
 
 
 angular.module('format').factory('TestExecutionService',
-  ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService) {
+  ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', 'TestStepService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService,TestStepService) {
 
     var TestExecutionService = {
       resultOptions: [
@@ -1745,7 +1767,10 @@ angular.module('format').factory('TestExecutionService',
       testStepValidationReports: StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {},
       testStepExecutionMessages: StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {},
       testStepMessageTrees: StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {},
-      testStepValidationReportObjects: StorageService.get("testStepValidationReportObjects") != null ? angular.fromJson(StorageService.get("testStepValidationReportObjects")) : {}
+      testStepCommentsChanged: {},
+      testStepCommentsChanges: {},
+      testCaseCommentsChanged: {},
+      testCaseCommentsChanges: {}
     };
 
 
@@ -1759,11 +1784,15 @@ angular.module('format').factory('TestExecutionService',
       TestExecutionService.testStepValidationReports = StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {};
       TestExecutionService.testStepExecutionMessages = StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {};
       TestExecutionService.testStepMessageTrees = StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {};
-      TestExecutionService.testStepValidationReportObjects = StorageService.get("testStepValidationReportObjects") != null ? angular.fromJson(StorageService.get("testStepValidationReportObjects")) : {};
 
     };
 
     TestExecutionService.clear = function (testCaseId) {
+      TestExecutionService.clearAll();
+      return TestCaseService.clearRecords(testCaseId);
+    };
+
+    TestExecutionService.clearAll = function () {
       StorageService.remove("testStepValidationResults");
       StorageService.remove("testStepExecutionStatuses");
       StorageService.remove("testCaseExecutionStatuses");
@@ -1773,7 +1802,6 @@ angular.module('format').factory('TestExecutionService',
       StorageService.remove("testStepValidationReports");
       StorageService.remove("testStepExecutionMessages");
       StorageService.remove("testStepMessageTrees");
-      StorageService.remove("testStepValidationReportObjects");
       TestExecutionService.testStepValidationResults = {};
       TestExecutionService.testStepExecutionStatuses = {};
       TestExecutionService.testCaseExecutionStatuses = {};
@@ -1784,32 +1812,28 @@ angular.module('format').factory('TestExecutionService',
       TestExecutionService.testStepExecutionMessages = {};
       TestExecutionService.testStepMessageTrees = {};
       TestExecutionService.testStepValidationReportObjects = {};
+      TestExecutionService.testStepCommentsChanged = {};
+      TestExecutionService.testStepCommentsChanges = {};
+      TestExecutionService.testCaseCommentsChanged = {};
+      TestExecutionService.testCaseCommentsChanges = {};
+     };
+
+
+    TestExecutionService.clearTestCase = function (testCaseId) {
+      TestExecutionService.clearAll();
       return TestCaseService.clearRecords(testCaseId);
     };
 
+    TestExecutionService.clearTestStep = function (testCaseId) {
+      TestExecutionService.clearAll();
+      return TestStepService.clearRecords(testCaseId);
+    };
+
+
 
     TestExecutionService.initTestStep = function (testStep) {
-//            delete TestExecutionService.testStepComments[testStep.id];
-//            delete TestExecutionService.testStepValidationResults[testStep.id];
-//            delete TestExecutionService.testStepExecutionStatuses[testStep.id];
-//            delete TestExecutionService.testStepValidationReports[testStep.id];
-//            delete TestExecutionService.testStepMessageTrees[testStep.id];
-//            delete TestExecutionService.testStepExecutionMessages[testStep.id];
-//            delete TestExecutionService.testStepValidationReportObjects[testStep.id];
-      return ReportService.initTestStepValidationReport(testStep.id);
     };
 
-
-    TestExecutionService.setTestStepValidationReportObject = function (step, value) {
-      if (step != null) {
-        TestExecutionService.testStepValidationReportObjects[step.id] = angular.toJson(value);
-        StorageService.set("testStepValidationReportObjects", angular.toJson(TestExecutionService.testStepValidationReportObjects));
-      }
-    };
-
-    TestExecutionService.getTestStepValidationReportObject = function (step) {
-      return step != null && TestExecutionService.testStepValidationReportObjects[step.id] ? angular.fromJson(TestExecutionService.testStepValidationReportObjects[step.id]) : undefined;
-    };
 
 
     TestExecutionService.getTestStepExecutionStatus = function (step) {
@@ -1885,6 +1909,7 @@ angular.module('format').factory('TestExecutionService',
     TestExecutionService.setTestStepValidationResult = function (step, value) {
       TestExecutionService.testStepValidationResults[step.id] = value;
       StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+
       return TestExecutionService.updateTestStepValidationReport(step);
     };
 
@@ -1974,8 +1999,8 @@ angular.module('format').factory('TestExecutionService',
       return step != null ? TestExecutionService.testStepValidationReports[step.id] : undefined;
     };
 
-    TestExecutionService.setTestStepValidationReport = function (step, value) {
-      TestExecutionService.testStepValidationReports[step.id] = value;
+    TestExecutionService.setTestStepValidationReport = function (step, id) {
+      TestExecutionService.testStepValidationReports[step.id] = id;
       StorageService.set("testStepValidationReports", angular.toJson(TestExecutionService.testStepValidationReports));
     };
 
@@ -2029,9 +2054,9 @@ angular.module('format').factory('TestExecutionService',
       result = result != undefined ? result : null;
       var comments = TestExecutionService.getTestStepComments(testStep);
       comments = comments != undefined ? comments : null;
-      var report = TestExecutionService.getTestStepValidationReport(testStep);
-      var xmlMessageOrManualValidation = report != null ? report.xml : null;
-      return ReportService.updateTestStepValidationReport(xmlMessageOrManualValidation, testStep.id, result, comments);
+      // var report = TestExecutionService.getTestStepValidationReport(testStep);
+      var vResult =  TestExecutionService.getTestStepValidationReport(testStep);
+      return ReportService.updateTestStepValidationReport(vResult && vResult != null ? vResult.reportId : null, testStep.id, result, comments);
     };
 
 //        TestExecutionService.updateTestStepValidationReport = function (testStep) {
