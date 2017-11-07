@@ -249,6 +249,7 @@ angular.module('cf')
                 		$scope.selectedTP.id =result.testPlanId ;
                 		StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, result.testPlanId);
                 		$scope.selectedTP.id = result.testPlanId;
+                        $scope.selectedScope.key = result.scope ? result.scope:  $scope.testPlanScopes[0].key;
                         $scope.selectTP();
                 	}
                 	$scope.selectScope();
@@ -275,10 +276,11 @@ angular.module('cf')
     	modalInstance.result.then(
     			function(result) {
     				$location.url("/cf");
-                	$scope.selectedScope.key = $scope.testPlanScopes[0].key; // User          
+                	$scope.selectedScope.key = $scope.testPlanScopes[0].key; // User
                 	if (result.testPlanId){
                 		$scope.selectedTP.id =result.testPlanId ;
-                		StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, result.testPlanId);
+                        $scope.selectedScope.key = result.scope ? result.scope:  $scope.testPlanScopes[0].key;
+                        StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, result.testPlanId);
                 		$scope.selectedTP.id = result.testPlanId;
                         $scope.selectTP();
                 	}

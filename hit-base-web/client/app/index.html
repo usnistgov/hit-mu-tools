@@ -68,7 +68,9 @@
     <script type="text/javascript">
         if (self === top) {
             var antiClickjack = document.getElementById("antiClickjack");
-            antiClickjack.parentNode.removeChild(antiClickjack);
+            if(antiClickjack && antiClickjack != null) {
+                antiClickjack.parentNode.removeChild(antiClickjack);
+            }
         } else {
             top.location = self.location;
         }

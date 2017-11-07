@@ -168,7 +168,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="form-group" ng-if="selectedScope.key != null">
+                            <div class="form-group" ng-if="selectedScope.key != null && existingTestPlans.length > 0">
                                 <label class="control-label" for="selectedTP">Profile Group:</label>
                                 <select class="form-control input-sm test-plan-select" style="width:500px;background-color: white;"
                                         name="selectedTP" id="selectedTP"
@@ -176,9 +176,7 @@
                                         ng-model="selectedTP.id">
                                     <option value="">---- Select Profile Group ----</option>
                                     <option ng-repeat="tp in existingTestPlans" ng-selected="tp.id == selectedTP.id" value="{{tp.id}}">
-                                        <div class="bold"
-                                             ng-bind-html="tp.name"></div>
-                                        <small ng-bind-html="tp.description"></small>
+                                         {{::tp.name}}
                                     </option>
                                 </select>
                             </div>
@@ -188,51 +186,24 @@
 
                         </form>
                          <form name="tsForm" style="margin:0; padding:0; ">
-                         <!---->
-                            <!--<div class="row">-->
-                                <!--<div class="form-group"-->
-                                     <!--ng-if="existingTestPlans != null && existingTestPlans.length > 0">-->
-                                    <!--<div class="col-md-12">-->
-                                        <!--<label class="control-label" for="UploadTPSelect">Profile Group-->
-                                            <!--<small>(Select or create Profile Group)</small>-->
-                                        <!--</label>-->
-                                        <!--<div class="input-group" style="width:500px">-->
-                                            <!--<ui-select name="UploadTPSelect" allow-clear ng-model="existingTP.selected"-->
-                                                       <!--ng-change="selectTP()" theme="bootstrap">-->
-                                                <!--<ui-select-match placeholder="Select a Profile Group">-->
-                                                    <!--{{$select.selected.name}}-->
-                                                <!--</ui-select-match>-->
-                                                <!--<ui-select-choices-->
-                                                        <!--repeat="item in existingTestPlans | filter: $select.search">-->
-                                                    <!--<div class="bold"-->
-                                                         <!--ng-bind-html="item.name | highlight: $select.search"></div>-->
-                                                    <!--<small ng-bind-html="item.description | highlight: $select.search"></small>-->
-                                                <!--</ui-select-choices>-->
-                                            <!--</ui-select>-->
-                                            <!--<span class="input-group-btn">-->
-				              <!--<button type="button" ng-click="clearTestGroupForm();" class="btn btn-default btn-info">-->
-				                <!--<span class="fa fa-plus red"></span> Create New Group-->
-				              <!--</button>-->
-				            <!--</span>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</div>-->
-
                             <div class="row" style="margin-top:10px">
                                 <div class="col-md-6">
 
 
                                     <div class="panel panel-info">
                                         <div class="panel-heading">Profile Group</div>
-                                        <div class="panel-body" ng-show="testcase != null">
-
+                                        <div class="panel-body" >
+                                            <div ng-show="testcase == null">
+                                                No Group Selected
+                                            </div>
+                                            <div ng-show="testcase != null">
 
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="testcasename">Name: <span class="red"
                                                                                   title="required field">*</span></label>
                                             <input id="testcasename" required name="name" ng-model="testcase.name"
+                                                   ng-disabled="testcase.groupId != null"
                                                    class="input-sm form-control ng-pristine ng-valid ng-empty ng-touched"><br>
                                         </div>
                                     </div>
@@ -242,12 +213,15 @@
                                             <label for="testcasedescription">Description: <span class="red"
                                                                                                 title="required field">*</span></label>
                                             <textarea id="testcasedescription" required name="description"
+                                                      style="resize: vertical;"
                                                       ng-model="testcase.description"
+                                                      ng-disabled="testcase.groupId != null"
                                                       class="form-control ng-pristine ng-valid ng-empty ng-touched"></textarea><br>
                                         </div>
 
                                     </div>
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
 
