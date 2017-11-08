@@ -14,9 +14,9 @@ angular.module('upload')
         $scope.selectedTP = {id: null};
         $scope.selectedScope = {key: 'USER'};
         $scope.groupScopes = [];
-        $scope.allGroupScopes = [{key: 'USER', name: 'My Profile Groups'}, {
+        $scope.allGroupScopes = [{key: 'USER', name: 'Private'}, {
             key: 'GLOBAL',
-            name: 'My Global Profile Groups'
+            name: 'Public'
         }];
 
 
@@ -473,9 +473,9 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
     $scope.selectedTP = {id: null};
     $scope.selectedScope = {key: 'USER'};
     $scope.groupScopes = [];
-    $scope.allGroupScopes = [{key: 'USER', name: 'My Profile Groups'}, {
+    $scope.allGroupScopes = [{key: 'USER', name: 'Private'}, {
         key: 'GLOBAL',
-        name: 'My Global Profile Groups'
+        name: 'Public'
     }];
 
 

@@ -27,7 +27,7 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="stylesheet" href="styles/d30f17e1.vendor.css">
     <!-- For project CSS files -->
-    <link rel="stylesheet" href="styles/50f1c82a.main.css">
+    <link rel="stylesheet" href="styles/b0c95bcf.main.css">
 
     <!-- Custom styles for this template -->
     <link href="styles/613d0d64.carousel.css" rel="stylesheet">
@@ -59,7 +59,9 @@
     <script type="text/javascript">
         if (self === top) {
             var antiClickjack = document.getElementById("antiClickjack");
-            antiClickjack.parentNode.removeChild(antiClickjack);
+            if(antiClickjack && antiClickjack != null) {
+                antiClickjack.parentNode.removeChild(antiClickjack);
+            }
         } else {
             top.location = self.location;
         }
@@ -85,7 +87,7 @@
 
     <div ng-include="'views/footer.html'"></div>
 
-    <script src="scripts/ad0392b5.vendor.js"></script>
+    <script src="scripts/3e50dc76.vendor.js"></script>
 
      <script src="lib/i18n/jquery.i18n.properties-1.0.9.js"></script>
       <script src="lib/vkbeautify/vkbeautify.js"></script>
@@ -113,7 +115,7 @@
     <script src="lib/base-libs/edi.js"></script>
     <script src="lib/base-libs/soap.js"></script>
     <script src="lib/settings/settings.js"></script>
-    <script src="scripts/c0bc300b.scripts.js"></script>
+    <script src="scripts/a9370b7c.scripts.js"></script>
 
     <div ng-include="'views/error.html'"></div>
     <div ng-include="'views/templates.html'"></div>
