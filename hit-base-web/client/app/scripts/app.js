@@ -49,7 +49,11 @@ var app = angular.module('hit-app', [
     'main',
     'hit-manual-report-viewer',
      'ociFixedHeader',
-    'ngFileUpload'
+    'ngFileUpload',
+  'ui.tree',
+  'ui.select',
+  'hit-edit-testcase-details',
+  'angularFileUpload'
 
 ]);
 
@@ -66,7 +70,7 @@ var httpHeaders,
 
 //the message to be shown to the user
 var msg = {};
-app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider) {
+app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider,$provide) {
 
 
     localStorageServiceProvider
@@ -121,6 +125,13 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         }).when('/registrationSubmitted', {
             templateUrl: 'views/account/registrationSubmitted.html'
         })
+      .when('/uploadTokens', {
+        templateUrl: 'views/home.html',
+        controller: 'UploadTokenCheckCtrl'
+      })
+      .when('/addprofiles', {
+        redirectTo: '/cf'
+      })
         .otherwise({
             redirectTo: '/'
         });
@@ -141,6 +152,27 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         maxCount:1
     });
     httpHeaders = $httpProvider.defaults.headers;
+
+
+  // //file upload file over bug fix
+  // $provide.decorator('nvFileOverDirective', ['$delegate', function ($delegate) {
+  //   var directive = $delegate[0],
+  //     link = directive.link;
+  //
+  //   directive.compile = function () {
+  //     return function (scope, element, attrs) {
+  //       var overClass = attrs.overClass || 'nv-file-over';
+  //       link.apply(this, arguments);
+  //       element.on('dragleave', function () {
+  //         element.removeClass(overClass);
+  //       });
+  //     };
+  //   };
+  //
+  //   return $delegate;
+  // }]);
+
+
 
 });
 
