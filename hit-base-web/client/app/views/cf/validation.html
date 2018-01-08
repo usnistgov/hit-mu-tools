@@ -82,12 +82,12 @@
 
 
             </span>
-                            <span class="row  pull-right">
-                                <!--<button title="Validate" type="button" class="btn btn-xs btn-info" ng-show="cf.testCase.testContext.dqa === true"-->
-                                        <!--ng-click="showDQAOptions()">-->
-                                    <!--<i class="fa fa-cog"></i>-->
-                                    <!--DQA-->
-                                <!--</button>-->
+                            <span class="row pull-right">
+                                <button title="Validate" type="button" class="btn btn-xs btn-info" ng-show="cf.testCase.testContext.dqa === true"
+                                        ng-click="showDQAOptions()">
+                                    <i class="fa fa-cog"></i>
+                                    DQA
+                                </button>
 
                                 <button title="Validate" type="button" class="btn btn-xs btn-success"
                                         ng-click="execute()">
@@ -110,11 +110,18 @@
                                     <i class="fa fa-arrow-circle-down"></i>Load Example
                                 </button>
 
-                                                      <button class="btn btn-xs btn-info" type="file" name="file" id="file" ng-disabled="disabled" ngf-select="uploadMessage($file, $invalidFiles)"
-                                                              ngf-accept="appInfo.uploadContentTypes"
-                                                              ngf-pattern="appInfo.uploadContentTypes" ngf-max-size="appInfo.uploadMaxSize">
-                                                          <i class="fa fa-folder-open"></i>Browse</button>
 
+                                <!--<span title="Browse" class="btn btn-xs btn-info fileinput-button"
+                                      ng-class="{disabled: disabled}">
+                        <i class="fa fa-folder-open"></i>Browse
+                        <span></span>
+                        <input type="file" name="file" id="file" multiple="false" ng-disabled="disabled">
+                         </span>-->
+
+                           <button class="btn btn-xs btn-info" type="file" name="file" id="file" ng-disabled="disabled" ngf-select="uploadMessage($file, $invalidFiles)"
+                                   ngf-accept="appInfo.uploadContentTypes"
+            ngf-pattern="appInfo.uploadContentTypes" ngf-max-size="appInfo.uploadMaxSize">
+      <i class="fa fa-folder-open"></i>Browse</button>
 
                                 <button title="Download" type="button" class="btn btn-xs btn-info"
                                         ng-disabled="!hasContent()"

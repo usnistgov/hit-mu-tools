@@ -3,12 +3,11 @@ angular.module('common', ['ngResource', 'default', 'xml', 'hl7v2-edi', 'hl7v2', 
 angular.module('main', ['common']);
 angular.module('account', ['common']);
 angular.module('cf', ['common']);
-angular.module('cb', ['common']);
 angular.module('doc', ['common']);
+angular.module('cb', ['common']);
 angular.module('hit-tool-directives', []);
 angular.module('hit-tool-services', ['common']);
 angular.module('documentation', []);
-angular.module('upload', ['common']);
 var app = angular.module('hit-app', [
     'ngRoute',
     'ui.bootstrap',
@@ -49,11 +48,12 @@ var app = angular.module('hit-app', [
     'account',
     'main',
     'hit-manual-report-viewer',
-    'ociFixedHeader',
-    'upload',
-    'angularFileUpload',
+     'ociFixedHeader',
     'ngFileUpload',
-    'ui.select'
+  'ui.tree',
+  'ui.select',
+  'hit-edit-testcase-details',
+  'angularFileUpload'
 
 ]);
 
@@ -70,10 +70,6 @@ var httpHeaders,
 
 //the message to be shown to the user
 var msg = {};
-
-
-
-
 app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,KeepaliveProvider, IdleProvider,NotificationProvider,$provide) {
 
 
@@ -98,23 +94,11 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
             templateUrl: 'views/about.html'
         })
         .when('/cf', {
-            templateUrl: 'views/cf/cf.html',
-            controller: 'CFTestingCtrl'
+            templateUrl: 'views/cf/cf.html'
         })
         .when('/cb', {
             templateUrl: 'views/cb/cb.html'
         })
-        .when('/uploadTokens', {
-            templateUrl: 'views/home.html',
-            controller: 'UploadTokenCheckCtrl'
-        })
-        .when('/addprofiles', {
-            templateUrl: 'views/home.html',
-            controller: 'CFTestingCtrl'
-        })
-//        .when('/upload', {
-//            templateUrl: 'views/upload/upload.html'
-//        })
         .when('/error', {
             templateUrl: 'error.html'
         })
@@ -141,6 +125,13 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         }).when('/registrationSubmitted', {
             templateUrl: 'views/account/registrationSubmitted.html'
         })
+      .when('/uploadTokens', {
+        templateUrl: 'views/home.html',
+        controller: 'UploadTokenCheckCtrl'
+      })
+      .when('/addprofiles', {
+        redirectTo: '/cf'
+      })
         .otherwise({
             redirectTo: '/'
         });
@@ -162,24 +153,27 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     });
     httpHeaders = $httpProvider.defaults.headers;
 
-    
-    //file upload file over bug fix
-    $provide.decorator('nvFileOverDirective',['$delegate', function ($delegate) {
-        var directive = $delegate[0],
-            link = directive.link;
 
-        directive.compile = function () {
-            return function (scope, element, attrs) {
-                var overClass = attrs.overClass || 'nv-file-over';
-                link.apply(this, arguments);
-                element.on('dragleave', function () {
-                    element.removeClass(overClass);
-                });
-            };
-        };
+  // //file upload file over bug fix
+  // $provide.decorator('nvFileOverDirective', ['$delegate', function ($delegate) {
+  //   var directive = $delegate[0],
+  //     link = directive.link;
+  //
+  //   directive.compile = function () {
+  //     return function (scope, element, attrs) {
+  //       var overClass = attrs.overClass || 'nv-file-over';
+  //       link.apply(this, arguments);
+  //       element.on('dragleave', function () {
+  //         element.removeClass(overClass);
+  //       });
+  //     };
+  //   };
+  //
+  //   return $delegate;
+  // }]);
 
-        return $delegate;
-    }]);
+
+
 });
 
 
@@ -187,7 +181,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 app.factory('interceptor1', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
-//        console.log("interceptor1");
+        console.log("interceptor1");
         if (response.status === 440) {
             response.data = "Session timeout";
             $rootScope.openSessionExpiredDlg();
@@ -256,7 +250,7 @@ app.factory('interceptor3', function ($q, $rootScope, $location, StorageService,
 
 app.factory('interceptor4', function ($q, $rootScope, $location, StorageService, $window) {
     var setMessage = function (response) {
-//        console.log("interceptor4");
+        console.log("interceptor4");
         //if the response has a text and a type property, it is a message to be shown
         if (response.data && response.data.text && response.data.type) {
             if (response.status === 401) {
@@ -277,7 +271,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
                     manualHandle: true
                 };
             } else {
-//                console.log(response.status);
+                console.log(response.status);
                 msg = {
                     text: response.data.text,
                     type: response.data.type,
@@ -426,10 +420,10 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.createGuestIfNotExist = function(){
-//        console.log("creating guest user");
+        console.log("creating guest user");
         User.createGuestIfNotExist().then(function (guest) {
             initUser(guest);
-//            console.log("guest user created");
+            console.log("guest user created");
 
         }, function (error) {
             $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
@@ -445,11 +439,6 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 //            console.log("in loginRequired event");
         $rootScope.showLoginDialog();
     });
-    
-    $rootScope.$on('event:loginRequiredWithRedirect', function (event,path) {
-    	$rootScope.showLoginDialog(path);
-    });
-    
 
     /**
      * On 'event:loginConfirmed', resend all the 401 requests.
@@ -491,64 +480,6 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
                 } else {
                   userInfoService.setCurrentUser(null);
                 }
-            }, function () {
-                userInfoService.setCurrentUser(null);
-            });
-        });
-    });
-    
-    
-    /**
-     * On 'event:loginRequest' send credentials to the server.
-     */
-    $rootScope.$on('event:loginRequestWithAuth', function (event, auth,path) {
-    	httpHeaders.common['Accept'] = 'application/json';
-        httpHeaders.common['Authorization'] = 'Basic ' + auth;
-        console.log("logging in...");
-        $http.get('api/accounts/login').success(function () {
-        	console.log("logging success...");
-            httpHeaders.common['Authorization'] = null;
-            $http.get('api/accounts/cuser').then(function (result) {
-                if (result.data && result.data != null) {
-                    var rs = angular.fromJson(result.data);         
-                    initUser(rs);
-                    $rootScope.$broadcast('event:loginConfirmed');
-                    console.log("redirect after login");
-                    $location.url(path);
-                } else {
-                    userInfoService.setCurrentUser(null);
-                }
-            }, function () {
-                userInfoService.setCurrentUser(null);
-            });
-        });
-    });
-    
-    
-    
-    /*jshint sub: true */
-    /**
-     * On 'event:loginRequest' send credentials to the server.
-     */
-    $rootScope.$on('event:loginRedirectRequest', function (event, username, password,path) {
-        httpHeaders.common['Accept'] = 'application/json';
-        httpHeaders.common['Authorization'] = 'Basic ' + base64.encode(username + ':' + password);
-//        httpHeaders.common['withCredentials']=true;
-//        httpHeaders.common['Origin']="http://localhost:9000";
-        $http.get('api/accounts/login').success(function () {
-            //If we are here in this callback, login was successfull
-            //Let's get user info now
-            httpHeaders.common['Authorization'] = null;
-            $http.get('api/accounts/cuser').then(function (result) {
-                if (result.data && result.data != null) {
-                    var rs = angular.fromJson(result.data);
-                     initUser(rs);
-                    $rootScope.$broadcast('event:loginConfirmed');
-                } else {
-                    userInfoService.setCurrentUser(null);
-                }
-                //redirect
-            	$location.url(path);
             }, function () {
                 userInfoService.setCurrentUser(null);
             });
@@ -653,7 +584,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
-//        console.log("currentUser=" + angular.toJson(currentUser));
+        console.log("currentUser=" + angular.toJson(currentUser));
         if(currentUser !== null && currentUser.accountId != null && currentUser.accountId != undefined) {
             initUser(currentUser);
         }else{
