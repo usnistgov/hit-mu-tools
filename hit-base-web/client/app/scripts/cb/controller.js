@@ -1655,7 +1655,13 @@ angular.module('cb')
     $scope.testCase = CB.testCase;
     $scope.selectedTP = {id: null};
     $scope.selectedScope = {key: null};
-    $scope.testPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+    $scope.testPlanScopes = [];
+    $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {
+      key: 'GLOBAL',
+      name: 'Public'
+    }];
+
+
     $scope.testCases = [];
     $scope.testPlans = [];
     $scope.tree = {};
@@ -1672,16 +1678,25 @@ angular.module('cb')
     $scope.initTestCase = function () {
       $scope.error = null;
       $scope.loading = true;
-      $scope.testPlans = null;
-      if (!userInfoService.isAuthenticated()) {
-        $scope.selectedScope.key = $scope.testPlanScopes[1].key; // GLOBAL
+      $scope.testCases = null;
+      if (userInfoService.isAdmin() || userInfoService.isSupervisor()) {
+        $scope.testPlanScopes = $scope.allTestPlanScopes;
+      } else {
+        $scope.testPlanScopes = [$scope.allTestPlanScopes[0]];
       }
-      else {
-        var tmp = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY);
-        $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
-      }
+      $scope.selectedScope.key = $scope.testPlanScopes[0].key;
       $scope.selectScope();
     };
+
+
+    $rootScope.$on('event:logoutConfirmed', function () {
+      $scope.initTestCase();
+    });
+
+    $rootScope.$on('event:loginConfirmed', function () {
+      $scope.initTestCase();
+    });
+
 
     var findTPByPersistenceId = function (persistentId, testPlans) {
       for (var i = 0; i < testPlans.length; i++) {
