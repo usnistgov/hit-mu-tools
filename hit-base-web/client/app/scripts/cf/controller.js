@@ -773,13 +773,13 @@ angular.module('cf')
     };
 
 
-    $scope.syncNewProfilesPositions = function (item) {
-      $scope.tmpNewMessages = $scope.sortAndFilters(item, $scope.tmpNewMessages);
-    };
-
-    $scope.syncOldProfilesPositions = function (item) {
-      $scope.tmpOldMessages = $scope.sortAndFilters(item, $scope.tmpOldMessages);
-    };
+    // $scope.syncNewProfilesPositions = function (item) {
+    //   $scope.tmpNewMessages = $scope.sortAndFilters(item, $scope.tmpNewMessages);
+    // };
+    //
+    // $scope.syncOldProfilesPositions = function (item) {
+    //   $scope.tmpOldMessages = $scope.sortAndFilters(item, $scope.tmpOldMessages);
+    // };
 
 
     $scope.$on('event:cf:manage', function (event, targetScope) {
