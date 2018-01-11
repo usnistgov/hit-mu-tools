@@ -741,24 +741,24 @@ angular.module('cf')
     //   return array;
     // };
 
-    $scope.sortAndFilters = function (item, array) {
-      var old_index = array.indexOf(item);
-      var newPosition = item.position;
-      var new_index = newPosition - 1;
-
-      if (new_index >= array.length) {
-        var k = new_index - array.length;
-        while ((k--) + 1) {
-          array.push(undefined);
-        }
-      }
-      array.splice(new_index, 0, array.splice(old_index, 1)[0]);
-      for (var index = 0; index < array.length; index++) {
-        array[index].position = index + 1;
-      }
-
-      return array;
-    };
+    // $scope.sortAndFilters = function (item, array) {
+    //   var old_index = array.indexOf(item);
+    //   var newPosition = item.position;
+    //   var new_index = newPosition - 1;
+    //
+    //   if (new_index >= array.length) {
+    //     var k = new_index - array.length;
+    //     while ((k--) + 1) {
+    //       array.push(undefined);
+    //     }
+    //   }
+    //   array.splice(new_index, 0, array.splice(old_index, 1)[0]);
+    //   for (var index = 0; index < array.length; index++) {
+    //     array[index].position = index + 1;
+    //   }
+    //
+    //   return array;
+    // };
 
     $scope.filterMessages = function (array) {
       array = _.reject(array, function (item) {
@@ -885,8 +885,7 @@ angular.module('cf')
      */
     $scope.loadOldProfileMessages = function (groupId) {
       CFTestPlanManager.getProfiles(groupId).then(function (profiles) {
-
-        $scope.oldProfileMessages = profiles;
+        $scope.oldProfileMessages = $filter('orderBy')(profiles, 'position');
         $scope.tmpOldMessages = $scope.filterMessages($scope.oldProfileMessages);
         $scope.originalOldProfileMessages = angular.copy($scope.oldProfileMessages);
       }, function (error) {
@@ -1598,6 +1597,8 @@ angular.module('cf')
               var profile = result.profiles[i];
               $scope.profileMessages.push(profile);
             }
+
+
             $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
           }
         },
