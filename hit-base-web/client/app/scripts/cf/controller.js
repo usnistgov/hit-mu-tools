@@ -761,13 +761,15 @@ angular.module('cf')
     // };
 
     $scope.filterMessages = function (array) {
+      for (var index = 0; index < array.length; index++) {
+        array[index].position = parseInt(array[index].position);
+      }
+
       array = _.reject(array, function (item) {
         return item.removed == true;
       });
       // array = $filter('orderBy')(array, 'position');
-      // for (var index = 0; index < array.length; index++) {
-      //   array[index].position = index + 1;
-      // }
+
       array = $filter('orderBy')(array, 'position');
       return array;
     };
