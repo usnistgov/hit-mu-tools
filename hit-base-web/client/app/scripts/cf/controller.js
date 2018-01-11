@@ -764,10 +764,10 @@ angular.module('cf')
       array = _.reject(array, function (item) {
         return item.removed == true;
       });
-      array = $filter('orderBy')(array, 'position');
-      for (var index = 0; index < array.length; index++) {
-        array[index].position = index + 1;
-      }
+      // array = $filter('orderBy')(array, 'position');
+      // for (var index = 0; index < array.length; index++) {
+      //   array[index].position = index + 1;
+      // }
       array = $filter('orderBy')(array, 'position');
       return array;
     };
