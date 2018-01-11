@@ -716,16 +716,16 @@ angular.module('cf')
       return array;
     };
 
-    Array.prototype.move = function (old_index, new_index) {
-      if (new_index >= this.length) {
-        var k = new_index - this.length;
-        while ((k--) + 1) {
-          this.push(undefined);
-        }
-      }
-      this.splice(new_index, 0, this.splice(old_index, 1)[0]);
-      return this; // for testing purposes
-    };
+    // Array.prototype.move = function (old_index, new_index) {
+    //   if (new_index >= this.length) {
+    //     var k = new_index - this.length;
+    //     while ((k--) + 1) {
+    //       this.push(undefined);
+    //     }
+    //   }
+    //   this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    //   return this; // for testing purposes
+    // };
 
 
     // $scope.setPositions = function(array){
@@ -761,9 +761,9 @@ angular.module('cf')
     // };
 
     $scope.filterMessages = function (array) {
-      for (var index = 0; index < array.length; index++) {
-        array[index].position = parseInt(array[index].position);
-      }
+      // for (var index = 0; index < array.length; index++) {
+      //   array[index].position = parseInt(array[index].position);
+      // }
 
       array = _.reject(array, function (item) {
         return item.removed == true;
