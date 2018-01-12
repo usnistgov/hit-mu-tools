@@ -131,11 +131,10 @@ angular.module('hit-tool-directives').directive('selectMin', function () {
     },
     link: function ($scope, $element, $attrs, ngModelController) {
       ngModelController.$validators.min = function (value) {
-        if (value && value != null) {
+        if (value) {
           return value >= $scope.ngMin;
-        }else {
-          return false;
         }
+        return true;
       };
     }
   };
