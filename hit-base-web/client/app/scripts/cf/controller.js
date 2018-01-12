@@ -1783,7 +1783,6 @@ angular.module('cf')
         $scope.profileValidationErrors = angular.fromJson(response.errors);
       } else {
         $scope.profileMessages = response.profiles;
-        $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
 
       }
 
@@ -1868,8 +1867,6 @@ angular.module('cf')
               }
             } else {
               $scope.profileMessages = response.profiles;
-              $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
-
               $scope.addSelectedTestCases();
             }
           },
