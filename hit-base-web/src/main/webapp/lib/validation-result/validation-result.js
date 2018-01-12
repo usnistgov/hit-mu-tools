@@ -38,7 +38,7 @@
   ]);
 
   mod
-    .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'NewValidationResult', '$timeout', 'ServiceDelegator', 'Settings', 'TestExecutionService', 'StorageService', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, NewValidationResult, $timeout, ServiceDelegator, Settings, TestExecutionService,StorageService) {
+    .controller('ValidationResultCtrl', ['$scope', '$filter', '$modal', '$rootScope', 'ValidationResultHighlighter', '$sce', 'NewValidationResult', '$timeout', 'ServiceDelegator', 'Settings', 'TestExecutionService', function ($scope, $filter, $modal, $rootScope, ValidationResultHighlighter, $sce, NewValidationResult, $timeout, ServiceDelegator, Settings, TestExecutionService) {
       $scope.validationTabs = new Array();
       $scope.currentType = null;
       $scope.settings = Settings;
@@ -189,16 +189,6 @@
         }
       });
 
-      var getTestStepMessageValidationResultDesc = function (resultObj) {
-        var result = -1;
-        try {
-          result = resultObj.errors.categories[0].data.length;
-        } catch (errr) {
-
-        }
-        return result > 0 ? 'FAILED' : result === 0 ? 'PASSED' : undefined;
-      };
-
       $scope.processValidationResult = function (mvResult, testStep) {
         $scope.validationResult = mvResult.result;
         if ($scope.validationResult && $scope.validationResult != null) {
@@ -209,28 +199,29 @@
           $scope.checkboxConfig['affirmatives'] = {};
           $scope.checkboxConfig['informationals'] = {};
 
-          // if($scope.validationResult.errors && $scope.validationResult.errors.categories) {
-          //     angular.forEach($scope.validationResult.errors.categories, function (category) {
+          // console.log("Validation ran");
+          // if(validationResult.errors && validationResult.errors.categories) {
+          //     angular.forEach(validationResult.errors.categories, function (category) {
           //         $scope.checkboxConfig['errors'][category.title] = false;
           //     });
           // }
-          // if($scope.validationResult.alerts&& $scope.validationResult.alerts.categories) {
-          //     angular.forEach($scope.validationResult.alerts.categories, function (category) {
+          // if(validationResult.alerts&& validationResult.alerts.categories) {
+          //     angular.forEach(validationResult.alerts.categories, function (category) {
           //         $scope.checkboxConfig['alerts'][category.title] = false;
           //     });
           // }
-          // if($scope.validationResult.warnings&& $scope.validationResult.warnings.categories) {
-          //     angular.forEach($scope.validationResult.warnings.categories, function (category) {
+          // if(validationResult.warnings&& validationResult.warnings.categories) {
+          //     angular.forEach(validationResult.warnings.categories, function (category) {
           //         $scope.checkboxConfig['warnings'][category.title] = false;
           //     });
           // }
-          // if($scope.validationResult.affirmatives&& $scope.validationResult.affirmatives.categories) {
-          //     angular.forEach($scope.validationResult.affirmatives.categories, function (category) {
+          // if(validationResult.affirmatives&& validationResult.affirmatives.categories) {
+          //     angular.forEach(validationResult.affirmatives.categories, function (category) {
           //         $scope.checkboxConfig['affirmatives'][category.title] = false;
           //     });
           // }
-          // if($scope.validationResult.informationals && $scope.validationResult.informationals.categories) {
-          //     angular.forEach($scope.validationResult.informationals.categories, function (category) {
+          // if(validationResult.informationals && validationResult.informationals.categories) {
+          //     angular.forEach(validationResult.informationals.categories, function (category) {
           //         $scope.checkboxConfig['informationals'][category.title] = false;
           //     });
           // }
@@ -247,14 +238,12 @@
           $scope.showValidationTable($scope.validationResult['errors'].categories[0], 'errors');
         }
 
-        if (testStep.testingType != 'TA_RESPONDER' && testStep.testingType !== 'TA_MANUAL' && testStep.testingType !== 'SUT_MANUAL') {
-          var rs = TestExecutionService.getTestStepValidationResult(testStep);
-          if (rs === undefined) { // set default
-             var resString = getTestStepMessageValidationResultDesc($scope.validationResult);
-             TestExecutionService.testStepValidationResults[testStep.id] = resString;
-             StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
-          }
-        }
+        // if (testStep.testingType != 'TA_RESPONDER') {
+        //   var rs = TestExecutionService.getTestStepValidationResult(testStep);
+        //   if (rs === undefined) { // set default
+        //     TestExecutionService.setTestStepValidationResult(testStep, TestExecutionService.getTestStepMessageValidationResultDesc(testStep));
+        //   }
+        // }
 
         $timeout(function () {
           var reportType = $scope.type;
@@ -356,8 +345,8 @@
               that.treeService.getEndIndex(node, content);
               var startLine = parseInt(node.data.start && node.data.start != null ? node.data.start.line : failure.line) - 1;
               var endLine = parseInt(node.data.end && node.data.end != null ? node.data.end.line : failure.line) - 1;
-              var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : - 1);
-              var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : - 1);
+              var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : node.data.startIndex) - 1;
+              var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : node.data.endIndex) - 1;
               var markText = editor.instance.doc.markText({
                 line: startLine,
                 ch: startIndex
@@ -409,8 +398,8 @@
                 that.treeService.getEndIndex(node, content);
                 var startLine = parseInt(node.data.start && node.data.start != null ? node.data.start.line : failure.line) - 1;
                 var endLine = parseInt(node.data.end && node.data.end != null ? node.data.end.line : failure.line) - 1;
-                var startIndex = parseInt(node.data.start.index) - 1;
-                var endIndex = parseInt(node.data.end.index)  - 1;
+                var startIndex = parseInt(node.data.start && node.data.start != null ? node.data.start.index : node.data.startIndex) - 1;
+                var endIndex = parseInt(node.data.end && node.data.end != null ? node.data.end.index : node.data.endIndex) - 1;
                 var markText = editor.instance.doc.markText({
                   line: startLine,
                   ch: startIndex
@@ -449,7 +438,6 @@
       this.json = null;
       this.duplicatesRemoved = false;
       this.counter = 0;
-      this.timeStamp  = new Date().getTime();
     };
 
     var Entry = function () {
@@ -488,7 +476,7 @@
     };
 
     NewValidationResult.prototype.generateId = function () {
-      return this.timeStamp + this.counter++;
+      return this.counter++;
     };
 
 
@@ -578,16 +566,13 @@
     };
 
     NewValidationResult.prototype.processJson = function (json) {
-      if(json && json != null && json != "null") {
+      if(json && json != null) {
         this.json = angular.fromJson(json);
-        console.log(this.json);
-        if(this.json.detections) {
-          this.loadDetection(this.json.detections['Error']);
-          this.loadDetection(this.json.detections['Alert']);
-          this.loadDetection(this.json.detections['Warning']);
-          this.loadDetection(this.json.detections['Informational']);
-          this.loadDetection(this.json.detections['Affirmative']);
-        }
+        this.loadDetection(this.json.detections['Error']);
+        this.loadDetection(this.json.detections['Alert']);
+        this.loadDetection(this.json.detections['Warning']);
+        this.loadDetection(this.json.detections['Informational']);
+        this.loadDetection(this.json.detections['Affirmative']);
       }else{
         this.json = null;
       }

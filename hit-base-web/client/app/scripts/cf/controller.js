@@ -67,7 +67,8 @@ angular.module('cf')
     $scope.collapsed = false;
     $scope.selectedTP = {id: null};
     $scope.selectedScope = {key: null};
-    $scope.testPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+    $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+    $scope.testPlanScopes = [];
 
     var testCaseService = new TestCaseService();
 
@@ -89,14 +90,22 @@ angular.module('cf')
       $scope.loadingTC = false;
       $scope.errorTC = null;
       $scope.testCase = null;
+      $scope.testCases = null;
+      StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, "");
       if ($scope.selectedTP.id && $scope.selectedTP.id !== null && $scope.selectedTP.id !== "") {
         $scope.loadingTC = true;
         CFTestPlanExecutioner.getTestPlan($scope.selectedTP.id).then(function (testPlan) {
-          $scope.testCases = [testPlan];
-          testCaseService.buildCFTestCases(testPlan);
-          $scope.refreshTree();
-          StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, $scope.selectedTP.id);
-          $scope.loadingTC = false;
+          if(testPlan.scope === $scope.selectedScope.key) {
+            $scope.testCases = [testPlan];
+            testCaseService.buildCFTestCases(testPlan);
+            $scope.refreshTree();
+            StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, $scope.selectedTP.id);
+            $scope.loadingTC = false;
+          }else{
+            $scope.testCases = null;
+            StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, "");
+            $scope.loadingTC = false;
+          }
         }, function (error) {
           $scope.loadingTC = false;
           $scope.errorTP = "Sorry, Cannot load the test cases. Please try again";
@@ -118,6 +127,8 @@ angular.module('cf')
       $scope.loading = false;
       $scope.selectedTP.id = "";
       StorageService.set(StorageService.CF_SELECTED_TESTPLAN_SCOPE_KEY, $scope.selectedScope.key);
+      StorageService.set(StorageService.CF_LOADED_TESTCASE_ID_KEY, null);
+
       if ($scope.selectedScope.key && $scope.selectedScope.key !== null && $scope.selectedScope.key !== "") {
         $scope.loading = true;
         CFTestPlanExecutioner.getTestPlans($scope.selectedScope.key).then(function (testPlans) {
@@ -130,15 +141,23 @@ angular.module('cf')
             } else if (userInfoService.isAuthenticated()) {
               var lastTestPlanPersistenceId = userInfoService.getLastTestPlanPersistenceId();
               var tp = findTPByPersistenceId(lastTestPlanPersistenceId, $scope.testPlans);
-              if (tp != null) {
+              if (tp != null && tp.scope === $scope.selectedScope.key) {
                 targetId = tp.id;
               }
             }
             if (targetId == null) {
               var previousTpId = StorageService.get(StorageService.CF_SELECTED_TESTPLAN_ID_KEY);
               targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
+              if (previousTpId != null && previousTpId != undefined && previousTpId != "") {
+                var tp = findTPById(previousTpId, $scope.testPlans);
+                if (tp != null && tp.scope === $scope.selectedScope.key) {
+                  targetId = tp.id;
+                }
+              }
             }
-            $scope.selectedTP.id = targetId.toString();
+            if (targetId != null) {
+              $scope.selectedTP.id = targetId.toString();
+            }
             $scope.selectTP();
           } else {
             $scope.loadingTC = false;
@@ -157,9 +176,23 @@ angular.module('cf')
 
 
     var findTPByPersistenceId = function (persistentId, testPlans) {
-      for (var i = 0; i < testPlans.length; i++) {
-        if (testPlans[i].persistentId === persistentId) {
-          return testPlans[i];
+      if (testPlans != null && testPlans != undefined) {
+        for (var i = 0; i < testPlans.length; i++) {
+          if (testPlans[i].persistentId === persistentId) {
+            return testPlans[i];
+          }
+        }
+      }
+      return null;
+    };
+
+
+    var findTPById = function (id, testPlans) {
+      if (testPlans != null && testPlans != undefined) {
+        for (var i = 0; i < testPlans.length; i++) {
+          if (testPlans[i].id === id) {
+            return testPlans[i];
+          }
         }
       }
       return null;
@@ -221,15 +254,15 @@ angular.module('cf')
     };
 
     $scope.initTesting = function () {
-
-      if (!userInfoService.isAuthenticated()) {
-        $scope.selectedScope.key = $scope.testPlanScopes[1].key; // GLOBAL
-      } else {
+      if (userInfoService.isAuthenticated()) {
+        $scope.testPlanScopes = $scope.allTestPlanScopes;
         var tmp = StorageService.get(StorageService.CF_SELECTED_TESTPLAN_SCOPE_KEY);
         $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
+      } else {
+        $scope.testPlanScopes = [$scope.allTestPlanScopes[1]];
+        $scope.selectedScope.key = $scope.allTestPlanScopes[1].key; // GLOBAL
       }
       $scope.selectScope();
-
     };
 
 
@@ -291,7 +324,6 @@ angular.module('cf')
     $rootScope.$on('event:cf:initExecution', function () {
       $scope.initTesting();
     });
-
 
 
   }]);
@@ -670,7 +702,87 @@ angular.module('cf')
     $scope.constraintValidationErrors = [];
     $scope.existingTestPlans = null;
 
+    $scope.tmpNewMessages = [];
+    $scope.tmpOldMessages = [];
+
+
     $scope.token = $routeParams.x;
+
+    $scope.positions = function (messages) {
+      var array = new Array(messages.length);
+      for (var index = 0; index < array.length; index++) {
+        array[index] = index + 1;
+      }
+      return array;
+    };
+
+    // Array.prototype.move = function (old_index, new_index) {
+    //   if (new_index >= this.length) {
+    //     var k = new_index - this.length;
+    //     while ((k--) + 1) {
+    //       this.push(undefined);
+    //     }
+    //   }
+    //   this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    //   return this; // for testing purposes
+    // };
+
+
+    // $scope.setPositions = function(array){
+    //   if(array != null && array != undefined && array.length > 0) {
+    //     array = $filter('orderBy')(array, 'position');
+    //     array = _.reject(array, function (item) {
+    //       return item.removed == true;
+    //     });
+    //     for (var index = 0; index < array.length; index++) {
+    //       array[index].position = index + 1;
+    //     }
+    //   }
+    //   return array;
+    // };
+
+    // $scope.sortAndFilters = function (item, array) {
+    //   var old_index = array.indexOf(item);
+    //   var newPosition = item.position;
+    //   var new_index = newPosition - 1;
+    //
+    //   if (new_index >= array.length) {
+    //     var k = new_index - array.length;
+    //     while ((k--) + 1) {
+    //       array.push(undefined);
+    //     }
+    //   }
+    //   array.splice(new_index, 0, array.splice(old_index, 1)[0]);
+    //   for (var index = 0; index < array.length; index++) {
+    //     array[index].position = index + 1;
+    //   }
+    //
+    //   return array;
+    // };
+
+    $scope.filterMessages = function (array) {
+      // for (var index = 0; index < array.length; index++) {
+      //   array[index].position = parseInt(array[index].position);
+      // }
+
+      array = _.reject(array, function (item) {
+        return item.removed == true;
+      });
+      // array = $filter('orderBy')(array, 'position');
+
+      array = $filter('orderBy')(array, 'position');
+      return array;
+    };
+
+
+    // $scope.syncNewProfilesPositions = function (item) {
+    //   $scope.tmpNewMessages = $scope.sortAndFilters(item, $scope.tmpNewMessages);
+    // };
+    //
+    // $scope.syncOldProfilesPositions = function (item) {
+    //   $scope.tmpOldMessages = $scope.sortAndFilters(item, $scope.tmpOldMessages);
+    // };
+
 
     $scope.$on('event:cf:manage', function (event, targetScope) {
       $scope.testcase = null;
@@ -733,6 +845,7 @@ angular.module('cf')
                 }
               } else {
                 $scope.profileMessages = response.profiles;
+                $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
                 $scope.originalProfileMessages = angular.copy($scope.profileMessages);
 
               }
@@ -774,7 +887,8 @@ angular.module('cf')
      */
     $scope.loadOldProfileMessages = function (groupId) {
       CFTestPlanManager.getProfiles(groupId).then(function (profiles) {
-        $scope.oldProfileMessages = profiles;
+        $scope.oldProfileMessages = $filter('orderBy')(profiles, 'position');
+        $scope.tmpOldMessages = $scope.filterMessages($scope.oldProfileMessages);
         $scope.originalOldProfileMessages = angular.copy($scope.oldProfileMessages);
       }, function (error) {
         $scope.error = "Sorry, Failed to load the existing profiles. Please try again";
@@ -789,7 +903,7 @@ angular.module('cf')
      */
     $scope.categorize = function (profileGroups) {
       var categoryMap = {};
-      if(profileGroups != null && profileGroups.length > 0) {
+      if (profileGroups != null && profileGroups.length > 0) {
         angular.forEach(profileGroups, function (profileGroup) {
           if (categoryMap[profileGroup.category] == undefined) {
             categoryMap[profileGroup.category] = [];
@@ -808,7 +922,7 @@ angular.module('cf')
      */
     $scope.generateTreeNodes = function (profileGroups) {
       var categoryNodes = [];
-      if(profileGroups != null) {
+      if (profileGroups != null) {
         profileGroups = $filter('orderBy')(profileGroups, 'position');
         var categoryMap = $scope.categorize(profileGroups);
         for (var key in categoryMap) {
@@ -893,7 +1007,7 @@ angular.module('cf')
               $scope.error = "Sorry, Cannot create a delete the profile group. Please try again";
             });
           }
-        }, function(result){
+        }, function (result) {
 
         });
     };
@@ -965,7 +1079,7 @@ angular.module('cf')
       $scope.oldProfileMessages = [];
       $scope.originalOldProfileMessages = angular.copy($scope.oldProfileMessages);
 
-      if(node != null) {
+      if (node != null) {
         $scope.selectedTP.id = node.id;
         $scope.testcase = {};
         $scope.testcase['scope'] = $scope.selectedScope.key;
@@ -1148,7 +1262,8 @@ angular.module('cf')
               node.edit = false;
 
             }, function (error) {
-              $scope.error = "Could not saved the category, please try again"
+              $scope.error = "Could not saved the category, please try again";
+
             });
           } else {
             node.edit = false;
@@ -1170,6 +1285,8 @@ angular.module('cf')
     };
 
     $scope.publishGroup = function () {
+      $scope.error =null;
+      $scope.executionError =null;
       var modalInstance = $modal.open({
         templateUrl: 'views/cf/manage/confirm-publish-group.html',
         controller: 'ConfirmDialogCtrl',
@@ -1181,6 +1298,7 @@ angular.module('cf')
         function (result) {
           if (result) {
             $scope.loading = true;
+            $scope.executionError = null;
             CFTestPlanManager.saveGroup("hl7v2", $scope.testcase.scope, $scope.token, $scope.getUpdatedProfiles(), $scope.getRemovedProfiles(), $scope.getAddedProfiles(), $scope.testcase).then(function (result) {
               if (result.status === "SUCCESS") {
                 $scope.selectedNode['name'] = $scope.testcase['name'];
@@ -1189,18 +1307,23 @@ angular.module('cf')
                 $scope.uploaded = false;
                 $scope.profileMessages = [];
                 $scope.oldProfileMessages = [];
+                $scope.tmpNewMessages = [];
+                $scope.tmpOldMessages = [];
+                $scope.originalOldProfileMessages = [];
+                $scope.originalProfileMessages = [];
+
                 $scope.token = null;
 
                 CFTestPlanManager.publishGroup($scope.testcase.groupId).then(function (result) {
                   if (result.status === "SUCCESS") {
                     var group = $scope.findGroup($scope.selectedNode.id);
-                    if(group != null){
-                      group['id'] =  $scope.selectedNode.id;
-                      group['persistentId'] =  $scope.selectedNode.persistentId;
-                      group['name'] =  $scope.selectedNode.name;
-                      group['description'] =  $scope.selectedNode.description;
-                      group['scope'] =  $scope.selectedNode.scope;
-                      group['category'] =  $scope.selectedNode.category;
+                    if (group != null) {
+                      group['id'] = $scope.selectedNode.id;
+                      group['persistentId'] = $scope.selectedNode.persistentId;
+                      group['name'] = $scope.selectedNode.name;
+                      group['description'] = $scope.selectedNode.description;
+                      group['scope'] = $scope.selectedNode.scope;
+                      group['category'] = $scope.selectedNode.category;
                     }
                     $scope.selectedScope.key = 'GLOBAL';
                     $scope.selectScope();
@@ -1212,40 +1335,51 @@ angular.module('cf')
                       delay: 5000
                     });
                   } else {
-                    Notification.error({
-                      message: result.message,
-                      templateUrl: "NotificationErrorTemplate.html",
-                      scope: $rootScope,
-                      delay: 10000
-                    });
+                    // Notification.error({
+                    //   message: result.message,
+                    //   templateUrl: "NotificationErrorTemplate.html",
+                    //   scope: $rootScope,
+                    //   delay: 10000
+                    // });
+
+                    $scope.executionError = result.message;
+
+
                   }
                   $scope.loading = false;
                 }, function (error) {
                   $scope.loading = false;
-                  Notification.error({
-                    message: error.data,
-                    templateUrl: "NotificationErrorTemplate.html",
-                    scope: $rootScope,
-                    delay: 10000
-                  });
+                  $scope.executionError = error.data;
+                  // Notification.error({
+                  //   message: error.data,
+                  //   templateUrl: "NotificationErrorTemplate.html",
+                  //   scope: $rootScope,
+                  //   delay: 10000
+                  // });
                 });
               } else {
-                Notification.error({
-                  message: result.message,
-                  templateUrl: "NotificationErrorTemplate.html",
-                  scope: $rootScope,
-                  delay: 10000
-                });
+                $scope.executionError = result.message;
+
+                // Notification.error({
+                //   message: result.message,
+                //   templateUrl: "NotificationErrorTemplate.html",
+                //   scope: $rootScope,
+                //   delay: 10000
+                // });
               }
               $scope.loading = false;
             }, function (error) {
               $scope.loading = false;
-              Notification.error({
-                message: error.data,
-                templateUrl: "NotificationErrorTemplate.html",
-                scope: $rootScope,
-                delay: 10000
-              });
+              // Notification.error({
+              //   message: error.data,
+              //   templateUrl: "NotificationErrorTemplate.html",
+              //   scope: $rootScope,
+              //   delay: 10000
+              // });
+
+              $scope.executionError = error.data;
+
+
             });
           }
         }, function (result) {
@@ -1256,18 +1390,20 @@ angular.module('cf')
 
     $scope.saveGroup = function () {
       $scope.loading = true;
+      $scope.error =null;
+      $scope.executionError =null;
       CFTestPlanManager.saveGroup("hl7v2", $scope.testcase.scope, $scope.token, $scope.getUpdatedProfiles(), $scope.getRemovedProfiles(), $scope.getAddedProfiles(), $scope.testcase).then(function (result) {
         if (result.status === "SUCCESS") {
           $scope.selectedNode['name'] = $scope.testcase['name'];
           $scope.selectedNode['description'] = $scope.testcase['description'];
           var group = $scope.findGroup($scope.selectedNode.id);
-          if(group != null){
-            group['id'] =  $scope.selectedNode.id;
-            group['persistentId'] =  $scope.selectedNode.persistentId;
-            group['name'] =  $scope.selectedNode.name;
-            group['description'] =  $scope.selectedNode.description;
-            group['scope'] =  $scope.selectedNode.scope;
-            group['category'] =  $scope.selectedNode.category;
+          if (group != null) {
+            group['id'] = $scope.selectedNode.id;
+            group['persistentId'] = $scope.selectedNode.persistentId;
+            group['name'] = $scope.selectedNode.name;
+            group['description'] = $scope.selectedNode.description;
+            group['scope'] = $scope.selectedNode.scope;
+            group['category'] = $scope.selectedNode.category;
           }
           Notification.success({
             message: "Profile Group saved successfully!",
@@ -1279,9 +1415,14 @@ angular.module('cf')
           $scope.uploaded = false;
           $scope.profileMessages = [];
           $scope.oldProfileMessages = [];
+          $scope.tmpNewMessages = [];
+          $scope.tmpOldMessages = [];
+          $scope.originalOldProfileMessages = [];
+          $scope.originalProfileMessages = [];
+
           $scope.token = null;
           $scope.selectGroup($scope.selectedNode);
-           // if($scope.uploaded == true){
+          // if($scope.uploaded == true){
           //   $scope.uploaded = false;
           //   $scope.profileMessages = [];
           //   $scope.oldProfileMessages = [];
@@ -1292,26 +1433,35 @@ angular.module('cf')
           // }
 
         } else {
-          Notification.error({
-            message: result.message,
-            templateUrl: "NotificationErrorTemplate.html",
-            scope: $rootScope,
-            delay: 10000
-          });
+          // Notification.error({
+          //   message: result.message,
+          //   templateUrl: "NotificationErrorTemplate.html",
+          //   scope: $rootScope,
+          //   delay: 10000
+          // });
+
+          $scope.executionError = result.message;
+
         }
         $scope.loading = false;
       }, function (error) {
         $scope.loading = false;
-        Notification.error({
-          message: error.data,
-          templateUrl: "NotificationErrorTemplate.html",
-          scope: $rootScope,
-          delay: 10000
-        });
+        // Notification.error({
+        //   message: error.data,
+        //   templateUrl: "NotificationErrorTemplate.html",
+        //   scope: $rootScope,
+        //   delay: 10000
+        // });
+
+        $scope.executionError = error.data;
+
+
       });
     };
 
     $scope.reset = function () {
+      $scope.error =null;
+      $scope.executionError =null;
 
       var modalInstance = $modal.open({
         templateUrl: 'views/cf/manage/confirm-reset-group.html',
@@ -1328,8 +1478,11 @@ angular.module('cf')
               $scope.testcase['name'] = $scope.selectedNode['name'];
               $scope.testcase['description'] = $scope.selectedNode['description'];
             }
+
             $scope.profileMessages = angular.copy($scope.originalProfileMessages);
+            $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
             $scope.oldProfileMessages = angular.copy($scope.originalOldProfileMessages);
+            $scope.tmpOldMessages = $scope.filterMessages($scope.oldProfileMessages);
 
             if ($scope.token != null && $scope.uploaded == true) {
               // from an upload
@@ -1344,6 +1497,9 @@ angular.module('cf')
     };
 
     $scope.cancelToken = function () {
+      $scope.error =null;
+      $scope.executionError =null;
+
       if ($scope.token != null) {
         CFTestPlanManager.deleteToken($scope.token).then(function (result) {
           $scope.token = null;
@@ -1367,23 +1523,30 @@ angular.module('cf')
             $location.url("/cf?nav=manage&&scope=" + $scope.selectedScope.key);
           });
         }, function (error) {
-          Notification.error({
-            message: error.data,
-            templateUrl: "NotificationErrorTemplate.html",
-            scope: $rootScope,
-            delay: 10000
-          });
+          // Notification.error({
+          //   message: error.data,
+          //   templateUrl: "NotificationErrorTemplate.html",
+          //   scope: $rootScope,
+          //   delay: 10000
+          // });
+
+          $scope.executionError = error.data;
+
+
         });
       }
     };
 
     $scope.deleteNewProfile = function (profile) {
       profile['removed'] = true;
+      $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+
     };
 
 
     $scope.deleteOldProfile = function (profile) {
       profile['removed'] = true;
+      $scope.tmpOldMessages = $scope.filterMessages($scope.oldProfileMessages);
     };
 
 
@@ -1415,7 +1578,7 @@ angular.module('cf')
         var destNode = e.dest.nodesScope.node;
         // display modal if the node is being dropped into a smaller container
         if (sourceNode != null && destNode != null && sourceNode.category != destNode.name) {
-          return CFTestPlanManager.updateCategory(destNode.id,sourceNode.id).then(function (result) {
+          return CFTestPlanManager.updateCategory(destNode.id, sourceNode.id).then(function (result) {
             if (result.status == 'SUCCESS') {
               return true;
             } else {
@@ -1455,6 +1618,9 @@ angular.module('cf')
               var profile = result.profiles[i];
               $scope.profileMessages.push(profile);
             }
+
+
+            $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
           }
         },
         function (result) {
@@ -1464,7 +1630,49 @@ angular.module('cf')
     };
 
 
+    $scope.editExampleMessage = function (item) {
+      $modalStack.dismissAll('close');
+      var modalInstance = $modal.open({
+        templateUrl: 'views/cf/manage/message.html',
+        controller: 'CFManageExampleMessageCtrl',
+        controllerAs: 'ctrl',
+        windowClass: 'upload-modal',
+        backdrop: 'static',
+        keyboard: false,
+        resolve: {
+          exampleMessage: function () {
+            return item.exampleMessage;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+        function (exampleMessage) {
+          item.exampleMessage = exampleMessage;
+        },
+        function (result) {
+        }
+      );
+    };
+
+
   }]);
+
+
+angular.module('cf')
+  .controller('CFManageExampleMessageCtrl', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, FileUploader, Notification, $modalInstance, exampleMessage) {
+
+    $scope.exampleMessage = exampleMessage;
+
+    $scope.save = function () {
+      $modalInstance.close($scope.exampleMessage);
+    };
+
+    $scope.cancel = function () {
+      $modalInstance.dismiss();
+    };
+
+  });
 
 
 angular.module('cf')
@@ -1575,6 +1783,8 @@ angular.module('cf')
         $scope.profileValidationErrors = angular.fromJson(response.errors);
       } else {
         $scope.profileMessages = response.profiles;
+        $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+
       }
 
     };
@@ -1658,6 +1868,8 @@ angular.module('cf')
               }
             } else {
               $scope.profileMessages = response.profiles;
+              $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+
               $scope.addSelectedTestCases();
             }
           },
@@ -1824,7 +2036,7 @@ angular.module('cf').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF'
   $scope.auth = decodeURIComponent($routeParams.y);
 
 
-  if ($scope.token !== undefined & $scope.auth !== undefined) {
+  if ($scope.token !== undefined && $scope.auth !== undefined) {
 
 
     //check if logged in
