@@ -15,6 +15,7 @@
   <!--<li><a href="#/cb_execution">Test Execution</a></li>-->
   <!--</ul>-->
 
+  <div ng-show="isAuthenticated()">
   <div ng-show="!loading">
 
     <div ng-show="error !== null" style="margin:10px" class="row test-plan-select-container">
@@ -153,8 +154,8 @@
                                  <!--<i class="fa fa-upload"></i>Upload Test Plan (.Zip)-->
                                  <!--</button>-->
 
-                                   <button title="Publish Test Plan" ng-show="selectedTestCase.scope === 'USER'" type="button" class="btn btn-xs btn-success" ng-click="publishTestPlan(selectedTestCase)">
-                                    <i class="fa fa-paper-plane"></i>Publish Test Plan
+                                   <button title="Publish Test Plan" ng-show="selectedTestCase.scope === 'USER'&& (isAdmin() || isSupervisor())" type="button" class="btn btn-xs btn-success" ng-click="publishTestPlan(selectedTestCase)">
+                                    <i class="fa fa-paper-plane"></i>Make Public
                                 </button>
 
 
@@ -250,6 +251,8 @@
 
   <div ng-show="loading" style="text-align:center">
     <i class="fa fa-circle-o-notch fa-spin fa-2x"></i>
+  </div>
+
   </div>
 
 </div>

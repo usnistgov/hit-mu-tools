@@ -13,7 +13,7 @@ angular.module('format').factory('CursorService',
      * @param editor
      */
     CursorService.prototype.getCoordinate = function (editor) {
-      angular.fromJson({line: -1, startIndex: -1, endIndex: -1, index: -1, triggerTree: {}});
+       return angular.fromJson({start: {line : -1, index: -1}, end: {line: -1, index: -1}, triggerTree: {}});
     };
 
     /**
@@ -27,7 +27,7 @@ angular.module('format').factory('CursorService',
      */
     CursorService.prototype.createCoordinate = function (line, startIndex, endIndex, index, triggerTree) {
       try {
-        return angular.fromJson({line: -1, startIndex: -1, endIndex: -1, index: -1, triggerTree: {}});
+        return angular.fromJson({start: {line : line, index: startIndex}, end: {line: line, index: endIndex}, triggerTree: triggerTree});
       } catch (e) {
       }
     };
@@ -551,6 +551,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
         angular.forEach(node.children, function (testCase) {
           testCase['transport'] = node['transport'];
           testCase['domain'] = node['domain'];
+          testCase['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           testCase['nav'] = {};
           testCase['nav']['testStep'] = null;
           testCase['nav'] = {};
@@ -565,6 +569,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
           testCase['domain'] = node['domain'];
           node["children"].push(testCase);
           testCase['nav'] = {};
+          testCase['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           testCase['nav']['testStep'] = null;
           testCase['nav']['testCase'] = testCase.name;
           testCase['nav']['testPlan'] = node.type === 'TestPlan' ? node.name : node['nav'].testPlan;
@@ -583,6 +591,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
           testCaseGroup['transport'] = node['transport'];
           testCaseGroup['domain'] = node['domain'];
           testCaseGroup['nav'] = {};
+          testCaseGroup['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           //node["children"].push(testCaseGroup);
           testCaseGroup['nav']['testCase'] = null;
           testCaseGroup['nav']['testStep'] = null;
@@ -596,6 +608,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
           testCaseGroup['domain'] = node['domain'];
           node["children"].push(testCaseGroup);
           testCaseGroup['nav'] = {};
+          testCaseGroup['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           testCaseGroup['nav']['testCase'] = null;
           testCaseGroup['nav']['testStep'] = null;
           testCaseGroup['nav']['testPlan'] = node.type === 'TestPlan' ? node.name : node['nav'].testPlan;
@@ -612,6 +628,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
         node["children"] = node.testSteps;
         angular.forEach(node.children, function (testStep) {
           testStep['nav'] = {};
+          testStep['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           //node["children"].push(testStep);
           testStep['nav']['testCase'] = node.name;
           testStep['nav']['testStep'] = testStep.name;
@@ -623,6 +643,10 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
         angular.forEach(node.testSteps, function (testStep) {
           node["children"].push(testStep);
           testStep['nav'] = {};
+          testStep['parent'] = {
+            id: node.id,
+            type: node.type
+          };
           testStep['nav']['testCase'] = node.name;
           testStep['nav']['testStep'] = testStep.name;
           testStep['nav']['testPlan'] = node['nav'].testPlan;
@@ -637,17 +661,27 @@ angular.module('format').factory('TestCaseService', function ($filter, $q, $http
 
 
   TestCaseService.prototype.buildCFTestCases = function (obj) {
-    obj.label = !obj.children ? obj.position + "." + obj.name : obj.name;
+    obj.label = !obj.children && !obj.testCases ? obj.position + "." + obj.name : obj.name;
     obj['nav'] = {};
     obj['nav']['testStep'] = obj.name;
     obj['nav']['testCase'] = null;
     obj['nav']['testPlan'] = null;
     obj['nav']['testGroup'] = null;
-
     if (obj.children) {
       var that = this;
       obj.children = $filter('orderBy')(obj.children, 'position');
       angular.forEach(obj.children, function (child) {
+        child['nav'] = {};
+        child['nav']['testStep'] = child.name;
+        child['nav']['testCase'] = obj.name;
+        child['nav']['testPlan'] = obj['nav'].testPlan;
+        child['nav']['testGroup'] = null;
+        that.buildCFTestCases(child);
+      });
+    }else if (obj.testCases) {
+      var that = this;
+      obj.testCases = $filter('orderBy')(obj.testCases, 'position');
+      angular.forEach(obj.testCases, function (child) {
         child['nav'] = {};
         child['nav']['testStep'] = child.name;
         child['nav']['testCase'] = obj.name;
@@ -1182,16 +1216,19 @@ angular.module('format').factory('Transport', function ($q, $http, StorageServic
       setDisabled: function (disabled) {
         this.disabled = disabled;
       },
-      setTimeout: function (timeout) {
-        this.timeout = timeout;
-        StorageService.set(StorageService.TRANSPORT_TIMEOUT, timeout)
-      },
 
-      getTimeout: function () {
-        return this.timeout;
-      },
 
-      getAllConfigForms: function () {
+  setTimeout: function (timeout) {
+    this.timeout = timeout;
+    StorageService.set(StorageService.TRANSPORT_TIMEOUT, timeout)
+  },
+
+  getTimeout: function () {
+    return this.timeout;
+  },
+
+
+  getAllConfigForms: function () {
         var delay = $q.defer();
         $http.get('api/transport/config/forms').then(
           function (response) {
@@ -1728,9 +1765,8 @@ angular.module('format').controller('SutInitiatorConfigCtrl', function ($scope, 
 });
 
 
-
 angular.module('format').factory('TestExecutionService',
-  ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService) {
+  ['$q', '$http', '$rootScope', 'ReportService', 'TestCaseService', 'StorageService', 'TestStepService', function ($q, $http, $rootScope, ReportService, TestCaseService, StorageService,TestStepService) {
 
     var TestExecutionService = {
       resultOptions: [
@@ -1754,7 +1790,11 @@ angular.module('format').factory('TestExecutionService',
       testStepComments: StorageService.get("testStepComments") != null ? angular.fromJson(StorageService.get("testStepComments")) : {},
       testStepValidationReports: StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {},
       testStepExecutionMessages: StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {},
-      testStepMessageTrees: StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {}
+      testStepMessageTrees: StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {},
+      testStepCommentsChanged: {},
+      testStepCommentsChanges: {},
+      testCaseCommentsChanged: {},
+      testCaseCommentsChanges: {}
     };
 
 
@@ -1768,9 +1808,15 @@ angular.module('format').factory('TestExecutionService',
       TestExecutionService.testStepValidationReports = StorageService.get("testStepValidationReports") != null ? angular.fromJson(StorageService.get("testStepValidationReports")) : {};
       TestExecutionService.testStepExecutionMessages = StorageService.get("testStepExecutionMessages") != null ? angular.fromJson(StorageService.get("testStepExecutionMessages")) : {};
       TestExecutionService.testStepMessageTrees = StorageService.get("testStepMessageTrees") != null ? angular.fromJson(StorageService.get("testStepMessageTrees")) : {};
+
     };
 
     TestExecutionService.clear = function (testCaseId) {
+      TestExecutionService.clearAll();
+      return TestCaseService.clearRecords(testCaseId);
+    };
+
+    TestExecutionService.clearAll = function () {
       StorageService.remove("testStepValidationResults");
       StorageService.remove("testStepExecutionStatuses");
       StorageService.remove("testCaseExecutionStatuses");
@@ -1790,8 +1836,23 @@ angular.module('format').factory('TestExecutionService',
       TestExecutionService.testStepExecutionMessages = {};
       TestExecutionService.testStepMessageTrees = {};
       TestExecutionService.testStepValidationReportObjects = {};
+      TestExecutionService.testStepCommentsChanged = {};
+      TestExecutionService.testStepCommentsChanges = {};
+      TestExecutionService.testCaseCommentsChanged = {};
+      TestExecutionService.testCaseCommentsChanges = {};
+     };
+
+
+    TestExecutionService.clearTestCase = function (testCaseId) {
+      TestExecutionService.clearAll();
       return TestCaseService.clearRecords(testCaseId);
     };
+
+    TestExecutionService.clearTestStep = function (testCaseId) {
+      TestExecutionService.clearAll();
+      return TestStepService.clearRecords(testCaseId);
+    };
+
 
 
     TestExecutionService.initTestStep = function (testStep) {
@@ -1872,6 +1933,7 @@ angular.module('format').factory('TestExecutionService',
     TestExecutionService.setTestStepValidationResult = function (step, value) {
       TestExecutionService.testStepValidationResults[step.id] = value;
       StorageService.set("testStepValidationResults", angular.toJson(TestExecutionService.testStepValidationResults));
+
       return TestExecutionService.updateTestStepValidationReport(step);
     };
 
@@ -2035,8 +2097,6 @@ angular.module('format').factory('TestExecutionService',
 
     return TestExecutionService;
   }]);
-
-
 
 
 angular.module('format').factory('TestExecutionClock', function ($interval, Clock) {
