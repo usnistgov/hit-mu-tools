@@ -1285,6 +1285,8 @@ angular.module('cf')
     };
 
     $scope.publishGroup = function () {
+      $scope.error =null;
+      $scope.executionError =null;
       var modalInstance = $modal.open({
         templateUrl: 'views/cf/manage/confirm-publish-group.html',
         controller: 'ConfirmDialogCtrl',
@@ -1305,6 +1307,11 @@ angular.module('cf')
                 $scope.uploaded = false;
                 $scope.profileMessages = [];
                 $scope.oldProfileMessages = [];
+                $scope.tmpNewMessages = [];
+                $scope.tmpOldMessages = [];
+                $scope.originalOldProfileMessages = [];
+                $scope.originalProfileMessages = [];
+
                 $scope.token = null;
 
                 CFTestPlanManager.publishGroup($scope.testcase.groupId).then(function (result) {
@@ -1383,6 +1390,8 @@ angular.module('cf')
 
     $scope.saveGroup = function () {
       $scope.loading = true;
+      $scope.error =null;
+      $scope.executionError =null;
       CFTestPlanManager.saveGroup("hl7v2", $scope.testcase.scope, $scope.token, $scope.getUpdatedProfiles(), $scope.getRemovedProfiles(), $scope.getAddedProfiles(), $scope.testcase).then(function (result) {
         if (result.status === "SUCCESS") {
           $scope.selectedNode['name'] = $scope.testcase['name'];
@@ -1406,6 +1415,11 @@ angular.module('cf')
           $scope.uploaded = false;
           $scope.profileMessages = [];
           $scope.oldProfileMessages = [];
+          $scope.tmpNewMessages = [];
+          $scope.tmpOldMessages = [];
+          $scope.originalOldProfileMessages = [];
+          $scope.originalProfileMessages = [];
+
           $scope.token = null;
           $scope.selectGroup($scope.selectedNode);
           // if($scope.uploaded == true){
@@ -1446,6 +1460,8 @@ angular.module('cf')
     };
 
     $scope.reset = function () {
+      $scope.error =null;
+      $scope.executionError =null;
 
       var modalInstance = $modal.open({
         templateUrl: 'views/cf/manage/confirm-reset-group.html',
@@ -1481,6 +1497,9 @@ angular.module('cf')
     };
 
     $scope.cancelToken = function () {
+      $scope.error =null;
+      $scope.executionError =null;
+
       if ($scope.token != null) {
         CFTestPlanManager.deleteToken($scope.token).then(function (result) {
           $scope.token = null;
