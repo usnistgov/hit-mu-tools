@@ -362,7 +362,7 @@
                             <tr ng-repeat="item in tmpNewMessages">
                               <td>
                                 <select ng-class="{'input-error': item.position <= 0}" select-min ng-min="1"
-                                        ng-model="item.position" ng-minlength="1" required ng-options="position for position in positions(tmpNewMessages)">
+                                        ng-model="item.position"  required ng-options="position for position in positions(tmpNewMessages)">
                                 </select>
                               </td>
                               <td>
