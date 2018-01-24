@@ -689,6 +689,10 @@ angular.module('main').controller('MainCtrl',
             return '';
         };
 
+
+
+
+
     });
 
 angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', '$location','$route', function ($scope, $modalInstance, user, $location, $route) {
