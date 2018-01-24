@@ -4,8 +4,14 @@
   "version": "1.7.2",
   "date": "1508335198856",
   "options": {
-    "AUTHENTICATION_REQUIRED": true,
-    "COMPANY_REQUIRED": true
+    "AUTHENTICATION_REQUIRED": "true",
+    "COMPANY_REQUIRED": "true",
+    "ORGANIZATION_WEBSITE": "http://ncpdp.org",
+    "ORGANIZATION_LOGO": "images/df",
+    "DIVISION_WEBSITE": "http://ncpdp.org/software",
+    "DIVISION_LOGO": "images/div.gif"
+
+
   },
   "name": "Immunization Test Suite",
   "domain": "",
