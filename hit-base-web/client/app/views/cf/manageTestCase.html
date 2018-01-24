@@ -11,7 +11,7 @@
 </script>
 <div class="container" ng-controller="CFTestManagementCtrl" ng-init="initManagement()">
 
-  <div style="margin:10px" ng-show="isAuthenticated()">
+  <div style="margin:10px" ng-show="isCfManagementSupported() && isAuthenticated()">
     <div>
       <div class="row" ng-show="error != null && error != ''">
         <div class="col-md-12">
@@ -362,7 +362,7 @@
                             <tr ng-repeat="item in tmpNewMessages">
                               <td>
                                 <select ng-class="{'input-error': item.position <= 0}" select-min ng-min="1"
-                                        ng-model="item.position"  required ng-options="position for position in positions(tmpNewMessages)">
+                                        ng-model="item.position" required ng-options="position for position in positions(tmpNewMessages)">
                                 </select>
                               </td>
                               <td>

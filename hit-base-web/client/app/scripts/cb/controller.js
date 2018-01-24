@@ -1684,7 +1684,7 @@ angular.module('cb')
     var testCaseService = new TestCaseService();
 
     $scope.initTestCase = function () {
-     if (userInfoService.isAuthenticated()) {
+      if($rootScope.isCbManagementSupported() && userInfoService.isAuthenticated()){
       $scope.error = null;
       $scope.loading = true;
       $scope.testPlans = null;
@@ -1694,7 +1694,7 @@ angular.module('cb')
         var tmp = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY);
         $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
       }
-      $scope.selectScope();       
+      $scope.selectScope();
      }
     };
 
