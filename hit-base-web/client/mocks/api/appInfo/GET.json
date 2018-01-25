@@ -7,12 +7,11 @@
     "AUTHENTICATION_REQUIRED": "true",
     "COMPANY_REQUIRED": "true",
     "ORGANIZATION_WEBSITE": "http://ncpdp.org",
-    "ORGANIZATION_LOGO": "images/df",
+    "ORGANIZATION_LOGO": "images/nist_logo.gif",
     "DIVISION_WEBSITE": "http://ncpdp.org/software",
-    "DIVISION_LOGO": "images/div.gif"
-
-
+    "DIVISION_LOGO": "images/itl-logo.jpg"
   },
+  "contactEmail": "haffo@nist.gov",
   "name": "Immunization Test Suite",
   "domain": "",
   "header": "",
