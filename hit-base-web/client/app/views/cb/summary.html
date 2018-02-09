@@ -32,7 +32,7 @@
         <div ng-show="!loadingExecution">
             <table class="table table-bordered execution-table" style="margin-bottom: 0px">
                 <tr>
-                    <td><b>Test Status</b></td>
+                    <td><b>Test Case Status</b></td>
                     <td>{{isTestCaseCompleted() ? 'Completed':'In Progress'}}</td>
                 </tr>
                 <!--<tr ng-show="!transport.disabled && testCase.transport === true">-->
@@ -42,7 +42,7 @@
                 <!--</td>-->
                 <!--</tr>-->
                 <tr>
-                    <td><b>Test Case Result</b></td>
+                    <td><b>Test Case Outcome</b></td>
                     <td>
                 <span ng-show="isTestCaseCompleted()">
                     <select class="" name="resultValue" id="resultValue"

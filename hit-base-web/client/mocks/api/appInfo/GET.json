@@ -4,14 +4,9 @@
   "version": "1.7.2",
   "date": "1508335198856",
   "options": {
-    "AUTHENTICATION_REQUIRED": "true",
-    "COMPANY_REQUIRED": "true",
-    "ORGANIZATION_WEBSITE": "http://ncpdp.org",
-    "ORGANIZATION_LOGO": "images/nist_logo.gif",
-    "DIVISION_WEBSITE": "http://ncpdp.org/software",
-    "DIVISION_LOGO": "images/itl-logo.jpg"
+    "AUTHENTICATION_REQUIRED": true,
+    "COMPANY_REQUIRED": true
   },
-  "contactEmail": "haffo@nist.gov",
   "name": "Immunization Test Suite",
   "domain": "",
   "header": "",
