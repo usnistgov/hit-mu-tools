@@ -32,7 +32,7 @@
         <div ng-show="!loadingExecution">
             <table class="table table-bordered execution-table" style="margin-bottom: 0px">
                 <tr>
-                    <td><b>Test Case Status</b></td>
+                    <td><b>Test Status</b></td>
                     <td>{{isTestCaseCompleted() ? 'Completed':'In Progress'}}</td>
                 </tr>
                 <!--<tr ng-show="!transport.disabled && testCase.transport === true">-->
@@ -42,7 +42,7 @@
                 <!--</td>-->
                 <!--</tr>-->
                 <tr>
-                    <td><b>Test Case Outcome</b></td>
+                    <td><b>Test Case Result</b></td>
                     <td>
                 <span ng-show="isTestCaseCompleted()">
                     <select class="" name="resultValue" id="resultValue"
@@ -72,7 +72,7 @@
                             {{testExecutionService.testCaseComments[testCase.id]}}
                           </p>
 
-                          <button class="btn btn-xs btn-primary"
+                          <button class="btn btn-xs btn-info"
                                   ng-show="testExecutionService.testCaseComments[testCase.id] != '' && testExecutionService.testCaseComments[testCase.id] != null && testExecutionService.testCaseComments[testCase.id] !=  undefined && (testExecutionService.testCaseCommentsChanged[testCase.id] === false || !testExecutionService.testCaseCommentsChanged[testCase.id] || testExecutionService.testCaseCommentsChanged[testCase.id] == undefined)"
                                   ng-click="editTestCaseComment(testCase)" class="point">
                             <i class="fa fa-pencil fa-fw"></i>
@@ -85,7 +85,7 @@
                           </button>
 
 
-                          <button class="btn btn-xs btn-primary"
+                          <button class="btn btn-xs btn-info"
                                   ng-show="(testExecutionService.testCaseComments[testCase.id] == '' || testExecutionService.testCaseComments[testCase.id] == null || testExecutionService.testCaseComments[testCase.id] == undefined) && (testExecutionService.testCaseCommentsChanged[testCase.id] === false || !testExecutionService.testCaseCommentsChanged[testCase.id] || testExecutionService.testCaseCommentsChanged[testCase.id] == undefined)"
                                   ng-click="editTestCaseComment(testCase)" class="point">
                             <i class="fa fa-plus fa-fw"></i>
@@ -112,7 +112,7 @@
                 </tr>
 
                 <tr>
-                    <td><b>Test Report</b></td>
+                    <td><b>Test Case Report</b></td>
                     <td>
                         <div class="btn-group" ng-show="isTestCaseCompleted() && testExecutionService.testCaseValidationResults[testCase.id] != null && testExecutionService.testCaseValidationResults[testCase.id]">
                             <button type="button"

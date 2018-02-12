@@ -75,7 +75,7 @@ angular.module('cb')
     ];
 
     var parseRequest = function (incoming) {
-        return incoming;
+         return incoming;
     };
 
     var parseResponse = function (outbound) {
@@ -372,7 +372,7 @@ angular.module('cb')
         $scope.logger.content = log && log != null ? log : '';
         $scope.selectTestStep(testStep);
 
-        // }, function (error) {
+         // }, function (error) {
         //   $scope.error = "Failed to load the test step, please try again.";
         // });
       }
@@ -624,7 +624,7 @@ angular.module('cb')
       } else {
         var reportType = testStep.testContext && testStep.testContext != null ? 'cbValidation' : 'cbManual';
         var result = TestExecutionService.getTestStepValidationReport(testStep);
-        $rootScope.$emit(reportType + ':updateTestStepValidationReport', result && result != null ? result.reportId : null, testStep);
+        $rootScope.$emit(reportType + ':updateTestStepValidationReport', result && result != null ? result : null, testStep);
       }
     };
 
@@ -846,6 +846,15 @@ angular.module('cb')
         ReportService.downloadTestCaseReports($scope.testCase.id, format, result, comments);
       }
     };
+
+
+    $scope.downloadReportAs = function (format, testStep) {
+      var reportId = $scope.getTestStepValidationReport(testStep);
+      if(reportId != null && reportId != undefined) {
+        return ReportService.downloadTestStepValidationReport(reportId, format);
+      }
+    };
+
 
     $scope.toggleTransport = function (disabled) {
       $scope.transport.disabled = disabled;
@@ -1485,11 +1494,13 @@ angular.module('cb')
     $scope.$on('cb:clearEditor', function (event) {
       $scope.clearMessage();
     });
+
     $rootScope.$on('cb:reportLoaded', function (event, report) {
       if ($scope.testStep != null) {
         TestExecutionService.setTestStepValidationReport($scope.testStep, report);
       }
     });
+
     $scope.$on('cb:testStepLoaded', function (event, testStep) {
       $scope.clear();
       $scope.testStep = testStep;
@@ -1686,16 +1697,16 @@ angular.module('cb')
 
     $scope.initTestCase = function () {
       if($rootScope.isCbManagementSupported() && userInfoService.isAuthenticated()){
-        $scope.error = null;
-        $scope.loading = true;
-        $scope.testPlans = null;
-        if (!userInfoService.isAdmin() && !userInfoService.isSupervisor()) {
-          $scope.selectedScope.key = $scope.testPlanScopes[1].key; // GLOBAL
-        }else {
-          var tmp = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY);
-          $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
-        }
-        $scope.selectScope();
+      $scope.error = null;
+      $scope.loading = true;
+      $scope.testPlans = null;
+      if (!userInfoService.isAdmin() && !userInfoService.isSupervisor()) {
+        $scope.selectedScope.key = $scope.testPlanScopes[1].key; // GLOBAL
+      }else {
+        var tmp = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY);
+        $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
+      }
+      $scope.selectScope();
       }
     };
 
@@ -2229,7 +2240,7 @@ angular.module('cb')
       $scope.error = null;
       if (response.status == "FAILURE") {
         $scope.error ="Could not upload and process your file.<br>" + response.message;
-      } else {
+       } else {
         if (response.action === "ADD") {
           Notification.success({
             message: "Test Plan Added Successfully !",
