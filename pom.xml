@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>gov.nist.hit.base</groupId>
-	<artifactId>hit-base-tool</artifactId>
+	<groupId>gov.nist.healthcare.mu.labs-suite</groupId>
+	<artifactId>labs-suite-tool</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>hit-base-tool</name>
-	<description>Immunization tool</description>
+	<name>labs-suite-tool</name>
+	<description>Labs tool</description>
 	<packaging>pom</packaging>
 	<modules>
  		<module>hit-base-service</module>
@@ -14,10 +14,10 @@
 
 	<properties>
 		<spring.version>4.1.1.RELEASE</spring.version>
- 	</properties> 
- 	<dependencies> 		
+ 	</properties>
+ 	<dependencies>
  	</dependencies>
- 
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -52,5 +52,22 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	<scm>
+		<connection>scm:git:https://github.com/usnistgov/labs-suite-ui.git</connection>
+		<developerConnection>scm:git:https://github.com/usnistgov/labs-suite-ui.git</developerConnection>
+	  	<tag>HEAD</tag>
+  	</scm>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>https://hit-dev.nist.gov:9001/repository/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>https://hit-dev.nist.gov:9001/repository/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>	
 
 </project>

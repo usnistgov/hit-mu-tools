@@ -53,6 +53,7 @@
 
       destroyEvent2 = $rootScope.$on($scope.type + ':initValidationReport', function (event, report, testStep) {
         $scope.loading = true;
+        $scope.error = null;
         $scope.testStepId = testStep.id;
         if (report != null && report != undefined) {
           if (report.html == null) {
@@ -67,6 +68,7 @@
               $scope.report = null;
               $scope.compile();
               $scope.loading = false;
+
               //Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $rootScope, delay: 30000});
             });
           } else {
@@ -89,6 +91,7 @@
         //$scope.loading = true;
         if (testStep != null) {
           $scope.report = null;
+          $scope.error = null;
           $scope.testStepId = testStep.id;
           var result = TestExecutionService.getTestStepValidationResult(testStep);
           result = result != undefined ? result : null;
