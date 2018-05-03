@@ -93,6 +93,15 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/about', {
             templateUrl: 'views/about.html'
         })
+        .when('/profilevalidation', {
+            templateUrl: 'views/profilevalidation.html',
+            controller: 'UploadCtrl',
+            resolve: {
+                isValidationOnly: function () {
+                    return true;
+                }
+            }
+        })
         .when('/cf', {
             templateUrl: 'views/cf/cf.html'
         })
@@ -181,7 +190,7 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
 
 app.factory('interceptor1', function ($q, $rootScope, $location, StorageService, $window) {
     var handle = function (response) {
-        console.log("interceptor1");
+//        console.log("interceptor1");
         if (response.status === 440) {
             response.data = "Session timeout";
             $rootScope.openSessionExpiredDlg();
@@ -250,7 +259,7 @@ app.factory('interceptor3', function ($q, $rootScope, $location, StorageService,
 
 app.factory('interceptor4', function ($q, $rootScope, $location, StorageService, $window) {
     var setMessage = function (response) {
-        console.log("interceptor4");
+//        console.log("interceptor4");
         //if the response has a text and a type property, it is a message to be shown
         if (response.data && response.data.text && response.data.type) {
             if (response.status === 401) {
@@ -271,7 +280,7 @@ app.factory('interceptor4', function ($q, $rootScope, $location, StorageService,
                     manualHandle: true
                 };
             } else {
-                console.log(response.status);
+//                console.log(response.status);
                 msg = {
                     text: response.data.text,
                     type: response.data.type,
@@ -420,10 +429,10 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
     };
 
     $rootScope.createGuestIfNotExist = function(){
-        console.log("creating guest user");
+//        console.log("creating guest user");
         User.createGuestIfNotExist().then(function (guest) {
             initUser(guest);
-            console.log("guest user created");
+//            console.log("guest user created");
 
         }, function (error) {
             $rootScope.openCriticalErrorDlg("ERROR: Sorry, Failed to initialize the session. Please refresh the page and try again.");
@@ -493,16 +502,16 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
   $rootScope.$on('event:loginRequestWithAuth', function (event, auth,path) {
     httpHeaders.common['Accept'] = 'application/json';
     httpHeaders.common['Authorization'] = 'Basic ' + auth;
-    console.log("logging in...");
+//    console.log("logging in...");
     $http.get('api/accounts/login').success(function () {
-      console.log("logging success...");
+//      console.log("logging success...");
       httpHeaders.common['Authorization'] = null;
       $http.get('api/accounts/cuser').then(function (result) {
         if (result.data && result.data != null) {
           var rs = angular.fromJson(result.data);
           initUser(rs);
           $rootScope.$broadcast('event:loginConfirmed');
-          console.log("redirect after login");
+//          console.log("redirect after login");
           $location.url(path);
         } else {
           userInfoService.setCurrentUser(null);
@@ -643,7 +652,7 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
 
     //loadAppInfo();
     userInfoService.loadFromServer().then(function (currentUser) {
-        console.log("currentUser=" + angular.toJson(currentUser));
+//        console.log("currentUser=" + angular.toJson(currentUser));
         if(currentUser !== null && currentUser.accountId != null && currentUser.accountId != undefined) {
             initUser(currentUser);
         }else{

@@ -2,8 +2,7 @@
 
 
 angular.module('upload')
-    .controller('UploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'FileUploader', 'Notification', '$modalInstance', 'userInfoService','ProfileGroupListLoader', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification, $modalInstance, userInfoService,ProfileGroupListLoader) {
-
+    .controller('UploadCtrlCACA', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'FileUploader', 'Notification', '$modalInstance', 'userInfoService','ProfileGroupListLoader', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification, $modalInstance, userInfoService,ProfileGroupListLoader) {
         FileUploader.FileSelect.prototype.isEmptyAfterSelection = function () {
             return true;
         };
@@ -170,6 +169,8 @@ angular.module('upload')
                     $scope.constraintValidationErrors = angular.fromJson(response.vsErrors);
                     $scope.step = 1;
                 } else {
+                	
+                	$scope.executionError = response.message;
                     Notification.error({
                         message: "The tool could not upload and process your file.<br>" + response.message + '<br>' + response.debugError,
                         templateUrl: "NotificationErrorTemplate.html",
@@ -660,7 +661,7 @@ angular.module('upload').controller('UploadTokenCtrl', ['$scope', '$http', 'CF',
 
 }]);
 
-angular.module('upload').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'Notification', 'modalService', '$routeParams', '$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, userInfoService, Notification, modalService, $routeParams, $location) {
+angular.module('upload').controller('UploadTokenCheckCtrlCACA', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'Notification', 'modalService', '$routeParams', '$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, userInfoService, Notification, modalService, $routeParams, $location) {
     $scope.testcase = {};
 
     $scope.profileValidationErrors = [];
