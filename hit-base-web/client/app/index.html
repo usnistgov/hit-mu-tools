@@ -57,7 +57,6 @@
   <link rel="stylesheet" type="text/css" href="lib/angular-treetable/style/jquery.treetable.theme.default.css"/>
   <link rel="stylesheet" href="lib/angular-bootstrap-nav-tree/abn_tree.css">
   <link rel="stylesheet" href="lib/testcase-tree/testcase-tree.css"/>
-  <link rel="stylesheet" href="lib/documentation-viewer/documentation-viewer.css"/>
   <link rel="stylesheet" href="lib/FixedHeader/dist/fixed-header.css"/>
 
   <!--<link href="https://fonts.googleapis.com/css?family=Cairo" rel="stylesheet">-->
@@ -144,7 +143,6 @@
   <script src="lib/testcase-details/testcase-details.js"></script>
   <script src="lib/edit-testcase-details/edit-testcase-details.js"></script>
   <script src="lib/testcase-tree/testcase-tree.js"></script>
-  <script src="lib/documentation-viewer/documentation-viewer.js"></script>
   <script src="lib/base-libs/common.js"></script>
   <script src="lib/base-libs/default.js"></script>
   <script src="lib/base-libs/hl7v2-edi.js"></script>
@@ -161,16 +159,21 @@
   <script src="scripts/cb/service.js"></script>
   <script src="scripts/main/service.js"></script>
   <script src="scripts/account/service.js"></script>
+  <script src="scripts/documentation/service.js"></script>
+  <script src="scripts/domains/service.js"></script>
   <!--<script src="lib/mock-server.js"></script>-->
 
   <!-- Controllers-->
+  <script src="scripts/main/controller.js"></script>
   <script src="scripts/cf/controller.js"></script>
   <script src="scripts/cb/controller.js"></script>
   <script src="scripts/account/controller.js"></script>
   <script src="scripts/directives/directives.js"></script>
+  <script src="scripts/documentation/directive.js"></script>
+  <script src="scripts/documentation/controller.js"></script>
   <script src="scripts/account/directive.js"></script>
-  <script src="scripts/main/controller.js"></script>
-  
+  <script src="scripts/domains/controller.js"></script>
+
   <!-- endbuild -->
 
   <div ng-include="'views/error.html'"></div>
@@ -184,7 +187,6 @@
   <div ng-include="'lib/edit-testcase-details/edit-testcase-details-tpls.html'"></div>
   <div ng-include="'lib/report-viewer/report-viewer-tpls.html'"></div>
   <div ng-include="'lib/testcase-tree/testcase-tree-tpls.html'"></div>
-  <div ng-include="'lib/documentation-viewer/documentation-viewer-tpls.html'"></div>
   <div ng-include="'lib/manual-report-viewer/manual-report-viewer-tpls.html'"></div>
 
 

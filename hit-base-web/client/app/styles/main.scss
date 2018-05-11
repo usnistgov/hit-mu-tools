@@ -1861,37 +1861,22 @@ ul.base-menu, ul.base-menu > li {
 }
 
 
+
 #exception {
-  //  padding: 30px 10px;
   font-size: 20px;
   line-height: 1.4;
   color: #737373;
-  background: #f2aaaa;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   margin: 0 auto;
 }
+
 #exception > h1 {
   margin: 0 10px;
   font-size: 24px;
   text-align: center;
 }
 
-#exception > h1 span {
-  color: #bbb;
-}
-
-
-#exception > p {
-  margin: 1em 0;
-  text-align: center;
-
-}
-
-#exception  > ul {
-  padding: 0 0 0 40px;
-  margin: 1em 0;
-}
 
 .error-modal .modal-dialog {
   width: 50%;
@@ -1967,12 +1952,13 @@ ul.base-menu, ul.base-menu > li {
 .error-dlg {
   font-size: 20px;
   line-height: 1.4;
-  color: #737373;
-  background: #f2aaaa;
+  //color: #737373;
+  //background: #f2aaaa;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   margin: 0 auto;
 }
+
 
 tr.current {
   background-color: #ffef8f;
@@ -2645,6 +2631,7 @@ div.upload-error-table div.fixed-table-container-inner {
   border-color: #ff6d6f;
 }
 
+
 .login-required-page{
   font-size: 18px;
   text-align: center;
@@ -2654,3 +2641,27 @@ div.upload-error-table div.fixed-table-container-inner {
   height: 500px;
 
 }
+
+
+.domain-content {
+  margin-top:20px;
+  margin-bottom:20px;
+}
+
+
+
+.documentation-upload-modal .modal-dialog {
+  width: 40%;
+  height: 60%;
+}
+
+.tbl-header-1 {
+  //background-color: #d0d0d0;
+  //color: #3f3f3f;
+  font-weight:600;
+}
+
+.root-node {
+  background-color:#0e90d2;
+}
+
