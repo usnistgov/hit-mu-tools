@@ -1697,7 +1697,7 @@ angular.module('cb')
     $scope.testCase = CB.testCase;
     $scope.selectedTP = {id: null};
     $scope.selectedScope = {key: null};
-    $scope.testPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+    $scope.testPlanScopes = null;
     $scope.testCases = [];
     $scope.testPlans = [];
     $scope.tree = {};
@@ -1705,6 +1705,9 @@ angular.module('cb')
     $scope.loadingTP = false;
     $scope.loadingTC = false;
     $scope.loadingTPs = false;
+    $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+
+
 
     $scope.error = null;
     $scope.collapsed = false;
@@ -1718,15 +1721,17 @@ angular.module('cb')
 
 
     $scope.initTestCase = function () {
-      if ($rootScope.isCbManagementSupported() && userInfoService.isAuthenticated()) {
+      if ($rootScope.isCbManagementSupported() && userInfoService.isAuthenticated() && $rootScope.hasWriteAccess()) {
         $scope.error = null;
         $scope.loading = true;
         $scope.testPlans = null;
-        if (!userInfoService.isAdmin() && !userInfoService.isSupervisor()) {
-          $scope.selectedScope.key = $scope.testPlanScopes[1].key; // GLOBAL
-        } else {
+        if (userInfoService.isAdmin() || userInfoService.isSupervisor()) {
+          $scope.testPlanScopes = $scope.allTestPlanScopes;
           var tmp = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY);
           $scope.selectedScope.key = tmp && tmp != null ? tmp : $scope.testPlanScopes[1].key;
+        } else {
+          $scope.testPlanScopes = [$scope.allTestPlanScopes[0]];
+          $scope.selectedScope.key = $scope.testPlanScopes[0].key; // GLOBAL
         }
         $scope.selectScope();
       }

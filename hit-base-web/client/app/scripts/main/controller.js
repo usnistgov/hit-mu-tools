@@ -708,6 +708,30 @@ angular.module('main').controller('MainCtrl',
     };
 
 
+    $rootScope.createDomain = function () {
+      var modalInstance = $modal.open({
+        templateUrl: 'views/domains/create.html',
+        controller: 'CreateDomainCtrl',
+        size: 'md',
+        backdrop: 'static',
+        keyboard: false,
+        backdropClick: false,
+        resolve: {
+          scope: function () {
+            return 'USER'
+          }
+        }
+      });
+      modalInstance.result.then(
+        function (newDomain) {
+          if (newDomain) {
+            $rootScope.selectDomain(newDomain.domain);
+          }
+        });
+    };
+
+
+
   });
 
 angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', function ($scope, $modalInstance, user) {
