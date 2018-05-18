@@ -20,7 +20,7 @@
         <a href="#/registration"><i class="fa fa-chevron-circle-right"></i>&nbsp;register</a></p>
     </div>
 
-    <div ng-show="isAuthenticated() && (isAdmin() || isSupervisor())">
+    <div ng-show="isAuthenticated()">
       <div style="margin:10px">
         <div class="row test-plan-select-container" style="margin-bottom: 10px">
           <div class="col-md-12">
@@ -46,6 +46,7 @@
           </div>
 
         </div>
+
 
         <div ng-show="loadingDomain" style="text-align:center">
           <i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
