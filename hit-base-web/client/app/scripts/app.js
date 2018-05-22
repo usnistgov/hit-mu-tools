@@ -95,6 +95,15 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
     .when('/about', {
       templateUrl: 'views/about.html'
     })
+    .when('/profilevalidation', {
+        templateUrl: 'views/profilevalidation.html',
+        controller: 'UploadCtrl',
+        resolve: {
+            isValidationOnly: function () {
+                return true;
+            }
+        }
+    })
     .when('/cf', {
       templateUrl: 'views/cf/cf.html'
     })

@@ -2266,8 +2266,9 @@ angular.module('cb')
       $scope.loading = false;
       $scope.error = null;
       if (response.status == "FAILURE") {
-        $scope.error = "Could not upload and process your file.<br>" + response.message;
-      } else {
+    	  	$scope.step = 1;
+        $scope.error = response.message;
+       } else {
         if (response.action === "ADD") {
           Notification.success({
             message: "Test Plan Added Successfully !",
