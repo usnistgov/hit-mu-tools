@@ -862,6 +862,11 @@ angular.module('cf')
                   } else {
                     $scope.profileMessages = response.profiles;
                     $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+                    if($scope.tmpNewMessages.length > 0) {
+                      for (var i = 0; i < $scope.tmpNewMessages.length; i++) {
+                        $scope.tmpNewMessages[i]['position'] = i + 1;
+                      }
+                    }
                     $scope.originalProfileMessages = angular.copy($scope.profileMessages);
 
                   }
@@ -1632,6 +1637,11 @@ angular.module('cf')
 
             $scope.profileMessages = angular.copy($scope.originalProfileMessages);
             $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+            if($scope.tmpNewMessages.length > 0) {
+              for (var i = 0; i < $scope.tmpNewMessages.length; i++) {
+                $scope.tmpNewMessages[i]['position'] = i + 1;
+              }
+            }
             $scope.oldProfileMessages = angular.copy($scope.originalOldProfileMessages);
             $scope.tmpOldMessages = $scope.filterMessages($scope.oldProfileMessages);
 
@@ -1692,6 +1702,11 @@ angular.module('cf')
     $scope.deleteNewProfile = function (profile) {
       profile['removed'] = true;
       $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+      if($scope.tmpNewMessages.length > 0) {
+        for (var i = 0; i < $scope.tmpNewMessages.length; i++) {
+          $scope.tmpNewMessages[i]['position'] = i + 1;
+        }
+      }
 
     };
 
@@ -1791,6 +1806,11 @@ angular.module('cf')
               $scope.profileMessages.push(profile);
             }
             $scope.tmpNewMessages = $scope.filterMessages($scope.profileMessages);
+            if($scope.tmpNewMessages.length > 0) {
+              for (var i = 0; i < $scope.tmpNewMessages.length; i++) {
+                $scope.tmpNewMessages[i]['position'] = i + 1;
+              }
+            }
           }
         },
         function (result) {

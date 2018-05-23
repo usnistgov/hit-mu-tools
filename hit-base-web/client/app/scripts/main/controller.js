@@ -574,7 +574,11 @@ angular.module('main').controller('MainCtrl',
           }
         }
       }).result.then(function (newDomain) {
-        $rootScope.selectDomain(newDomain);
+        if(newDomain !== 'New') {
+          $rootScope.selectDomain(newDomain);
+        }else {
+          $rootScope.createDomain();
+        }
       }, function () {
 
       });
@@ -726,7 +730,11 @@ angular.module('main').controller('MainCtrl',
         function (newDomain) {
           if (newDomain) {
             $rootScope.selectDomain(newDomain.domain);
+          }else if($rootScope.domain === null || $rootScope.domain === undefined){
+            $rootScope.reloadPage();
           }
+        }, function(){
+          $rootScope.reloadPage();
         });
     };
 
