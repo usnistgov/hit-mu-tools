@@ -1927,13 +1927,7 @@ angular.module('cf')
 
     var zipUploader = $scope.zipUploader = new FileUploader({
       url: 'api/cf/hl7v2/management/uploadZip',
-      autoUpload: true,
-      filters: [{
-        name: 'zipFilter',
-        fn: function (item) {
-          return /\/(zip)$/.test(item.type);
-        }
-      }]
+      autoUpload: true
     });
 
 
@@ -2256,9 +2250,9 @@ angular.module('cf').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF'
 
     //check if logged in
     if (!userInfoService.isAuthenticated()) {
-      $scope.$emit('event:loginRequestWithAuth', $scope.auth, '/addprofiles?x=' + $scope.token + 'd=' + $scope.domain);
+      $scope.$emit('event:loginRequestWithAuth', $scope.auth, '/addprofiles?x=' + $scope.token + '&d=' + $scope.domain);
     } else {
-      $location.url('/addprofiles?x=' + $scope.token + 'd=' + $scope.domain);
+      $location.url('/addprofiles?x=' + $scope.token + '&d=' + $scope.domain);
     }
   }
 

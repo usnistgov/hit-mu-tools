@@ -2247,13 +2247,7 @@ angular.module('cb')
 
     var zipUploader = $scope.zipUploader = new FileUploader({
       url: 'api/cb/management/uploadZip',
-      autoUpload: true,
-      filters: [{
-        name: 'zipFilter',
-        fn: function (item) {
-          return /\/(zip)$/.test(item.type);
-        }
-      }]
+      autoUpload: true
     });
 
     zipUploader.onBeforeUploadItem = function (fileItem) {
