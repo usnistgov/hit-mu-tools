@@ -301,8 +301,7 @@
                           <div class="row">
 
                             <div class="col-md-12">
-                              <label for="testcasedescription">Description: <span class="red"
-                                                                                  title="required field">*</span></label>
+                              <label for="testcasedescription">Description:</label>
                               <textarea id="testcasedescription" name="description"
                                         style="resize: vertical;"
                                         ng-model="testcase.description"
@@ -485,7 +484,7 @@
 
                            <button
                              ng-show="testcase.scope === 'USER' && testcase.type =='TestPlan' && (isAdmin() || isSupervisor())"
-                             type="button" class="btn btn-md btn-primary" ng-click="publishTestPlan()"
+                             type="button" class="btn btn-md btn-primary" ng-click="publishGroup()"
                              ng-disabled="tsForm.$invalid || loading">
                         <i class="fa fa-paper-plane"></i> Make Public
                       </button>

@@ -55,6 +55,8 @@
           <div class="col-md-12" style="margin-bottom: 10px" ng-show="userDomain != null">
             <h3>
               <span>Tool Scope: {{userDomain.name}}</span>
+
+
               <span class="pull-right">
               <button title="Reset"
                       type="button"
@@ -69,6 +71,17 @@
                        ng-click="saveDomain()">
                                     <i class="fa fa-check"></i>Save
                                 </button>
+
+
+              <button title="Make Public" ng-if="userDomain.scope === 'USER' && canPublish()"
+                      type="button"
+                      ng-disabled="domainForm.$invalid"
+                      class="btn btn-md btn-info"
+                      ng-click="publishDomain()">
+                                    <i class="fa fa-check"></i>Make Public
+              </button>
+
+
             </span>
             </h3>
             <hr/>
@@ -245,15 +258,7 @@
                                     <i class="fa fa-check"></i>Delete
                                 </button>
             </span>
-                <span class="pull-right">
-              <button title="Make Public" ng-if="userDomain.scope === 'USER' && canPublish()"
-                      type="button"
-                      ng-disabled="domainForm.$invalid"
-                      class="btn btn-md btn-info"
-                      ng-click="publishDomain()">
-                                    <i class="fa fa-check"></i>Make Public
-                                </button>
-            </span>
+
               </div>
 
               <div>
