@@ -297,9 +297,9 @@
 
     <a data-nodrag  ng-show="node.type !== 'TestPlan'"  ng-class="{'selected': testcase != null && testcase.id === node.id && testcase.type === node.type}" ng-click="selectGroup(node)"
        class="point">{{node.position}}.{{node.name}}</a>
-    <a data-nodrag title="Add New Group" ng-click="addNewTestStepGroup(node)" class="point pull-right btn btn-success btn-xs" style="margin-right:10px">
+    <a data-nodrag title="Add New Sub Profile Group" ng-click="addNewTestStepGroup(node)" class="point pull-right btn btn-success btn-xs" style="margin-right:10px">
       <i
-        class="fa fa-plus"></i></a>
+        class="fa fa-plus"></i>Sub Profile Group</a>
 
 
   </div>
