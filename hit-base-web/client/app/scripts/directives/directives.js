@@ -116,6 +116,41 @@ angular.module('hit-tool-directives')
     }]);
 
 
+angular.module('hit-tool-directives')
+	.directive('loadingTestcases',   ['$http' ,function ($http){
+		return {
+	        restrict: 'E',
+	        replace:true,
+	        template: '<div><div class="overlay"></div><div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-2x "></i><br>Adding test cases...</div></div>',
+	        link: function (scope, element, attr) {
+	              scope.$watch('loading', function (val) {
+	                  if (val)
+	                      $(element).show();
+	                  else
+	                      $(element).hide();
+	              });
+	        }
+	      };
+    }]);
+
+angular.module('hit-tool-directives')
+.directive('validatingFiles',   ['$http' ,function ($http){
+	return {
+        restrict: 'E',
+        replace:true,
+        template: '<div><div class="overlay"></div><div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-2x "></i><br>validating files...</div></div>',
+        link: function (scope, element, attr) {
+              scope.$watch('loading', function (val) {
+                  if (val)
+                      $(element).show();
+                  else
+                      $(element).hide();
+              });
+        }
+      };
+}]);
+
+
 
 
 
