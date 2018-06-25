@@ -317,8 +317,7 @@ angular.module('cf')
         $scope.selectedTP.id = group;
         StorageService.set(StorageService.CF_SELECTED_TESTPLAN_ID_KEY, group);
         $scope.selectedScope.key = scope ? scope : $scope.testPlanScopes[0].key;
-        $scope.selectTP();
-      }
+       }
       $scope.selectScope();
     });
 

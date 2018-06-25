@@ -1703,7 +1703,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-  .controller('CBTestManagementCtrl', function ($scope, $window, $filter, $rootScope, CB, $timeout, $sce, StorageService, TestCaseService, TestStepService, CBTestPlanManager, User, userInfoService, $modal, Notification, $modalStack) {
+  .controller('CBTestManagementCtrl', function ($scope, $window, $filter, $rootScope, CB, $timeout, $sce, StorageService, TestCaseService, TestStepService, CBTestPlanManager, User, userInfoService, $modal, Notification, $modalStack,$location,$routeParams) {
     $scope.selectedTestCase = CB.selectedTestCase;
     $scope.testCase = CB.testCase;
     $scope.selectedTP = {id: null};
@@ -1717,6 +1717,7 @@ angular.module('cb')
     $scope.loadingTC = false;
     $scope.loadingTPs = false;
     $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
+    $scope.token = $routeParams.x;
 
 
 
@@ -2155,7 +2156,17 @@ angular.module('cb')
     };
 
 
-    $scope.publishTestPlan = function () {
+      // $scope.afterSave =function(token) {
+      //     $timeout(function () {
+      //         if(token != null && token) {
+      //             var group = StorageService.get(StorageService.CB_MANAGE_SELECTED_TESTPLAN_ID_KEY);
+      //             $location.url("/cb?nav=execution&scope=" + $scope.selectedScope.key + "&testPlan="+ $scope.selectedTestCase.id);
+      //         }
+      //     });
+      // };
+
+
+      $scope.publishTestPlan = function () {
       var modalInstance = $modal.open({
         templateUrl: 'views/cb/manage/confirm-publish-testplan.html',
         controller: 'ConfirmDialogCtrl',
@@ -2179,6 +2190,7 @@ angular.module('cb')
                 $scope.selectScope();
                 $scope.selectedTP.id = $scope.selectedTestCase.id;
                 $scope.selectTP();
+                // $scope.afterSave($scope.token);
               } else {
                 Notification.error({
                   message: result.message,
