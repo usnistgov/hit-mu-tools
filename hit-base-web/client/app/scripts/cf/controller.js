@@ -155,6 +155,9 @@ angular.module('cf')
                 }
               }
             }
+
+
+
             if (targetId != null) {
               $scope.selectedTP.id = targetId.toString();
             }
