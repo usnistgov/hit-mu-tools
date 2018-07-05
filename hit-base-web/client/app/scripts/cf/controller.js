@@ -32,6 +32,7 @@ angular.module('cf')
         $scope.$broadcast('event:loginRequiredWithRedirect', $location.url());
       } else {
         $timeout(function () {
+         	console.log("event uploadToken?");
           $scope.setSubActive("/cf_management");
           $scope.$broadcast('cf:uploadToken', $scope.token);
         });
@@ -2264,6 +2265,10 @@ angular.module('cf').controller('UploadTokenCheckCtrl', ['$scope', '$http', 'CF'
 
 
 }]);
+
+
+
+
 
 
 angular.module('cf').controller('CreateTestPlanCtrl', function ($scope, $modalInstance, scope, CFTestPlanManager, position, domain) {

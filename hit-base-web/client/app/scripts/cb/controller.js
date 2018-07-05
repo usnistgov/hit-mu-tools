@@ -4,6 +4,8 @@ angular.module('cb')
   .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService) {
 
     $scope.testCase = null;
+    $scope.token = $routeParams.x;
+    $scope.domain = $routeParams.d;
 
     $scope.initTesting = function () {
       var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
@@ -2326,3 +2328,26 @@ angular.module('cb')
     };
 
   }]);
+
+angular.module('cb').controller('UploadCBTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'Notification', 'modalService', '$routeParams', '$location', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, userInfoService, Notification, modalService, $routeParams, $location) {
+
+	  $scope.profileCheckToggleStatus = false;
+
+	  $scope.token = decodeURIComponent($routeParams.x);
+	  $scope.auth = decodeURIComponent($routeParams.y);
+	  $scope.domain = decodeURIComponent($routeParams.d);
+
+
+	  if ($scope.token !== undefined && $scope.auth !== undefined) {
+
+
+	    //check if logged in
+	    if (!userInfoService.isAuthenticated()) {
+	      $scope.$emit('event:loginRequestWithAuth', $scope.auth, '/addprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+	    } else {
+	      $location.url('/addprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+	    }
+	  }
+
+
+	}]);
