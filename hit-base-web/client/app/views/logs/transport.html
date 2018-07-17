@@ -90,16 +90,16 @@
         <button title="Log content"  class="btn btn-xs btn-default" ng-click="openLogDetails(row)"><i class="fa fa-external-link"></i></button>
         <button  title="remove log" class="btn btn-xs btn-danger" ng-click="deleteLog(row)"><i class="fa fa-trash"></i></button>
       </td>
-
     </tr>
-    </tbody>
-    <tfoot ng-show="logs.length >=20">
-    <tr>
+
+    <tr ng-show="logs.length >=20">
       <th colspan="7" class="text-center" st-ratio="100">
         <div class="" st-pagination="" st-items-by-page="20"
              st-displayed-pages="10"></div>
       </th>
     </tr>
-    </tfoot>
-  </table>
+
+    </tbody>
+
+   </table>
 </div>
