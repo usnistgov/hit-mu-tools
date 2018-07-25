@@ -776,7 +776,16 @@ angular.module('main').controller('MainCtrl',
                             }
                         }
                         if (domainFound == null) {
-                            $rootScope.openUnknownDomainDlg();
+//                            $rootScope.openUnknownDomainDlg();
+                        	 DomainsManager.getDomainByKey("default").then(function (result) {
+                                 $rootScope.appInfo.selectedDomain = result.domain;
+                                 StorageService.set(StorageService.APP_SELECTED_DOMAIN, result.domain);
+                                 $rootScope.domain = result;
+                                 $rootScope.loadingDomain = false;
+                             }, function (error) {
+                                 $rootScope.loadingDomain = true;
+                                 $rootScope.openUnknownDomainDlg();
+                             });
                         } else {
                             $rootScope.clearDomainSession();
                             DomainsManager.getDomainByKey(domainFound).then(function (result) {

@@ -149,7 +149,10 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/saveCBTokens', {
             templateUrl: 'views/home.html',
             controller: 'UploadCBTokenCheckCtrl'
-        })        
+        })
+        .when('/addcbprofiles', {
+            redirectTo: '/cb'
+        })
         .when('/domains', {
             templateUrl: 'views/domains/domains.html'
         })
