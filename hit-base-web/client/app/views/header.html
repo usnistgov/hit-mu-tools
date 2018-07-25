@@ -15,7 +15,7 @@
     <a style="display: inline-block; text-shadow:none" href="#">
       <div id="apptitle">{{appInfo.options.ORGANIZATION_NAME != null && appInfo.options.ORGANIZATION_NAME != undefined ? appInfo.options.ORGANIZATION_NAME: 'NIST'}} <span style='color:white;'>{{appInfo.name}}</span><span
         style='color:red; font-size:12px'> {{appInfo.version}}</span></div>
-      <div id="appsubtitle">{{appInfo.appSubTitle}}</div>
+      <div id="appsubtitle">{{appInfo.subTitle}}</div>
     </a>
 
     <span class="pull-right" style="margin-top:10px" ng-show="appInfo.domains != null && appInfo.domains.length > 0">
@@ -86,10 +86,10 @@
 
                   <li ng-if="isDomainsManagementSupported()" role="separator" class="divider"></li>
 
-                  <li ng-if="isDomainsManagementSupported()" ng-class="isActive('/domains')"><a class="point" href="#/domains"><i
+                  <li ng-if="isDomainsManagementSupported() && hasWriteAccess()" ng-class="isActive('/domains')"><a class="point" href="#/domains"><i
                     class="fa fa-cogs"></i>&nbsp; Tool Scope Settings</a></li>
 
-                  <li role="separator" class="divider"></li>
+                  <li ng-if="isDomainsManagementSupported() && hasWriteAccess()" role="separator" class="divider"></li>
 
                   <li ng-show="isAdmin()" ng-class="isActive('/logs')"><a class="point" href="#/logs"><i
                     class="fa fa-cog"></i>&nbsp; Admin Logs</a></li>

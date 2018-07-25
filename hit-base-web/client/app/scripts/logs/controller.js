@@ -4,14 +4,16 @@
 
 
 angular.module('logs')
-  .controller('LogCtrl', ['$scope', 'ValidationLogService', 'TransportLogService',
-    function ($scope, ValidationLogService, TransportLogService) {
+  .controller('LogCtrl', ['$scope', 'ValidationLogService', 'TransportLogService','$rootScope',
+    function ($scope, ValidationLogService, TransportLogService,$rootScope) {
 
       $scope.numberOfValidationLogs = 0;
       $scope.numberOfTransportLogs = 0;
       $scope.error = null;
       $scope.loadingAll = false;
       $scope.loadingOne = false;
+
+      $scope.currentDate = new Date();
 
       $scope.selectedType = null;
 
@@ -33,6 +35,18 @@ angular.module('logs')
           $scope.error = "Sorry, Cannot load the logs. Please try again. \n DEBUG:" + error;
         });
 
+
+        $rootScope.$on('logs:decreaseValidationCount', function (event) {
+          $scope.numberOfValidationLogs -=1;
+        });
+
+        $rootScope.$on('logs:decreaseTransportCount', function (event) {
+          $scope.numberOfTransportLogs -=1;
+        });
+
+
+
+
       };
 
       $scope.selectType = function (type) {
@@ -44,8 +58,8 @@ angular.module('logs')
 
 
 angular.module('logs')
-  .controller('ValidationLogCtrl', ['$scope', 'ValidationLogService', 'Notification', '$modal',
-    function ($scope, ValidationLogService, Notification, $modal) {
+  .controller('ValidationLogCtrl', ['$scope', 'ValidationLogService', 'Notification', '$modal','$rootScope',
+    function ($scope, ValidationLogService, Notification, $modal,$rootScope) {
 
       $scope.logs = null;
       $scope.tmpLogs = null;
@@ -115,14 +129,26 @@ angular.module('logs')
         });
       };
 
+      $scope.deleteLog = function(log){
+        ValidationLogService.deleteLog(log.id).then(function (result) {
+          $rootScope.$emit('logs:decreaseValidationCount');
+          var index = $scope.logs.indexOf(log);
+          if(index > -1){
+            $scope.logs.splice(index, 1);
+          }
+        }, function (error) {
+          $scope.error = "Sorry, Cannot delete the log. Please try again. \n DEBUG:" + error;
+        });
+      };
+
 
     }
   ]);
 
 
 angular.module('logs')
-  .controller('TransportLogCtrl', ['$scope', 'TransportLogService', 'Notification', '$modal',
-    function ($scope, TransportLogService, Notification, $modal) {
+  .controller('TransportLogCtrl', ['$scope', 'TransportLogService', 'Notification', '$modal','$rootScope',
+    function ($scope, TransportLogService, Notification, $modal,$rootScope) {
 
       $scope.logs = null;
       $scope.tmpLogs = null;
@@ -203,6 +229,17 @@ angular.module('logs')
         return connType === 'TA_MANUAL' || connType === 'SUT_MANUAL' ? 'fa fa-wrench' : connType === 'SUT_RESPONDER' || connType === 'SUT_INITIATOR' ? 'fa fa-arrow-right' : connType === 'TA_RESPONDER' || connType === 'TA_INITIATOR' ? 'fa fa-arrow-left' : 'fa fa-check-square-o';
       };
 
+      $scope.deleteLog = function(log){
+        TransportLogService.deleteLog(log.id).then(function (result) {
+          $rootScope.$emit('logs:decreaseTransportCount');
+          var index = $scope.logs.indexOf(log);
+          if(index > -1){
+            $scope.logs.splice(index, 1);
+          }
+        }, function (error) {
+          $scope.error = "Sorry, Cannot delete the log. Please try again. \n DEBUG:" + error;
+        });
+      };
 
     }
   ]);
