@@ -775,6 +775,12 @@ angular.module('main').controller('MainCtrl',
                                 }
                             }
                         }
+
+                        if(domainFound == null){
+                          $rootScope.appInfo.domains = $filter('orderBy')($rootScope.appInfo.domains, 'position');
+                          domainFound = $rootScope.appInfo.domains[0].domain;
+                        }
+
                         if (domainFound == null) {
 //                            $rootScope.openUnknownDomainDlg();
                         	 DomainsManager.getDomainByKey("default").then(function (result) {
