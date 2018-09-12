@@ -75,8 +75,8 @@
                             class="fa fa-user"></i>&nbsp;My Profile</a></li>
                     <li role="separator" class="divider"></li>
 
-                    <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a
-                            href="#/transport-settings">
+                    <li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported"><a
+                            href="#/transport">
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
                     <li role="separator" class="divider"></li>
@@ -121,8 +121,8 @@
                         </a>
                     </li>
                     <li ng-if="!isAuthenticationRequired()" role="separator" class="divider"></li>
-                    <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported && !isAuthenticationRequired()"><a
-                            href="#/transport-settings">
+                    <li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported && !isAuthenticationRequired()"><a
+                            href="#/transport">
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
                     <li ng-if="!isAuthenticationRequired()" role="separator" class="divider"></li>
