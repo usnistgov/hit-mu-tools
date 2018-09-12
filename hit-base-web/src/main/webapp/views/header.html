@@ -37,7 +37,7 @@
             <li ng-class="{'active':isActive('/cb')}"><a href="#/cb">
                 <i class="fa fa-check-square-o"></i>
                 Context-based</a></li>
-            <!--<li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a href="#/transport-settings">-->
+            <!--<li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported"><a href="#/transport">-->
             <!--<span title="Transport Configuration" class="label label-danger label-icon">T</span>-->
             <!--<i class="fa fa-exchange"></i>-->
             <!--Transport Settings</a></li>-->
@@ -59,13 +59,13 @@
         </ul>
 -->
         <ul class="nav navbar-nav navbar-right" style="margin-right: 15px">
-            <li class="dropdown clear-fix" ng-show="isAuthenticated()" ng-class="isActive('/useraccount') || isActive('/transport-settings')">
+            <li class="dropdown clear-fix" ng-show="isAuthenticated()" ng-class="isActive('/useraccount') || isActive('/transport')">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i>&nbsp;Hello {{getUsername()}}<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li ng-class="isActive('/useraccount')"><a class="point" href="#/useraccount"><i class="fa fa-user"></i>&nbsp;My Profile</a></li>
                     <li role="separator" class="divider"></li>
 
-                    <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a href="#/transport-settings">
+                    <li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported"><a href="#/transport">
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
                     <li role="separator" class="divider"></li>
@@ -74,9 +74,9 @@
 
                   <li ng-if="isDomainsManagementSupported()" role="separator" class="divider"></li>
 
-                  <li ng-if="isDomainsManagementSupported()" ng-class="isActive('/domains')"><a class="point" href="#/domains"><i class="fa fa-cogs"></i>&nbsp; Tool Scope Settings</a></li>
+                  <li ng-if="isDomainsManagementSupported() && hasWriteAccess()" ng-class="isActive('/domains')"><a class="point" href="#/domains"><i class="fa fa-cogs"></i>&nbsp; Tool Scope Settings</a></li>
 
-                  <li role="separator" class="divider"></li>
+                  <li ng-if="isDomainsManagementSupported() && hasWriteAccess()" role="separator" class="divider"></li>
 
                   <li ng-show="isAdmin()" ng-class="isActive('/logs')"><a class="point" href="#/logs"><i class="fa fa-cog"></i>&nbsp; Admin Logs</a></li>
                   <li ng-show="isAdmin()" role="separator" class="divider"></li>
@@ -86,7 +86,7 @@
                   </li>
             </ul></li>
 
-            <li class="dropdown clear-fix" ng-show="!isAuthenticated()" ng-class="isActive('/useraccount') || isActive('/registration') || isActive('/forgotten') || isActive('/transport-settings')">
+            <li class="dropdown clear-fix" ng-show="!isAuthenticated()" ng-class="isActive('/useraccount') || isActive('/registration') || isActive('/forgotten') || isActive('/transport')">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i>&nbsp;Hello Guest <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li class="">
@@ -105,7 +105,7 @@
                         </a>
                     </li>
                     <li ng-if="!isAuthenticationRequired()" role="separator" class="divider"></li>
-                    <li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported && !isAuthenticationRequired()"><a href="#/transport-settings">
+                    <li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported && !isAuthenticationRequired()"><a href="#/transport">
                         <i title="Transport Configuration" class="label label-danger label-icon2">T</i>
                         Transport Settings</a></li>
                     <li ng-if="!isAuthenticationRequired()" role="separator" class="divider"></li>

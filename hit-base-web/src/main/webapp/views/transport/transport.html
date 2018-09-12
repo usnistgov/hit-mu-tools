@@ -11,7 +11,7 @@
 </script>
 
 
-<div ng-controller="TransportConfigListCtrl" style="min-height:400px; margin-left:10px;margin-top:10px" ng-init="initTransportConfigList()">
+<div ng-controller="TransportConfigListCtrl" style="min-height:400px; margin-left:10px;margin-top:10px" ng-init="initTransportConfigList()" ng-if="transportSupported">
 
   <div class="login-required-page" ng-show="isAuthenticationRequired() && !isAuthenticated()">
     <p>Please <a href="" ng-click="loginReq()"><i class="fa fa-sign-in"></i>&nbsp;login</a> to access this page. You can
@@ -182,3 +182,9 @@
 
     </div>
   </div>
+
+
+
+<div ng-if="!transportSupported">
+  Transport is not supported.
+</div>

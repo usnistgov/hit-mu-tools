@@ -42,7 +42,7 @@
             <li ng-class="{'active':isActive('/cb')}"><a href="#/cb">
                 <i class="fa fa-check-square-o"></i>
                 Context-based</a></li>
-            <!--<li ng-class="{'active':isActive('/transport-settings')}" ng-show="transportSupported"><a href="#/transport-settings">-->
+            <!--<li ng-class="{'active':isActive('/transport')}" ng-show="transportSupported"><a href="#/transport">-->
             <!--<span title="Transport Configuration" class="label label-danger label-icon">T</span>-->
             <!--<i class="fa fa-exchange"></i>-->
             <!--Transport Settings</a></li>-->
@@ -66,7 +66,7 @@
 -->
         <ul class="nav navbar-nav navbar-right" style="margin-right: 15px">
             <li class="dropdown clear-fix" ng-show="isAuthenticated()"
-                ng-class="isActive('/useraccount') || isActive('/transport-settings')">
+                ng-class="isActive('/useraccount') || isActive('/transport')">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                    aria-expanded="false"><i
                         class="fa fa-user"></i>&nbsp;Hello {{getUsername()}}<span class="caret"></span></a>
@@ -100,7 +100,7 @@
             </li>
 
             <li class="dropdown clear-fix" ng-show="!isAuthenticated()"
-                ng-class="isActive('/useraccount') || isActive('/registration') || isActive('/forgotten') || isActive('/transport-settings')">
+                ng-class="isActive('/useraccount') || isActive('/registration') || isActive('/forgotten') || isActive('/transport')">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                    aria-expanded="false"><i
                         class="fa fa-user"></i>&nbsp;Hello Guest <span class="caret"></span></a>
