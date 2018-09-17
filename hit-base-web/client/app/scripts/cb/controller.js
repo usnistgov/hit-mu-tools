@@ -1,9 +1,11 @@
 'use strict';
 
 angular.module('cb')
-  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService) {
+  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService','$routeParams', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService,$routeParams) {
 
     $scope.testCase = null;
+    $scope.token = $routeParams.x;
+    $scope.domain = $routeParams.d;
 
     $scope.initTesting = function () {
       var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
@@ -33,6 +35,9 @@ angular.module('cb')
         $scope.$broadcast('event:cb:initManagement');
       }
     };
+    
+    
+    
 
 
   }]);
@@ -1718,7 +1723,7 @@ angular.module('cb')
     $scope.loadingTPs = false;
     $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {key: 'GLOBAL', name: 'Public'}];
     $scope.token = $routeParams.x;
-
+    $scope.domain = $routeParams.d;
 
 
     $scope.error = null;
@@ -1726,6 +1731,9 @@ angular.module('cb')
 
     var testCaseService = new TestCaseService();
 
+    
+   
+    
 
     $scope.$on('event:cb:initManagement', function () {
       $scope.initTestCase();
@@ -2260,7 +2268,7 @@ angular.module('cb')
 
 
 angular.module('cb')
-  .controller('CBUploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'FileUploader', 'Notification', '$modalInstance', 'userInfoService', 'CFTestPlanManager', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification, $modalInstance, userInfoService, CFTestPlanManager) {
+  .controller('CBUploadCtrl', ['$scope', '$http', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'FileUploader', 'Notification', '$modalInstance', 'userInfoService', 'CBTestPlanManager', function ($scope, $http, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, FileUploader, Notification, $modalInstance, userInfoService, CBTestPlanManager) {
 
     FileUploader.FileSelect.prototype.isEmptyAfterSelection = function () {
       return true;
@@ -2270,13 +2278,7 @@ angular.module('cb')
 
     var zipUploader = $scope.zipUploader = new FileUploader({
       url: 'api/cb/management/uploadZip',
-      autoUpload: true,
-      filters: [{
-        name: 'zipFilter',
-        fn: function (item) {
-          return /\/(zip)$/.test(item.type);
-        }
-      }]
+      autoUpload: true
     });
 
     zipUploader.onBeforeUploadItem = function (fileItem) {
@@ -2286,29 +2288,65 @@ angular.module('cb')
     };
 
     zipUploader.onCompleteItem = function (fileItem, response, status, headers) {
-      $scope.loading = false;
+      
       $scope.error = null;
       if (response.status == "FAILURE") {
     	  	$scope.step = 1;
         $scope.error = response.message;
+        $scope.loading = false;
        } else {
-        if (response.action === "ADD") {
-          Notification.success({
-            message: "Test Plan Added Successfully !",
-            templateUrl: "NotificationSuccessTemplate.html",
-            scope: $rootScope,
-            delay: 5000
-          });
+        if (response.status === "SUCCESS") {
+        	if (response.token !== undefined){
+        		CBTestPlanManager.saveZip(response.token,$scope.domain.domain).then(function (response) {
+      	          $scope.loading = false;
+      	           if (response.status == "FAILURE") {
+             	   			$scope.step = 1;
+      	        	   		$scope.error = "Could not saved the zip, please try again";
+      	        	   		
+      	          } else {
+      	        	  	
+     	 	        	 if (response.action === "ADD") {
+     	 	        		Notification.success({
+     	  	                   message: "Test Plan Added Successfully !",
+     	  	                   templateUrl: "NotificationSuccessTemplate.html",
+     	  	                   scope: $rootScope,
+     	  	                   delay: 5000
+     	  	                 });
+     	 	        		$modalInstance.close({id: response.id}); 
+     	 	        }else if (response.action === "UPDATE") {
+     	 	        	 Notification.success({
+     	 	 	            message: "Test Plan Updated Successfully !",
+     	 	 	            templateUrl: "NotificationSuccessTemplate.html",
+     	 	 	            scope: $rootScope,
+     	 	 	            delay: 5000
+     	 	 	          });
+     	 	        	$modalInstance.close({id: response.id}); 
+     	 	        }
+      	        	  
+      	         	        	
+      	          }
+      	          }, function (error) {
+      	        	  	$scope.step = 1;
+      	            $scope.error = "Could not saved the zip, please try again";
+      	          });
+        	}else{
+        		$scope.step = 1;
+  	        $scope.error = "Could not saved the zip, no token was received, please try again";
+        	}
+        	
+        
+        	
+        
+        	
+        	
+        
+          
+          
+          
+          
         }
-        if (response.action === "UPDATE") {
-          Notification.success({
-            message: "Test Plan Updated Successfully !",
-            templateUrl: "NotificationSuccessTemplate.html",
-            scope: $rootScope,
-            delay: 5000
-          });
-        }
-        $modalInstance.close({id: response.id});
+        
+        
       }
     };
 
@@ -2332,3 +2370,55 @@ angular.module('cb')
     };
 
   }]);
+
+angular.module('cb').controller('UploadCBTokenCheckCtrl', ['$scope', '$http', 'CF', '$window', '$modal', '$filter', '$rootScope', '$timeout', 'StorageService', 'TestCaseService', 'TestStepService', 'userInfoService', 'Notification', 'modalService', '$routeParams', '$location','CBTestPlanManager', function ($scope, $http, CF, $window, $modal, $filter, $rootScope, $timeout, StorageService, TestCaseService, TestStepService, userInfoService, Notification, modalService, $routeParams, $location,CBTestPlanManager) {
+
+	  $scope.profileCheckToggleStatus = false;
+
+	  $scope.token = decodeURIComponent($routeParams.x);
+	  $scope.auth = decodeURIComponent($routeParams.y);
+	  $scope.domain = decodeURIComponent($routeParams.d);
+
+
+	  
+	  if ($scope.token !== undefined && $scope.auth !== undefined && $scope.domain !== undefined) {
+	    	
+	    	
+	    	var modalInstance = $modal.open({
+	            templateUrl: 'views/cb/manage/savingTestPlanModal.html',
+	            windowClass: 'upload-modal',
+	            backdrop: 'static',
+	            keyboard: false
+	          });
+
+	          
+	    	
+	    		CBTestPlanManager.saveZip($scope.token,$scope.domain).then(function (response) {
+	           modalInstance.close();
+	           if (response.status == "FAILURE") {
+	        	   		$scope.error = "Could not saved the zip, please try again";
+		            	modalInstance.close();
+	          } else {
+	        		modalInstance.close();        
+	           $location.url('/cb');
+	          }
+	          }, function (error) {
+	            $scope.error = "Could not saved the zip, please try again";
+	            	modalInstance.close();
+	          });
+	    }
+	  
+	  
+//	  if ($scope.token !== undefined && $scope.auth !== undefined) {
+//
+//
+//	    //check if logged in
+//	    if (!userInfoService.isAuthenticated()) {
+//	      $scope.$emit('event:loginRequestWithAuth', $scope.auth, '/addcbprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+//	    } else {
+//	      $location.url('/addcbprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+//	    }
+//	  }
+
+
+	}]);

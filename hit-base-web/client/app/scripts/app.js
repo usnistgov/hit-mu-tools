@@ -143,9 +143,16 @@ app.config(function ($routeProvider, $httpProvider, localStorageServiceProvider,
         .when('/uploadTokens', {
             templateUrl: 'views/home.html',
             controller: 'UploadTokenCheckCtrl'
-        })
+        })        
         .when('/addprofiles', {
             redirectTo: '/cf'
+        })
+        .when('/saveCBTokens', {
+            templateUrl: 'views/home.html',
+            controller: 'UploadCBTokenCheckCtrl'
+        })
+        .when('/addcbprofiles', {
+            redirectTo: '/cb'
         })
         .when('/domains', {
             templateUrl: 'views/domains/domains.html'
