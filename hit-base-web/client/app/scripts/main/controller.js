@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main').controller('MainCtrl',
-    function ($scope, $rootScope, i18n, $location, userInfoService, $modal, $filter, base64, $http, Idle, Notification, IdleService, StorageService, TestingSettings, Session, AppInfo, User, $templateCache, $window, $sce, DomainsManager,Transport,$timeout) {
+    function ($scope, $rootScope, i18n, $location, userInfoService, $modal, $filter, base64, $http, Idle, Notification, IdleService, StorageService, TestingSettings, Session, AppInfo, User, $templateCache, $window, $sce, DomainsManager, Transport, $timeout) {
         //This line fetches the info from the server if the user is currently logged in.
         //If success, the app is updated according to the role.
         $rootScope.loginDialog = null;
@@ -776,9 +776,9 @@ angular.module('main').controller('MainCtrl',
                             }
                         }
 
-                        if(domainFound == null){
-                          $rootScope.appInfo.domains = $filter('orderBy')($rootScope.appInfo.domains, 'position');
-                          domainFound = $rootScope.appInfo.domains[0].domain;
+                        if (domainFound == null) {
+                            $rootScope.appInfo.domains = $filter('orderBy')($rootScope.appInfo.domains, 'position');
+                            domainFound = $rootScope.appInfo.domains[0].domain;
                         }
 
                         if (domainFound == null) {
@@ -790,11 +790,38 @@ angular.module('main').controller('MainCtrl',
                                 StorageService.set(StorageService.APP_SELECTED_DOMAIN, result.domain);
                                 $rootScope.domain = result;
                                 $rootScope.loadingDomain = false;
-                                $timeout(function() {
+                                $timeout(function () {
+                                    Transport.configs = {};
                                     Transport.getDomainForms($rootScope.domain.domain).then(function (transportForms) {
                                         $rootScope.transportSupported = transportForms != null && transportForms.length > 0;
-                                     });
-                                },500);
+                                        if ($rootScope.transportSupported) {
+                                            angular.forEach(transportForms, function (transportForm) {
+                                                var protocol = transportForm.protocol;
+                                                if (!Transport.configs[protocol]) {
+                                                    Transport.configs[protocol] = {};
+                                                }
+                                                if (!Transport.configs[protocol]['forms']) {
+                                                    Transport.configs[protocol]['forms'] = {};
+                                                }
+                                                Transport.configs[protocol]['forms'] = transportForm;
+                                                Transport.configs[protocol]['error'] = null;
+                                                Transport.configs[protocol]['description'] = transportForm.description;
+                                                Transport.configs[protocol]['key'] = transportForm.protocol;
+                                                Transport.getConfigData($rootScope.domain.domain, protocol).then(function (data) {
+                                                    Transport.configs[protocol]['data'] = data;
+                                                    Transport.configs[protocol]['open'] = {
+                                                        ta: true,
+                                                        sut: false
+                                                    };
+                                                }, function (error) {
+                                                    Transport.configs[protocol]['error'] = error.data;
+                                                });
+                                            });
+                                        }
+                                    }, function (error) {
+                                        $scope.error = "No transport configs found.";
+                                    });
+                                }, 500);
                             }, function (error) {
                                 $rootScope.loadingDomain = true;
                                 $rootScope.openUnknownDomainDlg();

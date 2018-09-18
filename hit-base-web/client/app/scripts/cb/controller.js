@@ -1040,8 +1040,7 @@ angular.module('cb')
       $scope.loadingTP = false;
       StorageService.set(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY, $scope.selectedScope.key);
       if ($scope.selectedScope.key && $scope.selectedScope.key !== null && $scope.selectedScope.key !== "") {
-         console.log("Domain is=" + $rootScope.domain.domain);
-        if($rootScope.domain != null && $rootScope.domain.domain != null) {
+         if($rootScope.domain != null && $rootScope.domain.domain != null) {
           $scope.loadingTP = true;
           var tcLoader = new CBTestPlanListLoader($scope.selectedScope.key, $rootScope.domain.domain);
           tcLoader.then(function (testPlans) {
