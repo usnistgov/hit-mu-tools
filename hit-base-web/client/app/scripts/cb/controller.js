@@ -1,12 +1,13 @@
 'use strict';
 
 angular.module('cb')
-  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService','$routeParams', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService,$routeParams) {
+  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService','$routeParams','CBTestPlanManager','$modal','userInfoService', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService,$routeParams,CBTestPlanManager,$modal,userInfoService) {
 
     $scope.testCase = null;
     $scope.token = $routeParams.x;
     $scope.domain = $routeParams.d;
-
+    
+    
     $scope.initTesting = function () {
       var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
       if (tab == null || tab != '/cb_execution') tab = '/cb_testcase';
@@ -35,6 +36,14 @@ angular.module('cb')
         $scope.$broadcast('event:cb:initManagement');
       }
     };
+    
+    
+    if ($routeParams.scope !== undefined && $routeParams.group !== undefined){
+        $timeout(function () {
+            $scope.setSubActive("/cb_testcase");
+            $scope.$broadcast('event:cb:execute', decodeURIComponent($routeParams.scope), decodeURIComponent($routeParams.group));
+        });
+  	}
     
     
     
@@ -1738,6 +1747,16 @@ angular.module('cb')
     $scope.$on('event:cb:initManagement', function () {
       $scope.initTestCase();
     });
+    
+    $scope.$on('event:cb:execute', function (event, scope, group) {
+    	console.log("coucou ev"+ scope + ' '+ group);
+        $scope.selectedScope.key = scope && scope != null && (scope === 'USER' || scope === 'GLOBAL') ? scope : $scope.testPlanScopes[0].key;
+        if (group && group != null) {
+            $scope.selectedTP.id = group;
+            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, group);
+        }
+        $scope.selectScope();
+    });
 
 
     $scope.initTestCase = function () {
@@ -2379,34 +2398,61 @@ angular.module('cb').controller('UploadCBTokenCheckCtrl', ['$scope', '$http', 'C
 	  $scope.auth = decodeURIComponent($routeParams.y);
 	  $scope.domain = decodeURIComponent($routeParams.d);
 
-
-	  
-	  if ($scope.token !== undefined && $scope.auth !== undefined && $scope.domain !== undefined) {
-	    	
-	    	
-	    	var modalInstance = $modal.open({
+	  if ($scope.token !== undefined && $scope.auth !== "undefined" && $scope.domain !== undefined) {	    		    
+			//check if logged in
+	        if (!userInfoService.isAuthenticated()) {
+	            $scope.$emit('event:loginRequestWithAuth', $scope.auth, '/addcbprofiles?x=' + $scope.token + '&d=' + $scope.domain);      
+	        } else {
+	          $location.url('/addcbprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+	        }
+	  }  
+	    else if ($scope.token !== undefined && $scope.auth === "undefined" && $scope.domain !== undefined){ // no auth
+	     	var modalInstance = $modal.open({
 	            templateUrl: 'views/cb/manage/savingTestPlanModal.html',
 	            windowClass: 'upload-modal',
 	            backdrop: 'static',
 	            keyboard: false
 	          });
-
-	          
+	
 	    	
-	    		CBTestPlanManager.saveZip($scope.token,$scope.domain).then(function (response) {
+	    	CBTestPlanManager.saveZip($scope.token,$scope.domain).then(function (response) {
 	           modalInstance.close();
 	           if (response.status == "FAILURE") {
+		        	   Notification.error({
+		                   message: "An error occured while adding the Test Plan. Please try again or contact the administator for help",
+		                   templateUrl: "NotificationErrorTemplate.html",
+		                   scope: $rootScope,
+		                   delay: 10000
+		             });
 	        	   		$scope.error = "Could not saved the zip, please try again";
-		            	modalInstance.close();
+	                	modalInstance.close();
 	          } else {
+	        	  Notification.success({
+                      message: "Test Plan added successfully!",
+                      templateUrl: "NotificationSuccessTemplate.html",
+                      scope: $rootScope,
+                      delay: 5000
+                  });
 	        		modalInstance.close();        
-	           $location.url('/cb');
+	           //$location.url('/cb');
+	        		//set private
+	//                		$scope.selectedScope.key = $scope.testPlanScopes[1].key;
 	          }
 	          }, function (error) {
 	            $scope.error = "Could not saved the zip, please try again";
 	            	modalInstance.close();
 	          });
 	    }
+        
+        
+        
+        	
+//            $location.url('/addcbprofiles?x=' + $scope.token + '&d=' + $scope.domain);
+        
+		
+		  
+		  
+	  
 	  
 	  
 //	  if ($scope.token !== undefined && $scope.auth !== undefined) {
