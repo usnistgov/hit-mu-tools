@@ -7,10 +7,24 @@ angular.module('cb')
     $scope.token = $routeParams.x;
     $scope.domain = $routeParams.d;
     
+   
     
     $scope.initTesting = function () {
+    		
+    	 if ($routeParams.scope !== undefined && $routeParams.group !== undefined){
+    	        $timeout(function () {
+    	        		console.log("set l2 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " " +$routeParams.group);
+    	        		StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, $routeParams.group);
+    	            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY, $routeParams.scope);
+    	            StorageService.set(StorageService.ACTIVE_SUB_TAB_KEY,"/cb_testcase");    	            
+//    	            $scope.setSubActive("/cb_testcase");    	            
+//    	            $scope.$broadcast('event:cb:execute', decodeURIComponent($routeParams.scope), decodeURIComponent($routeParams.group));
+    	        });
+    	  }
+    	
       var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
       if (tab == null || tab != '/cb_execution') tab = '/cb_testcase';
+      console.log("coucou");
       $rootScope.setSubActive(tab);
       $scope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
         $scope.testCase = testCase;
@@ -38,12 +52,7 @@ angular.module('cb')
     };
     
     
-    if ($routeParams.scope !== undefined && $routeParams.group !== undefined){
-        $timeout(function () {
-            $scope.setSubActive("/cb_testcase");
-            $scope.$broadcast('event:cb:execute', decodeURIComponent($routeParams.scope), decodeURIComponent($routeParams.group));
-        });
-  	}
+    
     
     
     
@@ -700,7 +709,7 @@ angular.module('cb')
                 ++$scope.counter;
                 var sutInitiator = null;
                 try {
-                  sutInitiator = $scope.transport.configs[$scope.domain][$scope.protocol].data.sutInitiator;
+                  sutInitiator = $scope.transport.configs[$scope.protocol].data.sutInitiator;
                 } catch (e) {
                   sutInitiator = null;
                 }
@@ -1032,6 +1041,7 @@ angular.module('cb')
           $scope.testCases = [testPlan];
           testCaseService.buildTree(testPlan);
           $scope.refreshTree();
+          console.log("set l1039 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " " +$scope.selectedTP.id);
           StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, $scope.selectedTP.id);
           $scope.loadingTP = false;
         }, function (error) {
@@ -1040,6 +1050,7 @@ angular.module('cb')
         });
       } else {
         $scope.testCases = null;
+        console.log("set l1048 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " NA");
         StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, "");
         $scope.loadingTP = false;
       }
@@ -1054,8 +1065,7 @@ angular.module('cb')
       $scope.loadingTP = false;
       StorageService.set(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY, $scope.selectedScope.key);
       if ($scope.selectedScope.key && $scope.selectedScope.key !== null && $scope.selectedScope.key !== "") {
-         console.log("Domain is=" + $rootScope.domain.domain);
-        if($rootScope.domain != null && $rootScope.domain.domain != null) {
+         if($rootScope.domain != null && $rootScope.domain.domain != null) {
           $scope.loadingTP = true;
           var tcLoader = new CBTestPlanListLoader($scope.selectedScope.key, $rootScope.domain.domain);
           tcLoader.then(function (testPlans) {
@@ -1076,6 +1086,8 @@ angular.module('cb')
                 var previousTpId = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
                 targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
               }
+              console.log("previous: "+StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY));
+              console.log("targer id: "+ targetId);
               $scope.selectedTP.id = targetId.toString();
               $scope.selectTP();
             } else {
@@ -1089,6 +1101,7 @@ angular.module('cb')
           });
         }
       } else {
+    	  console.log("set l1097 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " NA");
         StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, "");
       }
     };
@@ -1748,15 +1761,15 @@ angular.module('cb')
       $scope.initTestCase();
     });
     
-    $scope.$on('event:cb:execute', function (event, scope, group) {
-    	console.log("coucou ev"+ scope + ' '+ group);
-        $scope.selectedScope.key = scope && scope != null && (scope === 'USER' || scope === 'GLOBAL') ? scope : $scope.testPlanScopes[0].key;
-        if (group && group != null) {
-            $scope.selectedTP.id = group;
-            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, group);
-        }
-        $scope.selectScope();
-    });
+//    $scope.$on('event:cb:execute', function (event, scope, group) {
+//    	console.log("coucou ev "+ scope + ' '+ group);
+//        $scope.selectedScope.key = scope && scope != null && (scope === 'USER' || scope === 'GLOBAL') ? scope : $scope.testPlanScopes[0].key;
+//        if (group && group != null) {
+//            $scope.selectedTP.id = group;
+//            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, group);
+//        }
+//        $scope.selectScope();
+//    });
 
 
     $scope.initTestCase = function () {
@@ -1830,6 +1843,7 @@ angular.module('cb')
       if ($scope.selectedScope.key && $scope.selectedScope.key !== null && $scope.selectedScope.key !== "" && $rootScope.domain != null) {
         if( $rootScope.domain && $rootScope.domain.domain != null) {
           $scope.loadingTP = true;
+          console.log("selectScope : "+$scope.selectedScope.key);
           CBTestPlanManager.getTestPlans($scope.selectedScope.key, $rootScope.domain.domain).then(function (testPlans) {
             $scope.error = null;
             $scope.testPlans = $filter('orderBy')(testPlans, 'position');
