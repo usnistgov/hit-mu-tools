@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cb')
-  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService','$routeParams','CBTestPlanManager','$modal','userInfoService', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService,$routeParams,CBTestPlanManager,$modal,userInfoService) {
+  .controller('CBTestingCtrl', ['$scope', '$window', '$rootScope', 'CB', 'StorageService', '$timeout', 'TestCaseService', 'TestStepService','$routeParams','userInfoService', function ($scope, $window, $rootScope, CB, StorageService, $timeout, TestCaseService, TestStepService,$routeParams,userInfoService) {
 
     $scope.testCase = null;
     $scope.token = $routeParams.x;
@@ -10,45 +10,47 @@ angular.module('cb')
    
     
     $scope.initTesting = function () {
-    		
+    	
     	 if ($routeParams.scope !== undefined && $routeParams.group !== undefined){
-    	        $timeout(function () {
-    	        		console.log("set l2 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " " +$routeParams.group);
+    	       
     	        		StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, $routeParams.group);
-    	            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY, $routeParams.scope);
-    	            StorageService.set(StorageService.ACTIVE_SUB_TAB_KEY,"/cb_testcase");    	            
-//    	            $scope.setSubActive("/cb_testcase");    	            
-//    	            $scope.$broadcast('event:cb:execute', decodeURIComponent($routeParams.scope), decodeURIComponent($routeParams.group));
-    	        });
+    	            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_SCOPE_KEY, $routeParams.scope);    	                	                	           
+    	            $scope.setSubActive("/cb_testcase",$routeParams.scope,$routeParams.group);    	            
+    	        
+    	  }else{
+    		  var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
+    	      if (tab == null || (tab !== '/cb_execution' && tab !== '/cb_management') ) tab = '/cb_testcase';
+    	      $scope.setSubActive(tab);
     	  }
     	
-      var tab = StorageService.get(StorageService.ACTIVE_SUB_TAB_KEY);
-      if (tab == null || tab != '/cb_execution') tab = '/cb_testcase';
-      console.log("coucou");
-      $rootScope.setSubActive(tab);
+     
       $scope.$on('cb:testCaseLoaded', function (event, testCase, tab) {
         $scope.testCase = testCase;
       });
-//            $scope.$on("$destroy", function () {
-//                var previousId = StorageService.get(StorageService.CB_LOADED_TESTCASE_ID_KEY);
-//                if (previousId != null)TestCaseService.clearRecords(previousId);
-//                previousId = StorageService.get(StorageService.CB_LOADED_TESTSTEP_ID_KEY);
-//                if (previousId != null)TestStepService.clearRecords(previousId);
-//            });
 
+    	
     };
+    
+  
 
 
-    $scope.setSubActive = function (tab) {
+    $scope.setSubActive = function (tab,scope,group) {    	
       $rootScope.setSubActive(tab);
+      $timeout(function () {
       if (tab === '/cb_execution') {
         $scope.$broadcast('cb:refreshEditor');
       } else if (tab === '/cb_testcase') {
-        console.log('calling initTestCase ');
-        $scope.$broadcast('event:cb:initTestCase');
+        if (scope !== undefined && group !== undefined){
+        		$scope.$broadcast('event:cb:initTestCase',{ scope: scope, group: group}); 
+        }else{
+        		$scope.$broadcast('event:cb:initTestCase');
+        }
+        
       } else if (tab === '/cb_management') {
         $scope.$broadcast('event:cb:initManagement');
-      }
+      } 
+      });
+
     };
     
     
@@ -970,6 +972,7 @@ angular.module('cb')
     $scope.selectedTestCase = CB.selectedTestCase;
     $scope.testCase = CB.testCase;
     $scope.selectedTP = {id: null};
+    $scope.preSelectedTP = {id: null};
     $scope.selectedScope = {key: null};
     $scope.testPlanScopes = [];
     $scope.allTestPlanScopes = [{key: 'USER', name: 'Private'}, {
@@ -987,6 +990,7 @@ angular.module('cb')
 
     $scope.error = null;
     $scope.collapsed = false;
+    
 
     var testCaseService = new TestCaseService();
 
@@ -1004,12 +1008,24 @@ angular.module('cb')
       }
       $scope.selectScope();
     };
+    
 
 
-    $scope.$on('event:cb:initTestCase', function () {
-      console.log('initTestCase called');
+    $scope.$on('event:cb:initTestCase', function(event, args) {     
+      
+      $scope.preSelectedTP.id = null;
+      if (args !== undefined && args.scope !== undefined && args.group !== undefined){
+	    	  $scope.preSelectedTP.id = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
+      }
       $scope.initTestCase();
     });
+    
+//    $scope.$on('event:cb:initTestCaseSelectedTP', function () {
+//        console.log('initTestCaseSelectedTP called');
+//        $scope.selectedTP.id = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
+//        console.log("1020 " + $scope.selectedTP.id)
+//        $scope.initTestCase();
+//      });
 
 
     $rootScope.$on('event:logoutConfirmed', function () {
@@ -1041,7 +1057,6 @@ angular.module('cb')
           $scope.testCases = [testPlan];
           testCaseService.buildTree(testPlan);
           $scope.refreshTree();
-          console.log("set l1039 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " " +$scope.selectedTP.id);
           StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, $scope.selectedTP.id);
           $scope.loadingTP = false;
         }, function (error) {
@@ -1050,7 +1065,6 @@ angular.module('cb')
         });
       } else {
         $scope.testCases = null;
-        console.log("set l1048 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " NA");
         StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, "");
         $scope.loadingTP = false;
       }
@@ -1075,19 +1089,19 @@ angular.module('cb')
             if ($scope.testPlans.length > 0) {
               if ($scope.testPlans.length === 1) {
                 targetId = $scope.testPlans[0].id;
-              } else if (userInfoService.isAuthenticated()) {
-                var lastTestPlanPersistenceId = userInfoService.getLastTestPlanPersistenceId();
-                var tp = findTPByPersistenceId(lastTestPlanPersistenceId, $scope.testPlans);
-                if (tp != null) {
-                  targetId = tp.id;
-                }
+              }else if ($scope.preSelectedTP.id !== null) {	
+            	  	targetId = $scope.preSelectedTP.id;
+               }else if (StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) !== null){
+            	   	   var previousTpId = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
+                   targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
+               }else if (userInfoService.isAuthenticated()) {            	   
+	                var lastTestPlanPersistenceId = userInfoService.getLastTestPlanPersistenceId();
+	                var tp = findTPByPersistenceId(lastTestPlanPersistenceId, $scope.testPlans);
+	                if (tp != null) {
+	                  targetId = tp.id;
+	                }
               }
-              if (targetId == null) {
-                var previousTpId = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
-                targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
-              }
-              console.log("previous: "+StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY));
-              console.log("targer id: "+ targetId);
+              
               $scope.selectedTP.id = targetId.toString();
               $scope.selectTP();
             } else {
@@ -1101,7 +1115,6 @@ angular.module('cb')
           });
         }
       } else {
-    	  console.log("set l1097 :" + StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) + " NA");
         StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, "");
       }
     };
@@ -1761,15 +1774,7 @@ angular.module('cb')
       $scope.initTestCase();
     });
     
-//    $scope.$on('event:cb:execute', function (event, scope, group) {
-//    	console.log("coucou ev "+ scope + ' '+ group);
-//        $scope.selectedScope.key = scope && scope != null && (scope === 'USER' || scope === 'GLOBAL') ? scope : $scope.testPlanScopes[0].key;
-//        if (group && group != null) {
-//            $scope.selectedTP.id = group;
-//            StorageService.set(StorageService.CB_SELECTED_TESTPLAN_ID_KEY, group);
-//        }
-//        $scope.selectScope();
-//    });
+
 
 
     $scope.initTestCase = function () {
@@ -1813,7 +1818,6 @@ angular.module('cb')
       $scope.loadingTP = true;
       $scope.errorTP = null;
       $scope.selectedTestCase = null;
-      console.log("$scope.selectedTP.id=" + $scope.selectedTP.id);
       if ($scope.selectedTP.id && $scope.selectedTP.id !== null && $scope.selectedTP.id !== "") {
         CBTestPlanManager.getTestPlan($scope.selectedTP.id).then(function (testPlan) {
           $scope.testCases = [testPlan];
@@ -1843,7 +1847,6 @@ angular.module('cb')
       if ($scope.selectedScope.key && $scope.selectedScope.key !== null && $scope.selectedScope.key !== "" && $rootScope.domain != null) {
         if( $rootScope.domain && $rootScope.domain.domain != null) {
           $scope.loadingTP = true;
-          console.log("selectScope : "+$scope.selectedScope.key);
           CBTestPlanManager.getTestPlans($scope.selectedScope.key, $rootScope.domain.domain).then(function (testPlans) {
             $scope.error = null;
             $scope.testPlans = $filter('orderBy')(testPlans, 'position');
@@ -2448,7 +2451,7 @@ angular.module('cb').controller('UploadCBTokenCheckCtrl', ['$scope', '$http', 'C
                       delay: 5000
                   });
 	        		modalInstance.close();        
-	           //$location.url('/cb');
+	           $location.url('/cb?scope=USER&group='+response.id);
 	        		//set private
 	//                		$scope.selectedScope.key = $scope.testPlanScopes[1].key;
 	          }
