@@ -607,8 +607,10 @@ angular.module('cf')
             $scope.tError = null;
             $scope.mError = null;
             $scope.vError = null;
-            $scope.initCodemirror();
-            $scope.refreshEditor();
+            if (!$scope.editor || $scope.editor  === null) {
+                $scope.initCodemirror();
+                $scope.refreshEditor();
+            }
             $scope.$on('cf:testCaseLoaded', function (event, testCase) {
                 $scope.testCase = testCase;
                 if ($scope.testCase != null) {
@@ -616,8 +618,10 @@ angular.module('cf')
                     $scope.nodelay = true;
                     $scope.mError = null;
                     $timeout(function () {
-                        $scope.initCodemirror();
-                        $scope.refreshEditor();
+                        if (!$scope.editor || $scope.editor  === null) {
+                            $scope.initCodemirror();
+                            $scope.refreshEditor();
+                        }
                         $scope.cf.editor = ServiceDelegator.getEditor($scope.testCase.testContext.format);
                         $scope.cf.editor.instance = $scope.editor;
                         $scope.cf.cursor = ServiceDelegator.getCursor($scope.testCase.testContext.format);
