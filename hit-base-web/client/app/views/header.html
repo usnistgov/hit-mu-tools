@@ -28,7 +28,7 @@
                   value="{{dom.domain}}">{{dom.name}}
           </option>
         </select>
-        <button ng-show="isAuthenticated()"  ng-click="createDomain()" class="btn btn-primary btn-xs" title="Create New Tool Scope"><i class="fa fa-plus"></i>Create</button>
+        <button ng-show="isAuthenticated() && isDomainsManagementSupported()"   ng-click="createDomain()" class="btn btn-primary btn-xs" title="Create New Tool Scope"><i class="fa fa-plus"></i>Create</button>
 
       </span>
   </div>
