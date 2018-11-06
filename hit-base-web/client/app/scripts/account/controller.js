@@ -18,7 +18,7 @@ angular.module('account')
                 //not sure it is very clean...
                 //TODO: Add call back?
                 new Account($scope.account).$save().then(function(){
-                 }, function(error){
+                }, function(error){
                     Notification.error({message: error.data, templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000});
                 });
 
