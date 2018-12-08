@@ -740,6 +740,22 @@ angular.module('main').controller('MainCtrl',
                 });
         };
 
+        $rootScope.domainsByOwner = {
+            'my': [],
+            'others':[]
+        };
+
+
+        $rootScope.initDomainsByOwner = function(){
+            for (var i = 0; i < $rootScope.appInfo.domains.length; i++) {
+                if ($rootScope.appInfo.domains[i].owner === userInfoService.getUsername()) {
+                    $rootScope.domainsByOwner['my'].push($rootScope.appInfo.domains[i]);
+                }else{
+                    $rootScope.domainsByOwner['others'].push($rootScope.appInfo.domains[i]);
+                }
+            }
+        };
+
 
         AppInfo.get().then(function (appInfo) {
                 $rootScope.loadingDomain = true;
@@ -760,6 +776,10 @@ angular.module('main').controller('MainCtrl',
                 var domainFound = null;
                 $rootScope.domain = null;
                 $rootScope.appInfo.selectedDomain = null;
+                $rootScope.domainsByOwner = {
+                    'my': [],
+                    'others':[]
+                };
                 DomainsManager.getDomains().then(function (domains) {
                     $rootScope.appInfo.domains = domains;
                     if ($rootScope.appInfo.domains != null) {
@@ -842,7 +862,19 @@ angular.module('main').controller('MainCtrl',
             });
 
 
+        $rootScope.displayOwnership = function(dom){
+            return dom.owner === userInfoService.getUsername() ? "My Tool Scopes": "Others Tool Scopes";
+        };
+
+        $rootScope.orderOwnership = function(dom){
+            return dom.owner === userInfoService.getUsername() ? 0: 1;
+        };
+
+
+
     });
+
+
 
 
 angular.module('main').controller('LoginCtrl', ['$scope', '$modalInstance', 'user', '$location', function ($scope, $modalInstance, user, $location) {
