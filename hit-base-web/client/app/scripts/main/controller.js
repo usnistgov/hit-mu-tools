@@ -786,6 +786,7 @@ angular.module('main').controller('MainCtrl',
                 DomainsManager.getDomains().then(function (domains) {
                     $rootScope.appInfo.domains = domains;
                     if ($rootScope.appInfo.domains != null) {
+                    		$rootScope.initDomainsByOwner();
                         if ($rootScope.appInfo.domains.length === 1) {
                             domainFound = $rootScope.appInfo.domains[0].domain;
                         } else if (storedDomain != null) {
