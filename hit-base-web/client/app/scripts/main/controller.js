@@ -95,6 +95,9 @@ angular.module('main').controller('MainCtrl',
         $scope.isAdmin = function () {
             return userInfoService.isAdmin();
         };
+        $scope.isPublisher = function () {
+            return userInfoService.isPublisher();
+        };
 
         $scope.getRoleAsString = function () {
             if ($scope.isTester() === true) {
@@ -711,7 +714,7 @@ angular.module('main').controller('MainCtrl',
 
 
         $rootScope.canPublish = function () {
-            return userInfoService.isAuthenticated() && userInfoService.isAdmin();
+            return $rootScope.hasWriteAccess() && (userInfoService.isAdmin() || userInfoService.isPublisher());
         };
 
         $rootScope.createDomain = function () {
