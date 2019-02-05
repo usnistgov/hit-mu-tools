@@ -204,7 +204,7 @@ angular.module('domains')
 
 
         $scope.saveAndPublishDomain = function () {
-            if ($rootScope.canPublish()) {
+            if ($scope.canPublish($scope.userDomain)) {
                 var modalInstance = $modal.open({
                     templateUrl: 'views/domains/confirm-publish.html',
                     controller: 'ConfirmDialogCtrl',
@@ -236,7 +236,7 @@ angular.module('domains')
         };
 
         $scope.publishDomain = function (dom) {
-            if ($rootScope.canPublish()) {
+            if ($scope.canPublish(dom)) {
                 var modalInstance = $modal.open({
                     templateUrl: 'views/domains/confirm-publish.html',
                     controller: 'ConfirmDialogCtrl',
@@ -261,8 +261,18 @@ angular.module('domains')
             }
         };
 
+        $scope.hasWriteAccess = function (dom) {
+            return userInfoService.isAuthenticated() && (userInfoService.isAdmin() || (dom != null && dom.owner === userInfoService.getUsername()));
+        };
+
+
+        $scope.canPublish = function (dom) {
+            return $scope.hasWriteAccess(dom) && (userInfoService.isAdmin() || userInfoService.isPublisher());
+        };
+
+
         $scope.unpublishDomain = function (dom) {
-            if ($rootScope.canPublish()) {
+            if ($scope.canPublish(dom)) {
                 var modalInstance = $modal.open({
                     templateUrl: 'views/domains/confirm-unpublish.html',
                     controller: 'ConfirmDialogCtrl',
@@ -292,7 +302,7 @@ angular.module('domains')
 
 
         $scope.saveAndUnpublishDomain = function () {
-            if ($rootScope.canPublish()) {
+            if ($scope.canPublish($scope.userDomain)) {
                 var modalInstance = $modal.open({
                     templateUrl: 'views/domains/confirm-unpublish.html',
                     controller: 'ConfirmDialogCtrl',
