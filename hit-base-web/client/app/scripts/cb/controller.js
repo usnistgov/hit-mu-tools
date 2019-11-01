@@ -1093,13 +1093,17 @@ angular.module('cb')
             	  	targetId = $scope.preSelectedTP.id;
                }else if (StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY) !== null){
             	   	   var previousTpId = StorageService.get(StorageService.CB_SELECTED_TESTPLAN_ID_KEY);
-                   targetId = previousTpId == undefined || previousTpId == null ? "" : previousTpId;
+                   targetId = previousTpId == undefined || previousTpId == null ? $scope.testPlans[0].id : previousTpId;
                }else if (userInfoService.isAuthenticated()) {            	   
 	                var lastTestPlanPersistenceId = userInfoService.getLastTestPlanPersistenceId();
 	                var tp = findTPByPersistenceId(lastTestPlanPersistenceId, $scope.testPlans);
 	                if (tp != null) {
 	                  targetId = tp.id;
+	                }else{
+	                	targetId = $scope.testPlans[0].id;
 	                }
+              }else{
+            	  targetId = $scope.testPlans[0].id;
               }
               
               $scope.selectedTP.id = targetId.toString();
