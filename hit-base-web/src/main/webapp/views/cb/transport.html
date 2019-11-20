@@ -49,12 +49,13 @@
                 <td><b>Action</b></td>
                 <td>
                              <span ng-show="testStep.testingType === 'SUT_INITIATOR'">
-                                <span ng-show="transport.configs[domain][protocol].data.sutInitiator && transport.configs[domain][protocol].data.sutInitiator != null">
-                                                                                                      <div class="btn-group" role="group" aria-label="Listener">
+                                <span ng-show="transport.configs[protocol].data.sutInitiator && transport.configs[protocol].data.sutInitiator != null">
+
+                                  <div class="btn-group" role="group" aria-label="Listener">
 
                                      <div class="btn-group" role="group">
     <button ng-disabled="isTestCaseCompleted() || connecting || !transportButtonForm.protocolSelect.$valid" type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-             <i class="fa fa-cog"></i>
+       <i class="fa fa-cog"></i>
       <span>{{counterMax/60}}mn</span>
     </button>
     <ul class="dropdown-menu point">
@@ -66,37 +67,39 @@
   </div>
 
                                     <button type="button" title="Start Listening" ng-disabled="isTestCaseCompleted() || connecting || !transportButtonForm.protocolSelect.$valid" ng-click="startListener()" title="Start listening" class="btn btn-xs btn-success">
-                                        <i class="fa fa-play fa-fw"></i>Listen
+                                        <i class="fa fa-play fa-fw"></i>
+                                      <i ng-show="connecting" class="fa fa-circle-o-notch fa-spin"></i> Listen
                                     </button>
-
-
 </div>
-
                                     <button type="button" title="Stop Listening" ng-disabled="isTestCaseCompleted() || !connecting || !transportButtonForm.protocolSelect.$valid" ng-click="abortListening()" class="btn btn-xs btn-warning"><i class="fa fa-stop fa-fw"></i>Stop
                                     </button>
+
                                 </span>
-                                <span ng-show="!transport.configs[domain][protocol].data.sutInitiator || transport.configs[domain][protocol].data.sutInitiator === null">
+                                <span ng-show="!transport.configs[protocol].data.sutInitiator || transport.configs[protocol].data.sutInitiator === null">
                                     No configuration Information Available
                                 </span>
                             </span>
+
+                  <span ng-show="testStep.testingType === 'SUT_RESPONDER' || testStep.testingType === 'TA_RESPONDER'">
+                                          No Action required
+                                  </span>
+
                   <span ng-show="testStep.testingType === 'TA_INITIATOR'">
-                                <span class="" ng-show="transport.configs[domain][protocol].data.taInitiator && transport.configs[domain][protocol].data.taInitiator != null">
+                                <span class="" ng-show="transport.configs[protocol].data.taInitiator && transport.configs[protocol].data.taInitiator != null">
                                     <button type="button" ng-click="send()" ng-disabled="isTestCaseCompleted() || !hasUserContent() || connecting || !transportButtonForm.protocolSelect.$valid" title="Send" class="btn btn-xs btn-success">
                                         Send <i class="fa fa-share-square fa-fw"></i>
                                     </button>
                                 </span>
-                                <span class="" ng-show="!transport.configs[domain][protocol].data.taInitiator || transport.configs[domain][protocol].data.taInitiator === null">
+                                <span class="" ng-show="!transport.configs[protocol].data.taInitiator || transport.configs[protocol].data.taInitiator === null">
                                     No Configuration Information Found.
                                 </span>
                             </span>
 
-                  <a class="point" ng-show="transport.logs[testStep.id] === null" ng-click="openConsole(testStep)"><i class="fa fa-file-text fa-fw"></i> View
-                    log</a>
+                  <a class="point" ng-show="!isTestCaseCompleted() && connecting && transportButtonForm.protocolSelect.$valid" ng-click="openConsole(testStep)"><i class="fa fa-search"></i>
+                    Console</a>
 
-
-                  <a class="point" ng-show="transport.logs[testStep.id] != null" ng-click="viewConsole(testStep)"> <i class="fa fa-file-text fa-fw"></i>
-                    View
-                    log</a>
+                  <a class="point" ng-show="!connecting && transport.logs[testStep.id] != null" ng-click="viewConsole(testStep)"> <i class="fa fa-file-text fa-fw"></i>
+                    Log</a>
 
                 </td>
               </tr>

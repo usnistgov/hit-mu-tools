@@ -504,8 +504,7 @@
             return delay.promise;
         };
 
-
-        TestCaseDetailsService.loadArtifactHtml = function (eId, artifact) {
+      TestCaseDetailsService.loadArtifactHtml = function (eId, artifact) {
             if (artifact && artifact !== null) {
                 var cont = null;
                 var element = $('#' + eId);
@@ -605,7 +604,7 @@
 
     mod.controller('MessageContentInfoCtrl',
         function ($scope, $modalInstance, $rootScope) {
-            $scope.mcHelpInfo = $rootScope.appInfo.messageContentInfo;
+            $scope.mcHelpInfo = $rootScope.domain.messageContentInfo;
             $scope.close = function () {
                 $modalInstance.dismiss('cancel');
             }

@@ -53,6 +53,7 @@
 
       destroyEvent2 = $rootScope.$on($scope.type + ':initValidationReport', function (event, report, testStep) {
         $scope.loading = true;
+        $scope.error = null;
         $scope.testStepId = testStep.id;
         if (report != null && report != undefined) {
           if (report.html == null) {
@@ -90,6 +91,7 @@
         //$scope.loading = true;
         if (testStep != null) {
           $scope.report = null;
+          $scope.error = null;
           $scope.testStepId = testStep.id;
           var result = TestExecutionService.getTestStepValidationResult(testStep);
           result = result != undefined ? result : null;
@@ -196,7 +198,7 @@
     };
 
 
-    ReportService.downloadTestCaseReports = function (testCaseId, format, result, comments) {
+    ReportService.downloadTestCaseReports = function (testCaseId, format, result, comments, testPlanName, testGroupName) {
       var form = document.createElement("form");
       form.action = "api/tcReport/download";
       form.method = "POST";
@@ -222,6 +224,15 @@
       input.value = comments;
       form.appendChild(input);
 
+      input = document.createElement("input");
+      input.name = "testPlan";
+      input.value = testPlanName;
+      form.appendChild(input);
+
+      input = document.createElement("input");
+      input.name = "testGroup";
+      input.value = testGroupName;
+      form.appendChild(input);
 
       form.style.display = 'none';
       document.body.appendChild(form);
