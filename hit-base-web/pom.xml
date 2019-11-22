@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>gov.nist.healthcare.mu.ss-r2</groupId>
 		<artifactId>ss-r2</artifactId>
-		<version>1.7.2-SNAPSHOT</version>
+		<version>1.7.1-SNAPSHOT</version>
 	</parent>
 
 	<build>
@@ -83,6 +83,6 @@
 	</repositories>
 	
 	<properties>
-		<config.version>1.0.9-SNAPSHOT</config.version>
+		<config.version>1.0.9</config.version>
 	</properties>
 </project>
