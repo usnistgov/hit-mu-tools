@@ -21,7 +21,7 @@ body {
 				appInfo.options.ORGANIZATION_NAME: 'NIST'}} <span style="color: white">{{appInfo.name}}</span><span style="color: red; font-size: 12px"> {{appInfo.version}}</span>
 			</div>
 			<div id="appsubtitle">{{appInfo.subTitle}}</div>
-		</a> <span ng-show="isToolScopeSelectionDisplayed()"> <span class="pull-right" style="margin-top: 10px" ng-show="appInfo.domains != null && appInfo.domains.length > 0">
+		</a> <span ng-show="isDomainSelectionSupported()"> <span class="pull-right" style="margin-top: 10px" ng-show="appInfo.domains != null && appInfo.domains.length > 0">
 				<label style="color: white">Tool Scope<span ng-if="appInfo.domains.length > 1">s</span>:
 			</label> <span ng-if="isAuthenticated()">
 

@@ -1,32 +1,3 @@
-angular.module('doc').factory('TestCaseDocumentationLoader',
-  ['$q', '$http', '$rootScope', function ($q, $http,$rootScope) {
-
-    var TestCaseDocumentationLoader = function () {
-    };
-
-
-    TestCaseDocumentationLoader.prototype.getOneByDomainAndScope = function (domain, scope) {
-      var delay = $q.defer();
-      $http.get('api/documentation/testcases', {timeout: 60000,  params: {"domain": domain,"scope":scope}}).then(
-        function (object) {
-          if (object.data != null && object.data != "") {
-            delay.resolve(angular.fromJson(object.data));
-          } else {
-            delay.resolve(null);
-          }
-        },
-        function (response) {
-          delay.reject(response.data);
-        }
-      );
-      return delay.promise;
-    };
-
-    return TestCaseDocumentationLoader;
-  }
-  ]);
-
-
 
 angular.module('doc').factory('DocumentationManager', ['$q', '$http',
   function ($q, $http) {

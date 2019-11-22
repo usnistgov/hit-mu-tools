@@ -1520,7 +1520,11 @@ angular.module('doc')
       $scope.scope = scope;
       $scope.domain = domain;
 
-      DocumentationManager.getTestCaseDocuments(domain, scope).then(function (data) {
+      if (!$rootScope.isDomainSelectionSupported() && $rootScope.appInfo.domains.length === 1){
+    	  $scope.domain = $rootScope.appInfo.domains[0].domain;
+      }
+               
+      DocumentationManager.getTestCaseDocuments($scope.domain, scope).then(function (data) {
         $scope.error = null;
         $scope.context = data;
         $scope.data = [];

@@ -24,7 +24,7 @@
       <li ng-click="selectSectionType('app')" class="jslink" ><a
         ng-class="{'current':sectionType.key === 'app'}"> <i class="fa fa-book"></i> General Documents </a></li>
       <li ng-click="selectSectionType(domain.name)" class="jslink"><a
-        ng-class="{'current':sectionType.key !== 'app'}"> <i class="fa fa-book"></i> {{domain.name}}'s Documents</a></li>
+        ng-class="{'current':sectionType.key !== 'app'}" ng-if="isDomainSelectionSupported()"> <i class="fa fa-book"></i> {{domain.name}}'s Documents</a></li>
     </ul>
 
     <div>
@@ -52,7 +52,7 @@
       </div>
 
       <div ng-show="sectionType.key !== 'app'">
-        <div ng-include="'views/documentation/domain_docs.html'"></div>
+        <div ng-if="isDomainSelectionSupported()" ng-include="'views/documentation/domain_docs.html'"></div>
       </div>
 
 
@@ -258,21 +258,24 @@
       <!--</accordion-heading>-->
 
 
-      <!--<button ng-if="data.stage != 'CF'" title="Download Complete TestCase" type="button"-->
-              <!--class="btn btn-sm btn-info"-->
-              <!--ng-click="downloadCompleteTestPackage('CB')">-->
-        <!--<i class="fa fa-download"></i>-->
-        <!--Download Complete TestPackage (.zip)-->
-      <!--</button>-->
+     <button ng-if="data.stage != 'CF'" title="Download Complete TestCase" type="button"
+        class="btn btn-sm btn-info"
+        ng-click="downloadCompleteTestPackage('CB')">
+        <i class="fa fa-download"></i>
+      	Download Complete TestPackage (.zip)
+      </button>
 
-      <!--<button title="Download Example Messages" type="button" class="btn btn-sm btn-info"-->
-              <!--ng-click="downloadExampleMessages('CB')">-->
-        <!--<i class="fa fa-download"></i>-->
-        <!--Download Example Messages (.zip)-->
-      <!--</button>-->
 
-      <!--<br/>-->
-      <!--<br/>-->
+     <button title="Download Example Messages" type="button" class="btn btn-sm btn-info"
+              ng-click="downloadExampleMessages('CB')">
+        <i class="fa fa-download"></i>
+        Download Example Messages (.zip)
+      </button>
+
+
+      <br/>
+      <br/>
+
 
       <div class="col-md-12">
         <table tt-table tt-params="params"

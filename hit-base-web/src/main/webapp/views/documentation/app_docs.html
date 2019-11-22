@@ -19,8 +19,15 @@
     </accordion-heading>
     <div user-docs=""></div>
   </accordion-group>
-
-
+  
+  <accordion-group panel-class="panel-info" is-open="status.tcDoc" ng-if="!isDomainSelectionSupported()">
+    <accordion-heading>
+      <i class="fa" ng-class="{'fa-caret-down': status.tcDoc, 'fa-caret-right': !status.tcDoc}"></i> Test
+      Case Documentation
+    </accordion-heading>
+    <div testcase-doc=""></div>
+  </accordion-group>
+  
   <accordion-group panel-class="panel-info" is-open="status.installGuide">
     <accordion-heading>
       <i class="fa" ng-class="{'fa-caret-down': status.installGuide, 'fa-caret-right': !status.installGuide}"></i>

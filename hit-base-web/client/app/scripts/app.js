@@ -759,8 +759,8 @@ app.run(function (Session, $rootScope, $location, $modal, TestingSettings, AppIn
         return userInfoService.isAuthenticated();
     };
     
-    $rootScope.isToolScopeSelectionDisplayed = function () {
-        return $rootScope.getAppInfo().options && ($rootScope.getAppInfo().options['TOOL_SCOPE_SELECTON_DISPLAYED'] === "true");
+    $rootScope.isDomainSelectionSupported = function () {
+        return $rootScope.getAppInfo().options && ($rootScope.getAppInfo().options['DOMAIN_SELECTON_SUPPORTED'] === "true");
     };
     
     $rootScope.isUserLoginSupported = function () {
