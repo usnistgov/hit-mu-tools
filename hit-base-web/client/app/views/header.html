@@ -23,7 +23,7 @@ body {
 					style='color: red; font-size: 12px'> {{appInfo.version}}</span>
 			</div>
 			<div id="appsubtitle">{{appInfo.subTitle}}</div>
-		</a> <span ng-show="isToolScopeSelectionDisplayed()"> <span
+		</a> <span ng-if="isDomainSelectionSupported()"> <span
 			class="pull-right" style="margin-top: 10px"
 			ng-show="appInfo.domains != null && appInfo.domains.length > 0">
 
@@ -65,34 +65,30 @@ body {
 							</a></li>
 						</ul>
 					</div>
-			</span> <!--<select class="" name="selectedDomain"--> <!--ng-change="selectDomain(appInfo.selectedDomain)"-->
-				<!--ng-options="dom.domain as dom.name group by displayOwnership(dom) for dom in appInfo.domains"-->
-				<!--ng-model="appInfo.selectedDomain" required--> <!--&gt;--> <!--&lt;!&ndash;<option ng-repeat="dom in appInfo.domains"&ndash;&gt;-->
-				<!--&lt;!&ndash;value="{{dom.domain}}">{{dom.name}}&ndash;&gt;--> <!--&lt;!&ndash;</option>&ndash;&gt;-->
-				<!--</select>-->
-		</span> <span ng-if="!isAuthenticated()">
-				<div class="btn-group" ng-class='{open: open}'>
-					<button class="btn btn-sm" ng-click='open=!open'>
-						{{domain.name}}</button>
-					<button class="btn btn-sm dropdown-toggle" data-toggle="dropdown"
-						ng-click='open=!open'>
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu">
-						<li ng-if="appInfo.domains.length > 0"
-							ng-click="appInfo.selectedDomain = dom.domain; selectDomain(appInfo.selectedDomain)"
-							ng-class="{'domain-selected': domain.domain === dom.domain, 'disabled': domain.domain === dom.domain}"
-							ng-repeat="dom in appInfo.domains"><a href="#">
-								{{dom.name}}</a></li>
-					</ul>
-				</div>
+			</span> <span ng-if="!isAuthenticated()">
+					<div class="btn-group" ng-class='{open: open}'>
+						<button class="btn btn-sm" ng-click='open=!open'>
+							{{domain.name}}</button>
+						<button class="btn btn-sm dropdown-toggle" data-toggle="dropdown"
+							ng-click='open=!open'>
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li ng-if="appInfo.domains.length > 0"
+								ng-click="appInfo.selectedDomain = dom.domain; selectDomain(appInfo.selectedDomain)"
+								ng-class="{'domain-selected': domain.domain === dom.domain, 'disabled': domain.domain === dom.domain}"
+								ng-repeat="dom in appInfo.domains"><a href="#">
+									{{dom.name}}</a></li>
+						</ul>
+					</div>
+			</span>
+				<button
+					ng-show="isAuthenticated() && isDomainsManagementSupported()"
+					ng-click="createDomain()" class="btn btn-primary btn-sm"
+					title="Create New Tool Scope">
+					<i class="fa fa-plus"></i>Create
+				</button>
 		</span>
-			<button ng-show="isAuthenticated() && isDomainsManagementSupported()"
-				ng-click="createDomain()" class="btn btn-primary btn-sm"
-				title="Create New Tool Scope">
-				<i class="fa fa-plus"></i>Create
-			</button>
-
 		</span>
 	</div>
 	<div class="navbar-collapse collapse" id="appnavi">
@@ -131,8 +127,8 @@ body {
 		</ul>
 
 
-		<ul class="nav navbar-nav navbar-right"
-			style="margin-right: 15px" ng-show="isUserLoginSupported()">
+		<ul class="nav navbar-nav navbar-right" style="margin-right: 15px"
+			ng-show="isUserLoginSupported()">
 			<li class="dropdown clear-fix" ng-show="isAuthenticated()"
 				ng-class="isActive('/useraccount') || isActive('/transport')">
 				<a class="dropdown-toggle" data-toggle="dropdown" role="button"
