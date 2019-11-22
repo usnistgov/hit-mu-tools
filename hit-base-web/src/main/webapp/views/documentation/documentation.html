@@ -252,21 +252,24 @@
       <!--</accordion-heading>-->
 
 
-      <button ng-if="data.stage != 'CF'" title="Download Complete TestCase" type="button"
+     <button ng-if="data.stage != 'CF'" title="Download Complete TestCase" type="button"
         class="btn btn-sm btn-info"
         ng-click="downloadCompleteTestPackage('CB')">
         <i class="fa fa-download"></i>
       	Download Complete TestPackage (.zip)
       </button>
 
-      <button title="Download Example Messages" type="button" class="btn btn-sm btn-info"
+
+     <button title="Download Example Messages" type="button" class="btn btn-sm btn-info"
               ng-click="downloadExampleMessages('CB')">
         <i class="fa fa-download"></i>
         Download Example Messages (.zip)
       </button>
 
+
       <br/>
       <br/>
+
 
       <div class="col-md-12">
         <table tt-table tt-params="params"

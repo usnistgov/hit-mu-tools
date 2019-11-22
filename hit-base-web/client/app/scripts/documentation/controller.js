@@ -1103,26 +1103,26 @@ angular.module('doc')
       $scope.sectionType = sectionType;
       $scope.initDocs(scope, 500);
     });
-    
-    $scope.isLink = function (path) {
-        return path && path != null && path.startsWith("http");
-      };
 
-	  $scope.downloadDocument = function (path) {
-	    if (path != null) {
-	      var form = document.createElement("form");
-	      form.action = "api/documentation/downloadDocument";
-	      form.method = "POST";
-	      form.target = "_target";
-	      var input = document.createElement("input");
-	      input.name = "path";
-	      input.value = path;
-	      form.appendChild(input);
-	      form.style.display = 'none';
-	      document.body.appendChild(form);
-	      form.submit();
-	    }
-	  };
+    $scope.isLink = function(path) {
+    	return path && path != null && path.startsWith("http");
+	};
+	
+	$scope.downloadDocument = function(path) {
+		if (path != null) {
+			var form = document.createElement("form");
+			form.action = "api/documentation/downloadDocument";
+			form.method = "POST";
+			form.target = "_target";
+			var input = document.createElement("input");
+			input.name = "path";
+			input.value = path;
+			form.appendChild(input);
+			form.style.display = 'none';
+			document.body.appendChild(form);
+			form.submit();
+		}
+	};
 
 
     $scope.addDocument = function () {
@@ -1340,40 +1340,25 @@ angular.module('doc')
     });
 
 
-    $scope.isLink = function (path) {
-        return path && path != null && path.startsWith("http");
-      };
-
-	  $scope.downloadDocument = function (path) {
-	    if (path != null) {
-	      var form = document.createElement("form");
-	      form.action = "api/documentation/downloadDocument";
-	      form.method = "POST";
-	      form.target = "_target";
-	      var input = document.createElement("input");
-	      input.name = "path";
-	      input.value = path;
-	      form.appendChild(input);
-	      form.style.display = 'none';
-	      document.body.appendChild(form);
-	      form.submit();
-	    }
-	  };
-    $scope.downloadDocument = function (path) {
-      if (path != null) {
-        var form = document.createElement("form");
-        form.action = "api/documentation/downloadDocument";
-        form.method = "POST";
-        form.target = "_target";
-        var input = document.createElement("input");
-        input.name = "path";
-        input.value = path;
-        form.appendChild(input);
-        form.style.display = 'none';
-        document.body.appendChild(form);
-        form.submit();
-      }
-    };
+    $scope.isLink = function(path) {
+    	return path && path != null && path.startsWith("http");
+	};
+	
+	$scope.downloadDocument = function(path) {
+		if (path != null) {
+			var form = document.createElement("form");
+			form.action = "api/documentation/downloadDocument";
+			form.method = "POST";
+			form.target = "_target";
+			var input = document.createElement("input");
+			input.name = "path";
+			input.value = path;
+			form.appendChild(input);
+			form.style.display = 'none';
+			document.body.appendChild(form);
+			form.submit();
+		}
+	};
 
 
     $scope.addDocument = function () {
@@ -1534,12 +1519,11 @@ angular.module('doc')
 
       $scope.scope = scope;
       $scope.domain = domain;
-    
+
       if (!$rootScope.isDomainSelectionSupported() && $rootScope.appInfo.domains.length === 1){
     	  $scope.domain = $rootScope.appInfo.domains[0].domain;
       }
-            
-      
+               
       DocumentationManager.getTestCaseDocuments($scope.domain, scope).then(function (data) {
         $scope.error = null;
         $scope.context = data;

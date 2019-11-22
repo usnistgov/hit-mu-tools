@@ -1,7 +1,4 @@
 
-
-
-
 angular.module('doc').factory('DocumentationManager', ['$q', '$http',
   function ($q, $http) {
     var manager = {
