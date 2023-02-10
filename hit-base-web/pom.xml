@@ -59,11 +59,11 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>2.1.1</version>
+					<version>3.3.1</version>
 					<configuration>
 						<packagingExcludes>WEB-INF/web.xml</packagingExcludes>
 					</configuration>
-				</plugin>
+				</plugin>  
 			</plugins>
 		</pluginManagement>
 
@@ -74,6 +74,19 @@
 			<artifactId>ss-r2-config</artifactId>
 			<version>${config.version}</version>
 		</dependency>
+		
+		<dependency>
+        <groupId>org.glassfish.metro</groupId>
+        <artifactId>webservices-rt</artifactId>
+        <version>2.4.4</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.glassfish.metro</groupId>
+        <artifactId>webservices-api</artifactId>
+        <version>2.4.4</version>
+    </dependency>
+		
 	</dependencies>
 	<repositories>
 		<repository>
@@ -83,6 +96,6 @@
 	</repositories>
 	
 	<properties>
-		<config.version>1.0.9</config.version>
+		<config.version>1.0.10</config.version>
 	</properties>
 </project>
