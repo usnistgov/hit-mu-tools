@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nist.healthcare.mu.ss-r2</groupId>
 	<artifactId>ss-r2</artifactId>
-	<version>1.7.3-SNAPSHOT</version>
+	<version>1.7.2-SNAPSHOT</version>
 	<name>ss-r2</name>
 	<description>Syndromic Surveillance tool</description>
 	<packaging>pom</packaging>
