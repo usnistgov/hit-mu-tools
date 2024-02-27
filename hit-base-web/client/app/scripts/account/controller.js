@@ -88,14 +88,14 @@ angular.module('account')
 
             $scope.accordi = { account : true, accounts:false};
             $scope.setSubActive = function (id) {
-                if(id && id != null) {
+                if(id && id !== null) {
                     $rootScope.setSubActive(id);
                     $('.accountMgt').hide();
                     $('#' + id).show();
                 }
             };
             $scope.initAccount = function(){
-                if($rootScope.subActivePath == null){
+                if($rootScope.subActivePath === null){
                     $rootScope.subActivePath = "account";
                 }
                 $scope.setSubActive($rootScope.subActivePath);
@@ -144,7 +144,7 @@ angular.module('account').directive('stDateRange', ['$timeout', function ($timeo
 
             scope.$apply(function () {
               table.search(query, predicateName);
-            })
+            });
           }
         });
       });
@@ -159,13 +159,13 @@ angular.module('account').directive('stDateRange', ['$timeout', function ($timeo
           } else {
             scope.isAfterOpen = true;
           }
-        }
+        };
       }
 
       scope.openBefore = open(true);
       scope.openAfter = open();
     }
-  }
+  };
 }]).directive('stNumberRange', ['$timeout', function ($timeout) {
   return {
     restrict: 'E',
@@ -439,6 +439,60 @@ angular.module('account')
     ]);
 
 
+angular.module('account')
+  .controller('NotificationsCtrl', ['$scope', 'MultiTestersLoader', 'MultiSupervisorsLoader', 'Account', '$modal', '$resource', 'AccountLoader', 'userInfoService', '$location', 'Notification', 'notificationService',
+    function ($scope, MultiTestersLoader, MultiSupervisorsLoader, Account, $modal, $resource, AccountLoader, userInfoService, $location, Notification, notificationService) {
+
+      $scope.mainNot = {};
+      $scope.notificationList = [];
+
+      $scope.selectNotification = function (notification) {
+        $scope.mainNot = notification;
+      };
+
+      $scope.newNotification = function () {
+        $scope.mainNot = {};
+      };
+
+      $scope.saveNotification = function (notification) {
+        if (notification.id !== undefined) {
+          notificationService.updateNotification(notification).then(function (result) {
+            if (result.type === "success") {
+              Notification.error({ message: result.text, templateUrl: "NotificationSuccessTemplate.html", scope: $scope, delay: 50000 });
+            } else {
+              Notification.error({ message: result.text, templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000 });
+            }
+          }, function (error) {
+            Notification.error({ message: "Unabled to update a notification.", templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000 });
+          });
+        } else {
+          notificationService.saveNotification(notification).then(function (result) {
+            if (result.type === "success") {
+              Notification.error({ message: result.text, templateUrl: "NotificationSuccessTemplate.html", scope: $scope, delay: 50000 });              
+              $scope.notificationList.unshift(result.data);
+            } else {
+              Notification.error({ message: result.text, templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000 });
+            }
+          }, function (error) {
+            Notification.error({ message: "Unabled to add a notification.", templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000 });
+          });
+
+        }
+      }
+
+
+      $scope.getNotificationList = function () {
+        notificationService.getAllNotifications().then(function (result) {
+          $scope.notificationList = result;
+        }, function (error) {
+          Notification.error({ message: "Unabled to load notifications.", templateUrl: "NotificationErrorTemplate.html", scope: $scope, delay: 50000 });
+        });
+
+      };
+
+      $scope.getNotificationList();
+    }
+  ]);
 
 angular.module('account').controller('ConfirmAccountDeleteCtrl', function ($scope, $modalInstance, accountToDelete,accountList,Account,Notification) {
 
@@ -464,7 +518,7 @@ angular.module('account').controller('ConfirmAccountDeleteCtrl', function ($scop
 angular.module('account')
     .controller('ForgottenCtrl', ['$scope', '$resource','$rootScope','Notification',
         function ($scope, $resource,$rootScope, Notification) {
-            var ForgottenRequest = $resource('api/sooa/accounts/passwordreset', {username:'@username'});
+            var ForgottenRequest = $resource('api/sooa/accounts/passwordresetrequest');
 
             $scope.requestResetPassword =  function() {
                 var resetReq = new ForgottenRequest();
@@ -567,17 +621,17 @@ angular.module('account')
             if ( $routeParams.token === '' ) {
                 $scope.displayForm = false;
             }
-            if ( !angular.isDefined($routeParams.userId) ) {
-                $scope.displayForm = false;
-            }
-            if ( $routeParams.userId === '' ) {
-                $scope.displayForm = false;
-            }
+//            if ( !angular.isDefined($routeParams.userId) ) {
+//                $scope.displayForm = false;
+//            }
+//            if ( $routeParams.userId === '' ) {
+//                $scope.displayForm = false;
+//            }
 
             //to register an account for the first time
-            var AcctInitPassword = $resource('api/sooa/accounts/register/:userId/passwordreset', {userId:'@userId', token:'@token'});
+            //var AcctInitPassword = $resource('api/sooa/accounts/register/:userId/passwordreset', {userId:'@userId', token:'@token'});
             //to reset the password
-            var AcctResetPassword = $resource('api/sooa/accounts/:id/passwordreset', {id:'@userId', token:'@token'});
+            var AcctResetPassword = $resource('api/sooa/accounts/passwordreset', {id:'@userId', token:'@token'});
 
             $scope.user = {};
             $scope.user.username = $routeParams.username;
