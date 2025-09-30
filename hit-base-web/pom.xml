@@ -73,6 +73,16 @@
 			<groupId>gov.nist.healthcare.mu.ss-r2</groupId>
 			<artifactId>ss-r2-config</artifactId>
 			<version>${config.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>net.sf.saxon</groupId>
+					<artifactId>saxon-dom</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.sf.saxon</groupId>
+					<artifactId>saxon</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
@@ -96,6 +106,6 @@
 	</repositories>
 	
 	<properties>
-		<config.version>1.0.11</config.version>
+		<config.version>1.0.12-SNAPSHOT</config.version>
 	</properties>
 </project>
